@@ -1,0 +1,101 @@
+name: Deploy web to Railway
+
+on:
+  push:
+    branches:
+      - dev
+      - staging
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Determine Railway environment
+        id: env-map
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "env=prod" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" = "staging" ]; then
+            echo "env=staging" >> $GITHUB_OUTPUT
+          else
+            echo "env=dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Export environment variables
+        env:
+          DEV_CORE_API_URL: ${{ secrets.DEV_CORE_API_URL }}
+          DEV_APP_URL: ${{ secrets.DEV_APP_URL }}
+          DEV_PUBLIC_CORE_API_URL: ${{ secrets.DEV_PUBLIC_CORE_API_URL }}
+          DEV_PUBLIC_APP_URL: ${{ secrets.DEV_PUBLIC_APP_URL }}
+          STAGING_CORE_API_URL: ${{ secrets.STAGING_CORE_API_URL }}
+          STAGING_APP_URL: ${{ secrets.STAGING_APP_URL }}
+          STAGING_PUBLIC_CORE_API_URL: ${{ secrets.STAGING_PUBLIC_CORE_API_URL }}
+          STAGING_PUBLIC_APP_URL: ${{ secrets.STAGING_PUBLIC_APP_URL }}
+          PROD_CORE_API_URL: ${{ secrets.PROD_CORE_API_URL }}
+          PROD_APP_URL: ${{ secrets.PROD_APP_URL }}
+          PROD_PUBLIC_CORE_API_URL: ${{ secrets.PROD_PUBLIC_CORE_API_URL }}
+          PROD_PUBLIC_APP_URL: ${{ secrets.PROD_PUBLIC_APP_URL }}
+        run: |
+          if [ "${{ steps.env-map.outputs.env }}" = "prod" ]; then
+            echo "NODE_ENV=production" >> $GITHUB_ENV
+            echo "CORE_API_URL=${PROD_CORE_API_URL}" >> $GITHUB_ENV
+            echo "PUBLIC_APP_URL=${PROD_APP_URL}" >> $GITHUB_ENV
+            echo "NEXT_PUBLIC_CORE_API_URL=${PROD_PUBLIC_CORE_API_URL}" >> $GITHUB_ENV
+            echo "NEXT_PUBLIC_APP_URL=${PROD_PUBLIC_APP_URL}" >> $GITHUB_ENV
+          elif [ "${{ steps.env-map.outputs.env }}" = "staging" ]; then
+            echo "NODE_ENV=staging" >> $GITHUB_ENV
+            echo "CORE_API_URL=${STAGING_CORE_API_URL}" >> $GITHUB_ENV
+            echo "PUBLIC_APP_URL=${STAGING_APP_URL}" >> $GITHUB_ENV
+            echo "NEXT_PUBLIC_CORE_API_URL=${STAGING_PUBLIC_CORE_API_URL}" >> $GITHUB_ENV
+            echo "NEXT_PUBLIC_APP_URL=${STAGING_PUBLIC_APP_URL}" >> $GITHUB_ENV
+          else
+            echo "NODE_ENV=development" >> $GITHUB_ENV
+            echo "CORE_API_URL=${DEV_CORE_API_URL}" >> $GITHUB_ENV
+            echo "PUBLIC_APP_URL=${DEV_APP_URL}" >> $GITHUB_ENV
+            echo "NEXT_PUBLIC_CORE_API_URL=${DEV_PUBLIC_CORE_API_URL}" >> $GITHUB_ENV
+            echo "NEXT_PUBLIC_APP_URL=${DEV_PUBLIC_APP_URL}" >> $GITHUB_ENV
+          fi
+
+      - name: Build web app
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: npm run build
+
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          npx railway up --service web-app --environment ${{ steps.env-map.outputs.env }} --yes
+
+      - name: Health check
+        run: |
+          if [ "${{ steps.env-map.outputs.env }}" = "prod" ]; then
+            URL="https://blackroad.systems/health"
+          elif [ "${{ steps.env-map.outputs.env }}" = "staging" ]; then
+            URL="https://staging.blackroad.systems/health"
+          else
+            URL="https://dev.blackroad.systems/health"
+          fi
+
+          echo "Checking $URL"
+          http_status=$(curl -s -o /tmp/health.json -w "%{http_code}" "$URL")
+
+          if [ "$http_status" -lt 200 ] || [ "$http_status" -ge 300 ]; then
+            echo "Health check failed with status $http_status"
+            cat /tmp/health.json || true
+            exit 1
+          fi
+
+          cat /tmp/health.json
