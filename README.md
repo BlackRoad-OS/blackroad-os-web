@@ -35,28 +35,25 @@ npm run dev
 
 Environment variables must be set before running locally. See [`.env.example`](.env.example).
 
-## Deployment
+## Deployment & Environments
 
-This repo deploys as the `web-app` service inside the Railway project **`blackroad-web`**.
+This repository contains the BlackRoad OS web UI. It deploys to the Railway project **`blackroad-web`** as the `web-app` service.
 
-- **Environments → URLs**
-  - `dev`: Railway dev URL (or `https://dev.blackroad.systems` when fronted by Cloudflare)
+- **Environment → URL**
+  - `dev`: Railway dev URL (or `https://dev.blackroad.systems`)
   - `staging`: `https://staging.blackroad.systems`
   - `prod`: `https://blackroad.systems`
 
-- **Core API endpoints**
-  - `dev`: core dev Railway URL
-  - `staging`: `https://staging.core.blackroad.systems`
-  - `prod`: `https://core.blackroad.systems`
-
-- **Environment variables expected**
-  - `NODE_ENV` (`development` | `staging` | `production`)
-  - `CORE_API_URL` / `PUBLIC_APP_URL` (server-side)
-  - `NEXT_PUBLIC_CORE_API_URL` / `NEXT_PUBLIC_APP_URL` (client-exposed)
+- **Required environment variables**
+  - `NODE_ENV`
+  - `CORE_API_URL`
+  - `PUBLIC_APP_URL`
+  - `NEXT_PUBLIC_CORE_API_URL`
+  - `NEXT_PUBLIC_APP_URL`
 
 - **Commands**
   - Install: `npm install`
   - Build: `npm run build`
   - Start: `npm run start`
 
-Deployments are automated via `.github/workflows/deploy-web.yml` and perform a post-deploy `/health` check against the environment URL.
+Deployment automation lives in `.github/workflows/deploy-web.yml` and performs post-deploy health checks against the environment URL.
