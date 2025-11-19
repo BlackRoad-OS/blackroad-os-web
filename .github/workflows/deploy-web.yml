@@ -1,0 +1,64 @@
+name: Deploy web to Railway
+
+on:
+  push:
+    branches:
+      - dev
+      - staging
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web app
+        run: npm run build
+
+      - name: Determine Railway environment
+        id: env-map
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "env=prod" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" = "staging" ]; then
+            echo "env=staging" >> $GITHUB_OUTPUT
+          else
+            echo "env=dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy to Railway
+        run: |
+          npx railway up --service web-app --environment ${{ steps.env-map.outputs.env }} --yes
+
+      - name: Health check
+        run: |
+          if [ "${{ steps.env-map.outputs.env }}" = "prod" ]; then
+            URL="https://blackroad.systems/health"
+          elif [ "${{ steps.env-map.outputs.env }}" = "staging" ]; then
+            URL="https://staging.blackroad.systems/health"
+          else
+            URL="https://dev.blackroad.systems/health"
+          fi
+
+          echo "Checking $URL"
+          http_status=$(curl -s -o /tmp/health.json -w "%{http_code}" "$URL")
+
+          if [ "$http_status" -lt 200 ] || [ "$http_status" -ge 300 ]; then
+            echo "Health check failed with status $http_status"
+            cat /tmp/health.json || true
+            exit 1
+          fi
+
+          cat /tmp/health.json
