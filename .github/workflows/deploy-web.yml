@@ -77,7 +77,7 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          npx railway up --service web-app --environment ${{ steps.env-map.outputs.env }} --yes
+          npx railway up --service web-app --environment ${{ steps.env-map.outputs.env }} --yes --ci
 
       - name: Health check
         run: |
