@@ -2,12 +2,19 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { appConfig } from '@/config';
 import styles from './Header.module.css';
 
 const nav = [
   { href: '/', label: 'Home' },
-  { href: '/console', label: 'Console' },
-  { href: '/settings', label: 'Settings' }
+  {
+    href: appConfig.nextPublicConsoleUrl || '/console',
+    label: 'Console'
+  },
+  {
+    href: appConfig.nextPublicDocsUrl || '/docs',
+    label: 'Docs'
+  }
 ];
 
 export function Header() {
@@ -21,6 +28,8 @@ export function Header() {
             key={item.href}
             className={pathname === item.href ? styles.active : undefined}
             href={item.href}
+            target={item.href.startsWith('http') ? '_blank' : undefined}
+            rel={item.href.startsWith('http') ? 'noreferrer' : undefined}
           >
             {item.label}
           </Link>

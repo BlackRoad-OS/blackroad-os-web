@@ -1,59 +1,47 @@
 # BlackRoad OS — Web Client
 
-## Short Description
+Public marketing + landing experience for BlackRoad OS. Built with Next.js (App Router) and wired for Railway deployments.
 
-The modern browser-native interface for BlackRoad OS.
+## Framework & Routes
+- **Framework:** Next.js 14 App Router (`app/layout.tsx`, `app/page.tsx`).
+- **Primary pages:**
+  - `/` — homepage with environment badges, OS branding hooks, and CTAs to console/docs.
+  - `/console` — placeholder console surface.
+  - `/settings` — placeholder settings surface.
+- **APIs:**
+  - `GET /api/health` (and `/health`) → `{ status: "ok", service: "web" }`.
+  - `GET /version` → returns service, app version, commit, build time, and environment.
 
-## Long Description
+## Configuration
+All runtime links are centralized in `src/config.ts` and validated per environment.
 
-The Web Client provides the user-facing interface for BlackRoad OS. Built for deterministic, minimal JS environments, it integrates Pocket OS, communicates with Core and API, and renders the user’s desktop environment with your signature aesthetic.
-
-## Structured Table
-
-| Field          | Value                           |
-| -------------- | ------------------------------- |
-| **Purpose**    | Frontend UI, Pocket OS frontend |
-| **Depends On** | API Gateway                     |
-| **Used By**    | End users, Core, Prism          |
-| **Owner**      | Alexa + Cece                    |
-| **Status**     | Active — user-facing alpha      |
-
-## App Layout
-
-- **Framework:** Next.js 14 with the App Router
-- **Entrypoint:** `app/layout.tsx` and `app/page.tsx`
-- **Shared UI:** `src/components/` (layout primitives, info cards)
-- **Core utilities:** `src/config.ts` for env handling and `src/lib/` for API + telemetry hooks
-- **Health check:** `GET /health` returns a JSON heartbeat with the current environment
+Required variables:
+```
+NODE_ENV=development|staging|production
+CORE_API_URL=...
+NEXT_PUBLIC_CORE_API_URL=...
+PUBLIC_WEB_URL=...
+PUBLIC_CONSOLE_URL=...
+PUBLIC_DOCS_URL=...
+NEXT_PUBLIC_CONSOLE_URL=...
+NEXT_PUBLIC_DOCS_URL=...
+```
+See [`.env.example`](.env.example) for a filled-out template. `NEXT_PUBLIC_*` values are exposed to the client and power navigation CTAs.
 
 ## Local Development
-
 ```bash
 npm install
 npm run dev
 ```
+Set the environment variables above (e.g., via `.env.local`) so console/docs/health links point to your desired endpoints while you develop.
 
-Environment variables must be set before running locally. See [`.env.example`](.env.example).
+## Deployment
+- **Railway:** `railway.json` defines the `web` service with build/start commands and `/api/health` healthcheck.
+- **CI:** `.github/workflows/web-deploy.yaml` builds, deploys to Railway for `dev/staging/main`, and verifies `/api/health` on the deployed URL.
 
-## Deployment & Environments
+Base commands:
+- Install: `npm install`
+- Build: `npm run build`
+- Start: `npm run start`
 
-This repository contains the BlackRoad OS web UI. It deploys to the Railway project **`blackroad-web`** as the `web-app` service.
-
-- **Environment → URL**
-  - `dev`: Railway dev URL (or `https://dev.blackroad.systems`)
-  - `staging`: `https://staging.blackroad.systems`
-  - `prod`: `https://blackroad.systems`
-
-- **Required environment variables**
-  - `NODE_ENV`
-  - `CORE_API_URL`
-  - `PUBLIC_APP_URL`
-  - `NEXT_PUBLIC_CORE_API_URL`
-  - `NEXT_PUBLIC_APP_URL`
-
-- **Commands**
-  - Install: `npm install`
-  - Build: `npm run build`
-  - Start: `npm run start`
-
-Deployment automation lives in `.github/workflows/deploy-web.yml` and performs post-deploy health checks against the environment URL.
+Adjust the console/docs URLs via the environment variables above to point at live console and docs instances.

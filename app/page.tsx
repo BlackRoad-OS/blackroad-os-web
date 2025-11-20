@@ -3,6 +3,11 @@ import { InfoCard } from '@/components/primitives/InfoCard';
 import styles from './page.module.css';
 
 export default function HomePage() {
+  const consoleUrl = appConfig.nextPublicConsoleUrl || appConfig.publicConsoleUrl || '/console';
+  const docsUrl = appConfig.nextPublicDocsUrl || appConfig.publicDocsUrl || '/docs';
+  const osVersion = 'v0.1.0';
+  const osServices = ['Core API', 'Console', 'Web', 'Agents'];
+
   return (
     <div className={styles.page}>
       <section className="panel">
@@ -15,6 +20,16 @@ export default function HomePage() {
         <div className={styles.badges}>
           <span className={styles.badge}>Node env: {appConfig.nodeEnv}</span>
           <span className={styles.badge}>Core API: {appConfig.publicCoreApiUrl}</span>
+          <span className={styles.badge}>OS version: {osVersion}</span>
+        </div>
+
+        <div className={styles.ctaRow}>
+          <a className={styles.ctaButton} href={consoleUrl} target="_blank" rel="noreferrer">
+            Open console
+          </a>
+          <a className={styles.ctaButtonSecondary} href={docsUrl} target="_blank" rel="noreferrer">
+            View docs
+          </a>
         </div>
       </section>
 
@@ -52,6 +67,27 @@ export default function HomePage() {
           </ul>
         </InfoCard>
       </div>
+
+      <section className="panel">
+        <h3>OS branding hooks</h3>
+        <p className="muted">
+          Static placeholders ready to be wired into OS_SPEC metadata for badges and service discovery.
+        </p>
+        <div className={styles.badges}>
+          <span className={styles.badge}>Web URL: {appConfig.publicWebUrl || 'pending'}</span>
+          <span className={styles.badge}>Console URL: {appConfig.publicConsoleUrl || 'pending'}</span>
+          <span className={styles.badge}>Docs URL: {appConfig.publicDocsUrl || 'pending'}</span>
+        </div>
+
+        <div className={styles.serviceGrid}>
+          {osServices.map((service) => (
+            <div key={service} className={styles.serviceCard}>
+              <div className={styles.serviceTitle}>{service}</div>
+              <p className="muted">Placeholder entry pulled from OS_SPEC (future hook).</p>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
