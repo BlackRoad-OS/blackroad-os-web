@@ -21,9 +21,12 @@ export const appConfig = {
   nodeEnv: env,
   isDevelopment: env === 'development',
   coreApiUrl: getEnv('CORE_API_URL'),
-  appUrl: getEnv('PUBLIC_APP_URL'),
   publicCoreApiUrl: getEnv('NEXT_PUBLIC_CORE_API_URL'),
-  publicAppUrl: getEnv('NEXT_PUBLIC_APP_URL')
+  publicWebUrl: getEnv('PUBLIC_WEB_URL'),
+  publicConsoleUrl: getEnv('PUBLIC_CONSOLE_URL'),
+  publicDocsUrl: getEnv('PUBLIC_DOCS_URL'),
+  nextPublicConsoleUrl: getEnv('NEXT_PUBLIC_CONSOLE_URL'),
+  nextPublicDocsUrl: getEnv('NEXT_PUBLIC_DOCS_URL')
 };
 
 export type AppConfig = typeof appConfig;
