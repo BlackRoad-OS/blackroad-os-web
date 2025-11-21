@@ -41,14 +41,14 @@ function HealthWidget() {
 
         setHealth({
           status: data.ok ? 'online' : 'offline',
-          checkedAt: new Date().toLocaleTimeString(),
+          checkedAt: data.ts ? new Date(data.ts).toLocaleString() : new Date().toLocaleString(),
           message: data.ok ? undefined : 'Service reported an issue.'
         });
       } catch (error) {
         if (!isMounted) return;
         setHealth({
           status: 'offline',
-          checkedAt: new Date().toLocaleTimeString(),
+          checkedAt: new Date().toLocaleString(),
           message: error instanceof Error ? error.message : 'Unable to reach status endpoint.'
         });
       }
