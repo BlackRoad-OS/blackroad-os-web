@@ -42,11 +42,56 @@ npm start
 Default port is **8080** (configurable via `PORT`).
 
 ## Railway Deployment
-- Port: `8080`
-- Healthcheck: `/api/health`
-- Build command: `npm install && npm run build`
-- Start command: `npm start`
-- Required env vars: see `.env.example`
+
+This application is configured for deployment on [Railway](https://railway.app) using Nixpacks.
+
+### Configuration Files
+- `railway.json` - Railway service configuration (healthcheck, restart policy)
+- `nixpacks.toml` - Build configuration for Nixpacks builder
+- `Dockerfile` - Alternative Docker-based deployment (optional)
+
+### Deployment Steps
+
+1. **Connect Repository**: Link your GitHub repository to Railway
+2. **Configure Environment Variables**: Set all variables from `.env.example` in the Railway dashboard:
+   - `NODE_ENV` - Set to `production`
+   - `OS_ROOT` - Your BlackRoad OS root URL
+   - `SERVICE_BASE_URL` - Public URL for this web service
+   - `CORE_API_URL` - Core API base URL
+   - `PUBLIC_WEB_URL` - Public web URL
+   - `PUBLIC_CONSOLE_URL` - Console link
+   - `PUBLIC_DOCS_URL` - Documentation link
+   - `NEXT_PUBLIC_OS_ROOT` - Client-exposed OS root
+   - `NEXT_PUBLIC_SERVICE_ID` - Service identifier (e.g., `web`)
+   - `NEXT_PUBLIC_SERVICE_NAME` - Human-readable service name
+   - `NEXT_PUBLIC_CONSOLE_URL` - Console link (client-side)
+   - `NEXT_PUBLIC_DOCS_URL` - Documentation link (client-side)
+   - `NEXT_PUBLIC_CORE_API_URL` - Core API base URL (client-side)
+   - `NEXT_PUBLIC_PUBLIC_API_URL` - Public API base URL (client-side)
+
+3. **Deploy**: Railway will automatically:
+   - Detect Node.js and use Nixpacks builder
+   - Install dependencies with `npm ci`
+   - Build the application with `npm run build`
+   - Start the server with `npm start`
+   - Monitor health via `/api/health` endpoint
+
+### Technical Details
+- **Port**: Automatically assigned by Railway via `$PORT` environment variable
+- **Healthcheck**: `/api/health` (checks every 100 seconds)
+- **Restart Policy**: ON_FAILURE with max 10 retries
+- **Builder**: Nixpacks (Node.js 18)
+
+### Troubleshooting
+
+**Build fails with "Missing required environment variable"**:
+- Ensure all required environment variables are set in Railway dashboard before deployment
+- The application requires environment variables during build time for Next.js
+
+**Health check fails**:
+- Verify the application is binding to `0.0.0.0` (not just `localhost`)
+- Check that `PORT` environment variable is being used correctly
+- Review logs for any startup errors
 
 ## Notes
 - `/health` is also available and shares the `/api/health` handler.
