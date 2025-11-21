@@ -133,6 +133,11 @@
 }
 
 .statusMessage {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
 .card h3 {
   margin: 0;
 }

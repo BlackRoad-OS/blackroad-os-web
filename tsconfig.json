@@ -26,6 +26,24 @@
       "@/config/*": ["src/config/*"],
       "@/types/*": ["src/types/*"],
       "@/*": ["./*"]
+      "@/components/*": [
+        "src/components/*"
+      ],
+      "@/lib/*": [
+        "src/lib/*"
+      ],
+      "@/config": [
+        "src/config"
+      ],
+      "@/config/*": [
+        "src/config/*"
+      ],
+      "@/types/*": [
+        "src/types/*"
+      ],
+      "@/*": [
+        "./*"
+      ]
     },
     "plugins": [
       {
