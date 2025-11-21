@@ -30,7 +30,6 @@ export function Header() {
             return (
               <a
                 key={item.href}
-                className={styles.navLink}
                 href={item.href}
                 target="_blank"
                 rel="noreferrer"
@@ -43,7 +42,8 @@ export function Header() {
             <Link
               key={item.href}
               className={pathname === item.href ? styles.active : undefined}
-              href={item.href as any}
+              // @ts-expect-error - Internal route paths are valid but typed routes don't recognize fallback values
+              href={item.href}
             >
               {item.label}
             </Link>
