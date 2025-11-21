@@ -7,35 +7,21 @@
 .hero {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.75rem;
 }
 
 .subtitle {
   color: var(--muted);
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   line-height: 1.6;
   margin: 0;
-}
-
-.metaRow {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.75rem;
-  margin-top: 0.75rem;
-}
-
-.metaItem {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0.9rem;
 }
 
 .ctaRow {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
-  margin-top: 0.25rem;
+  margin-top: 0.35rem;
 }
 
 .ctaButton,
@@ -67,99 +53,46 @@
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
 }
 
-.linkList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.section {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 1rem;
 }
 
-.linkRow {
+.sectionHeader {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 0.85rem 0.95rem;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.card {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  gap: 0.75rem;
-}
-
-.linkAnchor {
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-
-.externalHint {
-  color: var(--muted);
-}
-
-.metadataGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: rgba(114, 228, 162, 0.12);
-  border: 1px solid rgba(114, 228, 162, 0.35);
-  color: var(--accent);
-  padding: 0.45rem 0.85rem;
-  border-radius: 12px;
-  font-weight: 600;
-}
-
-.statusWidget {
+  border-radius: 14px;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
 }
 
-.statusRow {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.statusPill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 90px;
-  padding: 0.45rem 0.75rem;
-  border-radius: 999px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  border: 1px solid var(--border);
-}
-
-.statusMeta {
-  color: var(--muted);
-  font-size: 0.95rem;
-}
-
-.statusMessage {
+.card h3 {
   margin: 0;
-  color: var(--muted);
 }
 
-.loading {
-  background: rgba(255, 255, 255, 0.06);
-}
+@media (max-width: 640px) {
+  .hero {
+    padding: 1.25rem;
+  }
 
-.online {
-  background: rgba(114, 228, 162, 0.16);
-  color: var(--accent);
-  border-color: rgba(114, 228, 162, 0.4);
-}
-
-.offline {
-  background: rgba(255, 99, 99, 0.16);
-  color: #ff8f8f;
-  border-color: rgba(255, 99, 99, 0.4);
+  .section {
+    padding: 1.25rem;
+  }
 }
