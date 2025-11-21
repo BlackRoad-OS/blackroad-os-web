@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "target": "es5",
     "target": "ES2017",
     "lib": [
       "dom",
@@ -21,26 +20,12 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@/components/*": [
-        "src/components/*"
-      ],
-      "@/lib/*": [
-        "src/lib/*"
-      ],
-      "@/config": [
-        "src/config"
-      ],
-      "@/config/*": [
-        "src/config/*"
-      ],
-      "@/types/*": [
-        "src/types/*"
-    "jsx": "react-jsx",
-    "incremental": true,
-    "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/components/*": ["src/components/*"],
+      "@/lib/*": ["src/lib/*"],
+      "@/config": ["src/config"],
+      "@/config/*": ["src/config/*"],
+      "@/types/*": ["src/types/*"],
+      "@/*": ["./*"]
     },
     "plugins": [
       {
@@ -55,7 +40,5 @@
     "next.config.mjs",
     ".next/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }
