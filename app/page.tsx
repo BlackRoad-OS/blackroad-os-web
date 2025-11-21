@@ -4,58 +4,63 @@ import { useEffect, useMemo, useState } from 'react';
 import styles from './page.module.css';
 import { InfoCard } from '@/components/primitives/InfoCard';
 import { serviceConfig } from '@/config/serviceConfig';
-
-type HealthStatus = 'loading' | 'online' | 'offline';
-
-interface HealthState {
-  status: HealthStatus;
-  checkedAt?: string;
-  message?: string;
-}
-
-const defaultHealth: HealthState = {
-  status: 'loading'
-};
+import { osServices } from '@/config/services';
 
 const fallbackConsoleUrl = process.env.NEXT_PUBLIC_CONSOLE_URL || 'https://console.blackroad.systems';
 const fallbackDocsUrl = process.env.NEXT_PUBLIC_DOCS_URL || 'https://docs.blackroad.systems';
 const fallbackCoreApiUrl = process.env.NEXT_PUBLIC_CORE_API_URL || 'https://core.blackroad.systems';
 const publicApiUrl = process.env.NEXT_PUBLIC_PUBLIC_API_URL || 'https://api.blackroad.systems';
+type ServiceStatus = 'loading' | 'up' | 'down';
 
-function HealthWidget() {
-  const [health, setHealth] = useState<HealthState>(defaultHealth);
+type ServiceStatusMap = Record<string, { status: ServiceStatus; lastCheckedAt?: string }>;
+
+const defaultStatuses: ServiceStatusMap = osServices.reduce(
+  (acc, service) => ({
+    ...acc,
+    [service.id]: { status: 'loading' }
+  }),
+  {} as ServiceStatusMap
+);
+
+function SystemStatus() {
+  const [serviceStatuses, setServiceStatuses] = useState<ServiceStatusMap>(defaultStatuses);
 
   useEffect(() => {
     let isMounted = true;
 
-    async function checkHealth() {
-      setHealth({ status: 'loading' });
-
+    async function loadStatus() {
       try {
-        const response = await fetch('/api/health');
-        if (!response.ok) {
-          throw new Error(`Request failed with status ${response.status}`);
-        }
+        const response = await fetch('/api/status');
+        if (!response.ok) throw new Error('Unable to fetch system status');
+
         const data = await response.json();
         if (!isMounted) return;
 
-        setHealth({
-          status: data.ok ? 'online' : 'offline',
-          checkedAt: data.ts ? new Date(data.ts).toLocaleString() : new Date().toLocaleString(),
-          message: data.ok ? undefined : 'Service reported an issue.'
-        });
+        const nextStatuses = data.services.reduce((acc: ServiceStatusMap, service: any) => {
+          acc[service.id] = {
+            status: service.status === 'up' ? 'up' : 'down',
+            lastCheckedAt: service.lastCheckedAt
+          };
+          return acc;
+        }, {} as ServiceStatusMap);
+
+        setServiceStatuses(nextStatuses);
       } catch (error) {
         if (!isMounted) return;
-        setHealth({
-          status: 'offline',
-          checkedAt: new Date().toLocaleString(),
-          message: error instanceof Error ? error.message : 'Unable to reach status endpoint.'
-        });
+        setServiceStatuses(
+          osServices.reduce((acc, service) => {
+            acc[service.id] = {
+              status: 'down',
+              lastCheckedAt: new Date().toISOString()
+            };
+            return acc;
+          }, {} as ServiceStatusMap)
+        );
       }
     }
 
-    checkHealth();
-    const interval = setInterval(checkHealth, 15000);
+    loadStatus();
+    const interval = setInterval(loadStatus, 30000);
 
     return () => {
       isMounted = false;
@@ -64,17 +69,32 @@ function HealthWidget() {
   }, []);
 
   const statusLabel = useMemo(() => {
-    if (health.status === 'loading') return 'Checking...';
-    return health.status === 'online' ? 'ONLINE' : 'OFFLINE';
-  }, [health.status]);
+    return (status: ServiceStatus) => {
+      if (status === 'loading') return 'Checking...';
+      return status === 'up' ? 'UP' : 'DOWN';
+    };
+  }, []);
 
   return (
     <div className={styles.statusWidget}>
-      <div className={styles.statusRow}>
-        <span className={`${styles.statusPill} ${styles[health.status]}`}>{statusLabel}</span>
-        {health.checkedAt ? <span className={styles.statusMeta}>Last checked: {health.checkedAt}</span> : null}
-      </div>
-      {health.message ? <p className={styles.statusMessage}>{health.message}</p> : null}
+      <ul className={styles.serviceStatusList}>
+        {osServices.map((service) => {
+          const entry = serviceStatuses[service.id];
+          const visualStatus = entry?.status ?? 'loading';
+          const pillClass = visualStatus === 'up' ? 'online' : visualStatus === 'down' ? 'offline' : 'loading';
+
+          return (
+            <li key={service.id} className={styles.serviceRow}>
+              <div className={styles.serviceCopy}>
+                <strong>{service.name}</strong>
+                <span className={styles.statusMeta}>{entry?.lastCheckedAt ? `Checked ${new Date(entry.lastCheckedAt).toLocaleString()}` : 'Waiting for status'}</span>
+              </div>
+              <span className={`${styles.statusPill} ${styles[pillClass]}`}>{statusLabel(visualStatus)}</span>
+            </li>
+          );
+        })}
+      </ul>
+      <p className={styles.statusMessage}>Public snapshot refreshed automatically every 30 seconds.</p>
     </div>
   );
 }
@@ -148,10 +168,10 @@ export default function HomePage() {
         </InfoCard>
 
         <InfoCard
-          title="Status"
-          description="Live view powered by the /api/health endpoint."
+          title="System Status"
+          description="Public summary of core BlackRoad OS surfaces."
         >
-          <HealthWidget />
+          <SystemStatus />
         </InfoCard>
       </div>
     </div>
