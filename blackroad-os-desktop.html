@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BlackRoad OS</title>
+  <style>
+    :root {
+      --bg-desktop: #0a0a0f;
+      --bg-window: #13131a;
+      --bg-titlebar: linear-gradient(135deg, #fdba2d 0%, #ff6b35 20%, #ff4fd8 45%, #c753ff 65%, #6366f1 85%, #3b82f6 100%);
+      --border-light: rgba(255, 255, 255, 0.15);
+      --border-dark: rgba(0, 0, 0, 0.5);
+      --text: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --button-face: #1a1a24;
+      --button-shadow: rgba(0, 0, 0, 0.4);
+      --button-highlight: rgba(255, 255, 255, 0.1);
+      --taskbar-bg: #13131a;
+      --start-btn: linear-gradient(135deg, #fdba2d 0%, #ff6b35 20%, #ff4fd8 45%, #c753ff 65%, #6366f1 85%, #3b82f6 100%);
+      --accent-pink: #ff4fd8;
+      --accent-purple: #c753ff;
+      --accent-blue: #3b82f6;
+      --success: #22c55e;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "MS Sans Serif", "Segoe UI", Tahoma, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      background: var(--bg-desktop);
+      color: var(--text);
+      cursor: default;
+      user-select: none;
+    }
+
+    /* Desktop */
+    .desktop {
+      position: relative;
+      height: calc(100vh - 48px);
+      background:
+        radial-gradient(circle at 20% 30%, rgba(253, 186, 45, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255, 79, 216, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 70%),
+        var(--bg-desktop);
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .desktop-icons {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 90px);
+      gap: 20px;
+      grid-auto-flow: column;
+    }
+
+    .desktop-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.1s;
+    }
+
+    .desktop-icon:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .desktop-icon.selected {
+      background: rgba(255, 79, 216, 0.2);
+      outline: 1px dotted var(--accent-pink);
+      outline-offset: 2px;
+    }
+
+    .icon-image {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+
+    .icon-label {
+      font-size: 12px;
+      text-align: center;
+      text-shadow: 0 0 4px rgba(0, 0, 0, 0.8), 0 0 8px rgba(0, 0, 0, 0.5);
+      max-width: 80px;
+      word-wrap: break-word;
+    }
+
+    /* Windows */
+    .window {
+      position: absolute;
+      background: var(--bg-window);
+      border: 2px solid var(--border-light);
+      border-radius: 8px 8px 0 0;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      min-width: 400px;
+      min-height: 300px;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .window.active {
+      z-index: 1000;
+      border-color: rgba(255, 79, 216, 0.5);
+    }
+
+    .window.maximized {
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: calc(100vh - 48px) !important;
+      border-radius: 0;
+    }
+
+    .window-titlebar {
+      background: var(--bg-titlebar);
+      padding: 4px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: move;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+    }
+
+    .window-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #000;
+      text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .window-title-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .window-controls {
+      display: flex;
+      gap: 4px;
+    }
+
+    .window-button {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(0, 0, 0, 0.5);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      color: #fff;
+      transition: all 0.1s;
+    }
+
+    .window-button:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+
+    .window-button:active {
+      background: rgba(0, 0, 0, 0.5);
+      transform: scale(0.95);
+    }
+
+    .window-content {
+      flex: 1;
+      overflow: auto;
+      background: var(--bg-window);
+      padding: 16px;
+    }
+
+    /* Taskbar */
+    .taskbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 48px;
+      background: var(--taskbar-bg);
+      border-top: 2px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 8px;
+      z-index: 10000;
+    }
+
+    .start-button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: var(--start-btn);
+      border: 2px solid rgba(0, 0, 0, 0.3);
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+      color: #000;
+      text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.3);
+      transition: all 0.1s;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .start-button:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 20px rgba(255, 79, 216, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .start-button:active {
+      transform: scale(0.98);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .start-button.active {
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .start-icon {
+      font-size: 20px;
+    }
+
+    .taskbar-separator {
+      width: 2px;
+      height: 32px;
+      background: var(--border-light);
+      margin: 0 4px;
+    }
+
+    .taskbar-buttons {
+      display: flex;
+      gap: 4px;
+      flex: 1;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    .taskbar-button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--button-face);
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      max-width: 200px;
+      transition: all 0.1s;
+    }
+
+    .taskbar-button:hover {
+      background: rgba(255, 79, 216, 0.1);
+      border-color: var(--accent-pink);
+    }
+
+    .taskbar-button.active {
+      background: var(--start-btn);
+      color: #000;
+      font-weight: 600;
+      border-color: rgba(255, 79, 216, 0.5);
+    }
+
+    .taskbar-button-icon {
+      font-size: 16px;
+    }
+
+    .taskbar-button-label {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .system-tray {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px;
+      border-left: 2px solid var(--border-light);
+      margin-left: auto;
+    }
+
+    .tray-icon {
+      font-size: 18px;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .tray-icon:hover {
+      transform: scale(1.1);
+    }
+
+    .clock {
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    /* Start Menu */
+    .start-menu {
+      position: fixed;
+      bottom: 52px;
+      left: 8px;
+      width: 320px;
+      background: var(--bg-window);
+      border: 2px solid var(--border-light);
+      border-radius: 8px;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      z-index: 9999;
+    }
+
+    .start-menu.active {
+      display: flex;
+    }
+
+    .start-menu-header {
+      background: var(--start-btn);
+      padding: 20px 16px;
+      border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+    }
+
+    .start-menu-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .start-menu-avatar {
+      width: 48px;
+      height: 48px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      border: 2px solid rgba(0, 0, 0, 0.5);
+    }
+
+    .start-menu-info {
+      color: #000;
+      font-weight: 700;
+    }
+
+    .start-menu-name {
+      font-size: 16px;
+      text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .start-menu-subtitle {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    .start-menu-items {
+      flex: 1;
+      overflow-y: auto;
+      max-height: 480px;
+    }
+
+    .start-menu-section {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .start-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .start-menu-item:hover {
+      background: rgba(255, 79, 216, 0.2);
+    }
+
+    .start-menu-item-icon {
+      font-size: 20px;
+      width: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .start-menu-item-text {
+      flex: 1;
+    }
+
+    .start-menu-item-label {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .start-menu-item-description {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .start-menu-item-arrow {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .start-menu-footer {
+      padding: 8px;
+      border-top: 2px solid var(--border-light);
+      display: flex;
+      gap: 8px;
+    }
+
+    .start-menu-footer-btn {
+      flex: 1;
+      padding: 8px;
+      background: var(--button-face);
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 12px;
+      transition: all 0.1s;
+    }
+
+    .start-menu-footer-btn:hover {
+      background: rgba(255, 79, 216, 0.2);
+      border-color: var(--accent-pink);
+    }
+
+    /* Specific Window Styles */
+    .terminal-content {
+      background: #000;
+      color: #0f0;
+      font-family: "Courier New", monospace;
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .terminal-prompt {
+      color: #0ff;
+    }
+
+    .file-explorer-toolbar {
+      background: var(--button-face);
+      border-bottom: 1px solid var(--border-light);
+      padding: 8px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .toolbar-button {
+      padding: 6px 12px;
+      background: var(--bg-window);
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.1s;
+    }
+
+    .toolbar-button:hover {
+      background: rgba(255, 79, 216, 0.1);
+      border-color: var(--accent-pink);
+    }
+
+    .file-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 16px;
+      padding: 16px;
+    }
+
+    .file-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.1s;
+    }
+
+    .file-item:hover {
+      background: rgba(255, 79, 216, 0.1);
+    }
+
+    .file-icon {
+      font-size: 36px;
+    }
+
+    .file-name {
+      font-size: 12px;
+      text-align: center;
+      word-break: break-word;
+    }
+
+    .settings-panel {
+      display: grid;
+      gap: 16px;
+    }
+
+    .setting-group {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .setting-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      background: var(--start-btn);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .setting-item:last-child {
+      border-bottom: none;
+    }
+
+    .toggle-switch {
+      width: 48px;
+      height: 24px;
+      background: var(--button-face);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .toggle-switch.active {
+      background: var(--success);
+    }
+
+    .toggle-switch::after {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(24px);
+    }
+
+    .about-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .about-logo {
+      width: 128px;
+      height: 128px;
+      background: var(--start-btn);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+      font-weight: 900;
+      color: #000;
+      box-shadow: 0 8px 32px rgba(255, 79, 216, 0.5);
+    }
+
+    .about-title {
+      font-size: 32px;
+      font-weight: 700;
+      background: var(--start-btn);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .about-version {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .about-info {
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+
+    /* Loading Screen */
+    .boot-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      transition: opacity 0.5s;
+    }
+
+    .boot-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .boot-logo {
+      width: 200px;
+      height: 200px;
+      background: var(--start-btn);
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 96px;
+      font-weight: 900;
+      color: #000;
+      box-shadow: 0 0 80px rgba(255, 79, 216, 0.6);
+      margin-bottom: 48px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .boot-text {
+      font-size: 32px;
+      font-weight: 700;
+      background: var(--start-btn);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 24px;
+    }
+
+    .boot-progress {
+      width: 400px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .boot-progress-bar {
+      height: 100%;
+      background: var(--start-btn);
+      border-radius: 4px;
+      animation: loading 2s ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    @keyframes loading {
+      from {
+        width: 0%;
+      }
+
+      to {
+        width: 100%;
+      }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 16px;
+      height: 16px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--button-face);
+      border: 1px solid var(--border-light);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 79, 216, 0.3);
+      border: 2px solid var(--button-face);
+      border-radius: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 79, 216, 0.5);
+    }
+
+    ::-webkit-scrollbar-corner {
+      background: var(--button-face);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .window {
+        min-width: 90vw;
+      }
+
+      .start-menu {
+        width: calc(100vw - 16px);
+      }
+
+      .desktop-icons {
+        grid-template-columns: repeat(auto-fill, 80px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="boot-screen" id="bootScreen">
+    <div class="boot-logo">K3</div>
+    <div class="boot-text">BlackRoad OS</div>
+    <div class="boot-progress">
+      <div class="boot-progress-bar"></div>
+    </div>
+  </div>
+
+  <div class="desktop" id="desktop">
+    <div class="desktop-icons">
+      <div class="desktop-icon" data-app="file-explorer">
+        <div class="icon-image">📁</div>
+        <div class="icon-label">My Computer</div>
+      </div>
+      <div class="desktop-icon" data-app="terminal">
+        <div class="icon-image">💻</div>
+        <div class="icon-label">Terminal</div>
+      </div>
+      <div class="desktop-icon" data-app="nexus">
+        <div class="icon-image">🌐</div>
+        <div class="icon-label">BlackRoad Nexus</div>
+      </div>
+      <div class="desktop-icon" data-app="settings">
+        <div class="icon-image">⚙️</div>
+        <div class="icon-label">Settings</div>
+      </div>
+      <div class="desktop-icon" data-app="documents">
+        <div class="icon-image">📄</div>
+        <div class="icon-label">Documents</div>
+      </div>
+      <div class="desktop-icon" data-app="projects">
+        <div class="icon-image">🎯</div>
+        <div class="icon-label">Projects</div>
+      </div>
+      <div class="desktop-icon" data-app="agents">
+        <div class="icon-image">🤖</div>
+        <div class="icon-label">AI Agents</div>
+      </div>
+      <div class="desktop-icon" data-app="blockchain">
+        <div class="icon-image">⛓️</div>
+        <div class="icon-label">RoadChain</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="window" id="file-explorer-window" aria-hidden="true">
+    <div class="window-titlebar" data-window="file-explorer">
+      <div class="window-title">
+        <div class="window-title-icon">📁</div>
+        <span>My Computer</span>
+      </div>
+      <div class="window-controls">
+        <div class="window-button minimize-btn" data-action="minimize">━</div>
+        <div class="window-button maximize-btn" data-action="maximize">□</div>
+        <div class="window-button close-btn" data-action="close">✕</div>
+      </div>
+    </div>
+    <div class="file-explorer-toolbar">
+      <button class="toolbar-button" type="button">⬅️ Back</button>
+      <button class="toolbar-button" type="button">➡️ Forward</button>
+      <button class="toolbar-button" type="button">⬆️ Up</button>
+      <button class="toolbar-button" type="button">🔄 Refresh</button>
+    </div>
+    <div class="window-content">
+      <div class="file-list">
+        <div class="file-item">
+          <div class="file-icon">💾</div>
+          <div class="file-name">Local Disk (C:)</div>
+        </div>
+        <div class="file-item">
+          <div class="file-icon">💿</div>
+          <div class="file-name">Local Disk (D:)</div>
+        </div>
+        <div class="file-item">
+          <div class="file-icon">🌐</div>
+          <div class="file-name">Network</div>
+        </div>
+        <div class="file-item">
+          <div class="file-icon">📁</div>
+          <div class="file-name">Documents</div>
+        </div>
+        <div class="file-item">
+          <div class="file-icon">🖼️</div>
+          <div class="file-name">Pictures</div>
+        </div>
+        <div class="file-item">
+          <div class="file-icon">🎵</div>
+          <div class="file-name">Music</div>
+        </div>
+        <div class="file-item">
+          <div class="file-icon">🎬</div>
+          <div class="file-name">Videos</div>
+        </div>
+        <div class="file-item">
+          <div class="file-icon">📥</div>
+          <div class="file-name">Downloads</div>
+        </div>
+        <div class="file-item">
+          <div class="file-icon">🗑️</div>
+          <div class="file-name">Recycle Bin</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="window" id="terminal-window" aria-hidden="true">
+    <div class="window-titlebar" data-window="terminal">
+      <div class="window-title">
+        <div class="window-title-icon">💻</div>
+        <span>BlackRoad Terminal</span>
+      </div>
+      <div class="window-controls">
+        <div class="window-button minimize-btn" data-action="minimize">━</div>
+        <div class="window-button maximize-btn" data-action="maximize">□</div>
+        <div class="window-button close-btn" data-action="close">✕</div>
+      </div>
+    </div>
+    <div class="window-content terminal-content">
+      <div>BlackRoad OS [Version 1.0.2025]</div>
+      <div>(c) 2025 BlackRoad Inc. All rights reserved.</div>
+      <div style="margin-top: 16px;"></div>
+      <div><span class="terminal-prompt">C:\\Users\\Cecilia&gt;</span> system info</div>
+      <div style="margin-top: 8px;">
+        <div>Operating System: BlackRoad OS 1.0</div>
+        <div>Processor: K3 Neural Core @ 3.8 GHz</div>
+        <div>Memory: 128 GB Unified</div>
+        <div>Storage: 2 TB NVMe SSD</div>
+        <div>Network: 10 Gbps Ethernet</div>
+      </div>
+      <div style="margin-top: 16px;"></div>
+      <div><span class="terminal-prompt">C:\\Users\\Cecilia&gt;</span> active connections</div>
+      <div style="margin-top: 8px;">
+        <div style="color: #0f0;">✓ HuggingFace API - Connected</div>
+        <div style="color: #0f0;">✓ DigitalOcean - 3 Droplets Active</div>
+        <div style="color: #0f0;">✓ GitHub - 42 Repositories</div>
+        <div style="color: #0f0;">✓ Raspberry Pi - 3 Devices Online</div>
+        <div style="color: #0f0;">✓ Docker - 7 Containers Running</div>
+      </div>
+      <div style="margin-top: 16px;"></div>
+      <div><span class="terminal-prompt">C:\\Users\\Cecilia&gt;</span> _</div>
+    </div>
+  </div>
+
+  <div class="window" id="nexus-window" aria-hidden="true">
+    <div class="window-titlebar" data-window="nexus">
+      <div class="window-title">
+        <div class="window-title-icon">🌐</div>
+        <span>BlackRoad Nexus - AI Development Hub</span>
+      </div>
+      <div class="window-controls">
+        <div class="window-button minimize-btn" data-action="minimize">━</div>
+        <div class="window-button maximize-btn" data-action="maximize">□</div>
+        <div class="window-button close-btn" data-action="close">✕</div>
+      </div>
+    </div>
+    <div class="window-content">
+      <h2 style="background: var(--start-btn); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px;">🚀 AI Development Hub</h2>
+      <p style="margin-bottom: 24px; color: var(--text-secondary);">
+        Welcome to BlackRoad Nexus! Your unified interface for AI development, orchestration, and deployment.
+      </p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+        <div style="background: rgba(255, 79, 216, 0.1); padding: 16px; border-radius: 8px; border: 1px solid var(--border-light);">
+          <div style="font-size: 32px; margin-bottom: 8px;">🤖</div>
+          <h3 style="margin-bottom: 8px;">AI Agents</h3>
+          <p style="font-size: 13px; color: var(--text-secondary);">1,000 unique agents with individual identities</p>
+        </div>
+        <div style="background: rgba(99, 102, 241, 0.1); padding: 16px; border-radius: 8px; border: 1px solid var(--border-light);">
+          <div style="font-size: 32px; margin-bottom: 8px;">⛓️</div>
+          <h3 style="margin-bottom: 8px;">RoadChain</h3>
+          <p style="font-size: 13px; color: var(--text-secondary);">Blockchain infrastructure for AI governance</p>
+        </div>
+        <div style="background: rgba(253, 186, 45, 0.1); padding: 16px; border-radius: 8px; border: 1px solid var(--border-light);">
+          <div style="font-size: 32px; margin-bottom: 8px;">💎</div>
+          <h3 style="margin-bottom: 8px;">RoadCoin</h3>
+          <p style="font-size: 13px; color: var(--text-secondary);">Native cryptocurrency for the ecosystem</p>
+        </div>
+        <div style="background: rgba(34, 197, 94, 0.1); padding: 16px; border-radius: 8px; border: 1px solid var(--border-light);">
+          <div style="font-size: 32px; margin-bottom: 8px;">🔮</div>
+          <h3 style="margin-bottom: 8px;">Lucidia Core</h3>
+          <p style="font-size: 13px; color: var(--text-secondary);">Recursive AI with trinary logic</p>
+        </div>
+      </div>
+      <div style="margin-top: 24px; padding: 16px; background: rgba(255, 255, 255, 0.03); border-radius: 8px; border: 1px solid var(--border-light);">
+        <h3 style="margin-bottom: 12px;">📊 System Status</h3>
+        <div style="display: grid; gap: 8px; font-size: 13px;">
+          <div style="display: flex; justify-content: space-between;">
+            <span>Active Connections:</span>
+            <span style="color: var(--success); font-weight: 600;">12 Services</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span>Running Agents:</span>
+            <span style="color: var(--success); font-weight: 600;">47 Active</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span>Uptime:</span>
+            <span style="color: var(--success); font-weight: 600;">99.95%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="window" id="settings-window" aria-hidden="true">
+    <div class="window-titlebar" data-window="settings">
+      <div class="window-title">
+        <div class="window-title-icon">⚙️</div>
+        <span>System Settings</span>
+      </div>
+      <div class="window-controls">
+        <div class="window-button minimize-btn" data-action="minimize">━</div>
+        <div class="window-button maximize-btn" data-action="maximize">□</div>
+        <div class="window-button close-btn" data-action="close">✕</div>
+      </div>
+    </div>
+    <div class="window-content">
+      <div class="settings-panel">
+        <div class="setting-group">
+          <div class="setting-title">🎨 Appearance</div>
+          <div class="setting-item">
+            <span>Dark Theme</span>
+            <div class="toggle-switch active"></div>
+          </div>
+          <div class="setting-item">
+            <span>Gradient Effects</span>
+            <div class="toggle-switch active"></div>
+          </div>
+          <div class="setting-item">
+            <span>Animations</span>
+            <div class="toggle-switch active"></div>
+          </div>
+        </div>
+        <div class="setting-group">
+          <div class="setting-title">🔒 Privacy &amp; Security</div>
+          <div class="setting-item">
+            <span>Firewall Enabled</span>
+            <div class="toggle-switch active"></div>
+          </div>
+          <div class="setting-item">
+            <span>Automatic Updates</span>
+            <div class="toggle-switch active"></div>
+          </div>
+          <div class="setting-item">
+            <span>Telemetry</span>
+            <div class="toggle-switch"></div>
+          </div>
+        </div>
+        <div class="setting-group">
+          <div class="setting-title">🤖 AI Settings</div>
+          <div class="setting-item">
+            <span>Auto-start Agents</span>
+            <div class="toggle-switch active"></div>
+          </div>
+          <div class="setting-item">
+            <span>Background Processing</span>
+            <div class="toggle-switch active"></div>
+          </div>
+          <div class="setting-item">
+            <span>Voice Commands</span>
+            <div class="toggle-switch"></div>
+          </div>
+        </div>
+        <div class="setting-group">
+          <div class="setting-title">🌐 Network</div>
+          <div class="setting-item">
+            <span>Auto-connect APIs</span>
+            <div class="toggle-switch active"></div>
+          </div>
+          <div class="setting-item">
+            <span>VPN Protection</span>
+            <div class="toggle-switch active"></div>
+          </div>
+          <div class="setting-item">
+            <span>Bandwidth Optimization</span>
+            <div class="toggle-switch active"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="window" id="about-window" aria-hidden="true">
+    <div class="window-titlebar" data-window="about">
+      <div class="window-title">
+        <div class="window-title-icon">ℹ️</div>
+        <span>About BlackRoad OS</span>
+      </div>
+      <div class="window-controls">
+        <div class="window-button close-btn" data-action="close">✕</div>
+      </div>
+    </div>
+    <div class="window-content">
+      <div class="about-content">
+        <div class="about-logo">K3</div>
+        <div class="about-title">BlackRoad OS</div>
+        <div class="about-version">Version 1.0.2025 Build 11212025</div>
+        <div class="about-info">
+          <p><strong>Founded:</strong> 2024</p>
+          <p><strong>Founder:</strong> Alexa Louise Amundson (Cecilia)</p>
+          <p><strong>Architecture:</strong> K3 Neural Core</p>
+          <p style="margin-top: 16px; line-height: 1.6;">
+            BlackRoad OS is a revolutionary operating system designed for AI development,
+            orchestration, and deployment. Built on the principles of transparency,
+            governance, and community-first AI.
+          </p>
+          <p style="margin-top: 16px; color: var(--accent-pink);">
+            © 2025 BlackRoad Inc. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="start-menu" id="startMenu" aria-hidden="true">
+    <div class="start-menu-header">
+      <div class="start-menu-user">
+        <div class="start-menu-avatar">👤</div>
+        <div class="start-menu-info">
+          <div class="start-menu-name">Cecilia</div>
+          <div class="start-menu-subtitle">Chief Architect</div>
+        </div>
+      </div>
+    </div>
+    <div class="start-menu-items">
+      <div class="start-menu-section">
+        <div class="start-menu-item" data-app="nexus">
+          <div class="start-menu-item-icon">🌐</div>
+          <div class="start-menu-item-text">
+            <div class="start-menu-item-label">BlackRoad Nexus</div>
+            <div class="start-menu-item-description">AI Development Hub</div>
+          </div>
+        </div>
+        <div class="start-menu-item" data-app="terminal">
+          <div class="start-menu-item-icon">💻</div>
+          <div class="start-menu-item-text">
+            <div class="start-menu-item-label">Terminal</div>
+            <div class="start-menu-item-description">Command Line Interface</div>
+          </div>
+        </div>
+        <div class="start-menu-item" data-app="file-explorer">
+          <div class="start-menu-item-icon">📁</div>
+          <div class="start-menu-item-text">
+            <div class="start-menu-item-label">File Explorer</div>
+            <div class="start-menu-item-description">Browse files and folders</div>
+          </div>
+        </div>
+      </div>
+      <div class="start-menu-section">
+        <div class="start-menu-item" data-app="agents">
+          <div class="start-menu-item-icon">🤖</div>
+          <div class="start-menu-item-text">
+            <div class="start-menu-item-label">AI Agents</div>
+            <div class="start-menu-item-description">1,000 unique agents</div>
+          </div>
+        </div>
+        <div class="start-menu-item" data-app="blockchain">
+          <div class="start-menu-item-icon">⛓️</div>
+          <div class="start-menu-item-text">
+            <div class="start-menu-item-label">RoadChain</div>
+            <div class="start-menu-item-description">Blockchain explorer</div>
+          </div>
+        </div>
+        <div class="start-menu-item" data-app="projects">
+          <div class="start-menu-item-icon">🎯</div>
+          <div class="start-menu-item-text">
+            <div class="start-menu-item-label">Projects</div>
+            <div class="start-menu-item-description">Development projects</div>
+          </div>
+        </div>
+      </div>
+      <div class="start-menu-section">
+        <div class="start-menu-item" data-app="settings">
+          <div class="start-menu-item-icon">⚙️</div>
+          <div class="start-menu-item-text">
+            <div class="start-menu-item-label">Settings</div>
+            <div class="start-menu-item-description">System configuration</div>
+          </div>
+        </div>
+        <div class="start-menu-item" data-app="about">
+          <div class="start-menu-item-icon">ℹ️</div>
+          <div class="start-menu-item-text">
+            <div class="start-menu-item-label">About</div>
+            <div class="start-menu-item-description">System information</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="start-menu-footer">
+      <div class="start-menu-footer-btn">
+        <span>🔒</span>
+        <span>Lock</span>
+      </div>
+      <div class="start-menu-footer-btn">
+        <span>🔄</span>
+        <span>Restart</span>
+      </div>
+      <div class="start-menu-footer-btn">
+        <span>⏻</span>
+        <span>Shutdown</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="taskbar">
+    <div class="start-button" id="startButton">
+      <span class="start-icon">K3</span>
+      <span>Start</span>
+    </div>
+    <div class="taskbar-separator"></div>
+    <div class="taskbar-buttons" id="taskbarButtons"></div>
+    <div class="system-tray">
+      <div class="tray-icon" title="Network">🌐</div>
+      <div class="tray-icon" title="Volume">🔊</div>
+      <div class="tray-icon" title="Notifications">🔔</div>
+      <div class="clock" id="clock">12:00 AM</div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const bootScreen = document.getElementById("bootScreen");
+      const desktop = document.getElementById("desktop");
+      const startButton = document.getElementById("startButton");
+      const startMenu = document.getElementById("startMenu");
+      const taskbarButtons = document.getElementById("taskbarButtons");
+      const clock = document.getElementById("clock");
+
+      const windows = new Map();
+      let highestZIndex = 1000;
+      let activeWindow = null;
+
+      const windowData = {
+        "file-explorer": { title: "My Computer", icon: "📁", element: "file-explorer-window" },
+        terminal: { title: "Terminal", icon: "💻", element: "terminal-window" },
+        nexus: { title: "BlackRoad Nexus", icon: "🌐", element: "nexus-window" },
+        settings: { title: "Settings", icon: "⚙️", element: "settings-window" },
+        about: { title: "About", icon: "ℹ️", element: "about-window" },
+        documents: { title: "Documents", icon: "📄", element: "file-explorer-window" },
+        projects: { title: "Projects", icon: "🎯", element: "file-explorer-window" },
+        agents: { title: "AI Agents", icon: "🤖", element: "nexus-window" },
+        blockchain: { title: "RoadChain", icon: "⛓️", element: "nexus-window" }
+      };
+
+      function updateClock() {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const ampm = hours >= 12 ? "PM" : "AM";
+        const displayHours = hours % 12 || 12;
+        const displayMinutes = minutes < 10 ? `0${minutes}` : minutes;
+        clock.textContent = `${displayHours}:${displayMinutes} ${ampm}`;
+      }
+
+      function minimizeWindow(windowEl) {
+        windowEl.style.display = "none";
+      }
+
+      function maximizeWindow(windowEl) {
+        windowEl.classList.toggle("maximized");
+      }
+
+      function focusWindow(windowEl) {
+        if (activeWindow) {
+          activeWindow.classList.remove("active");
+        }
+
+        windowEl.classList.add("active");
+        windowEl.style.zIndex = `${++highestZIndex}`;
+        activeWindow = windowEl;
+
+        windows.forEach(({ window: win, button }) => {
+          button.classList.toggle("active", win === windowEl);
+        });
+      }
+
+      function setupWindowControls(windowEl, appId) {
+        const closeBtn = windowEl.querySelector('[data-action="close"]');
+        const minimizeBtn = windowEl.querySelector('[data-action="minimize"]');
+        const maximizeBtn = windowEl.querySelector('[data-action="maximize"]');
+
+        closeBtn?.addEventListener("click", (event) => {
+          event.stopPropagation();
+          closeWindow(appId);
+        });
+
+        minimizeBtn?.addEventListener("click", (event) => {
+          event.stopPropagation();
+          minimizeWindow(windowEl);
+        });
+
+        maximizeBtn?.addEventListener("click", (event) => {
+          event.stopPropagation();
+          maximizeWindow(windowEl);
+        });
+
+        windowEl.addEventListener("mousedown", () => {
+          focusWindow(windowEl);
+        });
+
+        const windowEntry = windows.get(appId);
+        windowEntry?.button.addEventListener("click", () => {
+          if (windowEl.style.display === "none") {
+            windowEl.style.display = "flex";
+            focusWindow(windowEl);
+          } else if (activeWindow === windowEl) {
+            minimizeWindow(windowEl);
+          } else {
+            focusWindow(windowEl);
+          }
+        });
+      }
+
+      function makeDraggable(windowEl) {
+        const titlebar = windowEl.querySelector(".window-titlebar");
+        let isDragging = false;
+        let initialX = 0;
+        let initialY = 0;
+
+        titlebar?.addEventListener("mousedown", (event) => {
+          if (windowEl.classList.contains("maximized")) return;
+          if (event.target.closest(".window-controls")) return;
+
+          isDragging = true;
+          initialX = event.clientX - windowEl.offsetLeft;
+          initialY = event.clientY - windowEl.offsetTop;
+        });
+
+        document.addEventListener("mousemove", (event) => {
+          if (!isDragging) return;
+
+          event.preventDefault();
+          const currentX = event.clientX - initialX;
+          const currentY = event.clientY - initialY;
+
+          windowEl.style.left = `${currentX}px`;
+          windowEl.style.top = `${currentY}px`;
+        });
+
+        document.addEventListener("mouseup", () => {
+          isDragging = false;
+        });
+
+        titlebar?.addEventListener("dblclick", () => {
+          maximizeWindow(windowEl);
+        });
+      }
+
+      function closeWindow(appId) {
+        const windowEntry = windows.get(appId);
+        if (!windowEntry) return;
+
+        windowEntry.window.remove();
+        windowEntry.button.remove();
+        windows.delete(appId);
+      }
+
+      function openWindow(appId) {
+        const existing = windows.get(appId);
+        if (existing) {
+          focusWindow(existing.window);
+          return;
+        }
+
+        const data = windowData[appId];
+        if (!data) return;
+
+        const template = document.getElementById(data.element);
+        if (!template) return;
+
+        const windowEl = template.cloneNode(true);
+        windowEl.id = `${data.element}-${Date.now()}`;
+        windowEl.style.display = "flex";
+        windowEl.style.left = `${100 + windows.size * 30}px`;
+        windowEl.style.top = `${60 + windows.size * 30}px`;
+        windowEl.style.width = "800px";
+        windowEl.style.height = "600px";
+        windowEl.removeAttribute("aria-hidden");
+
+        desktop.appendChild(windowEl);
+
+        const taskbarBtn = document.createElement("div");
+        taskbarBtn.className = "taskbar-button";
+        taskbarBtn.innerHTML = `
+          <div class="taskbar-button-icon">${data.icon}</div>
+          <div class="taskbar-button-label">${data.title}</div>
+        `;
+        taskbarButtons.appendChild(taskbarBtn);
+
+        windows.set(appId, { window: windowEl, button: taskbarBtn });
+
+        setupWindowControls(windowEl, appId);
+        makeDraggable(windowEl);
+        focusWindow(windowEl);
+      }
+
+      function bindDesktopIcons() {
+        document.querySelectorAll(".desktop-icon").forEach((icon) => {
+          icon.addEventListener("click", () => {
+            document.querySelectorAll(".desktop-icon").forEach((item) => item.classList.remove("selected"));
+            icon.classList.add("selected");
+          });
+
+          icon.addEventListener("dblclick", () => {
+            const appId = icon.dataset.app;
+            if (appId) {
+              openWindow(appId);
+            }
+          });
+        });
+
+        desktop.addEventListener("click", (event) => {
+          if (event.target === desktop || event.target.classList.contains("desktop-icons")) {
+            document.querySelectorAll(".desktop-icon").forEach((item) => item.classList.remove("selected"));
+          }
+        });
+      }
+
+      function bindStartMenu() {
+        startButton.addEventListener("click", (event) => {
+          event.stopPropagation();
+          startMenu.classList.toggle("active");
+          startButton.classList.toggle("active");
+        });
+
+        document.querySelectorAll(".start-menu-item").forEach((item) => {
+          item.addEventListener("click", () => {
+            const appId = item.dataset.app;
+            if (appId) {
+              openWindow(appId);
+              startMenu.classList.remove("active");
+              startButton.classList.remove("active");
+            }
+          });
+        });
+
+        document.addEventListener("click", (event) => {
+          if (!startMenu.contains(event.target) && event.target !== startButton) {
+            startMenu.classList.remove("active");
+            startButton.classList.remove("active");
+          }
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Meta" || (event.ctrlKey && event.key === "Escape")) {
+            event.preventDefault();
+            startMenu.classList.toggle("active");
+            startButton.classList.toggle("active");
+          }
+        });
+      }
+
+      function bindToggles() {
+        document.querySelectorAll(".toggle-switch").forEach((toggle) => {
+          toggle.addEventListener("click", () => {
+            toggle.classList.toggle("active");
+          });
+        });
+      }
+
+      function bootSequence() {
+        window.addEventListener("load", () => {
+          setTimeout(() => {
+            bootScreen.classList.add("hidden");
+          }, 2500);
+        });
+      }
+
+      function autoOpen() {
+        setTimeout(() => {
+          openWindow("nexus");
+        }, 3000);
+      }
+
+      function init() {
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        bootSequence();
+        bindDesktopIcons();
+        bindStartMenu();
+        bindToggles();
+        autoOpen();
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
