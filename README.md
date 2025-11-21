@@ -1,47 +1,53 @@
-# BlackRoad OS — Web Client
+# BlackRoad OS – Web
 
-Public marketing + landing experience for BlackRoad OS. Built with Next.js (App Router) and wired for Railway deployments.
+Public-facing website and entrypoint for the BlackRoad Operating System. Built with Next.js (App Router) and React.
 
-## Framework & Routes
-- **Framework:** Next.js 14 App Router (`app/layout.tsx`, `app/page.tsx`).
-- **Primary pages:**
-  - `/` — homepage with environment badges, OS branding hooks, and CTAs to console/docs.
-  - `/console` — placeholder console surface.
-  - `/settings` — placeholder settings surface.
-- **APIs:**
-  - `GET /api/health` (and `/health`) → `{ status: "ok", service: "web" }`.
-  - `GET /version` → returns service, app version, commit, build time, and environment.
+## Tech Stack
+- Next.js 14 (App Router)
+- React 18
+- TypeScript
+
+## Key Endpoints
+- `/` — marketing landing page with system links and live health widget
+- `/api/health` — service health probe
+- `/api/info` — service metadata and base URLs
+- `/api/version` — build and version metadata
+- `/api/debug-env` — safe environment snapshot for diagnostics
 
 ## Configuration
-All runtime links are centralized in `src/config.ts` and validated per environment.
+Runtime configuration is centralized in `src/config/serviceConfig.ts` and `src/config.ts`.
 
-Required variables:
-```
-NODE_ENV=development|staging|production
-CORE_API_URL=...
-NEXT_PUBLIC_CORE_API_URL=...
-PUBLIC_WEB_URL=...
-PUBLIC_CONSOLE_URL=...
-PUBLIC_DOCS_URL=...
-NEXT_PUBLIC_CONSOLE_URL=...
-NEXT_PUBLIC_DOCS_URL=...
-```
-See [`.env.example`](.env.example) for a filled-out template. `NEXT_PUBLIC_*` values are exposed to the client and power navigation CTAs.
+Environment variables (see `.env.example`):
+- `OS_ROOT` — BlackRoad OS root URL
+- `SERVICE_BASE_URL` — Public base URL for this web service
+- `NEXT_PUBLIC_OS_ROOT` — Client-exposed OS root
+- `NEXT_PUBLIC_SERVICE_ID` — Service identifier (`web`)
+- `NEXT_PUBLIC_SERVICE_NAME` — Human-readable service name
+- `NEXT_PUBLIC_CONSOLE_URL` — Console link
+- `NEXT_PUBLIC_DOCS_URL` — Documentation link
+- `NEXT_PUBLIC_CORE_API_URL` — Core API base URL
+- `NEXT_PUBLIC_PUBLIC_API_URL` — Public API base URL
 
 ## Local Development
 ```bash
 npm install
 npm run dev
 ```
-Set the environment variables above (e.g., via `.env.local`) so console/docs/health links point to your desired endpoints while you develop.
 
-## Deployment
-- **Railway:** `railway.json` defines the `web` service with build/start commands and `/api/health` healthcheck.
-- **CI:** `.github/workflows/web-deploy.yaml` builds, deploys to Railway for `dev/staging/main`, and verifies `/api/health` on the deployed URL.
+## Build & Start
+```bash
+npm run build
+npm start
+```
+Default port is **8080** (configurable via `PORT`).
 
-Base commands:
-- Install: `npm install`
-- Build: `npm run build`
-- Start: `npm run start`
+## Railway Deployment
+- Port: `8080`
+- Healthcheck: `/api/health`
+- Build command: `npm install && npm run build`
+- Start command: `npm start`
+- Required env vars: see `.env.example`
 
-Adjust the console/docs URLs via the environment variables above to point at live console and docs instances.
+## Notes
+- `/health` is also available and shares the `/api/health` handler.
+- Status widget on the landing page polls `/api/health` every 15 seconds.

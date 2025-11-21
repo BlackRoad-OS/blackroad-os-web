@@ -28,6 +28,9 @@
       "@/config": [
         "src/config"
       ],
+      "@/config/*": [
+        "src/config/*"
+      ],
       "@/types/*": [
         "src/types/*"
       ]
