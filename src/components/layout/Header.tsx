@@ -47,12 +47,12 @@ export function Header() {
           }
           
           // For internal routes, use Next.js Link
-          // Type assertion needed because TypeScript can't infer that non-external hrefs are valid routes
+          // Type assertion needed because external URLs can't be validated at compile time
           return (
             <Link
               key={item.href}
               className={pathname === item.href ? styles.active : undefined}
-              href={item.href as '/'}
+              href={item.href as any}
             >
               {item.label}
             </Link>

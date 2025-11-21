@@ -6,12 +6,12 @@ const env: NodeEnvironment = allowedEnvironments.includes(rawNodeEnv as NodeEnvi
   ? (rawNodeEnv as NodeEnvironment)
   : 'development';
 
-function getEnv(key: string, required: boolean = false): string {
+function getEnv(key: string): string {
   const value = process.env[key];
 
   // Don't validate during build - only at runtime
   // In Next.js, during build, we're in Node.js environment but not serving requests
-  if (required && !value && env !== 'development' && process.env.NEXT_PHASE !== 'phase-production-build') {
+  if (!value && env !== 'development' && process.env.NEXT_PHASE !== 'phase-production-build') {
     console.warn(`Missing environment variable: ${key}`);
   }
 
