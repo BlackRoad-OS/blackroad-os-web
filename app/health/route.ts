@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
-import { serviceConfig } from '@/config/serviceConfig';
 
 export async function GET() {
   return NextResponse.json({
-    ok: true,
-    service: serviceConfig.SERVICE_ID,
-    ts: new Date().toISOString()
+    status: 'ok',
+    service: 'web'
   });
 }
