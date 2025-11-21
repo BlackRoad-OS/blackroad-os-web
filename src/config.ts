@@ -6,10 +6,11 @@ const env: NodeEnvironment = allowedEnvironments.includes(rawNodeEnv as NodeEnvi
   ? (rawNodeEnv as NodeEnvironment)
   : 'development';
 
-function getEnv(key: string): string {
+function getEnv(key: string, required: boolean = false): string {
   const value = process.env[key];
 
-  if (!value && env !== 'development') {
+  // Only throw during runtime (not during build) for missing required vars
+  if (required && !value && env !== 'development' && typeof window !== 'undefined') {
     throw new Error(`Missing required environment variable: ${key}`);
   }
 
