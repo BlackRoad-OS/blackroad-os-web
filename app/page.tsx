@@ -1,6 +1,3 @@
-'use client';
-
-import { useEffect, useMemo, useState } from 'react';
 import styles from './page.module.css';
 import { InfoCard } from '@/components/primitives/InfoCard';
 import { serviceConfig } from '@/config/serviceConfig';
@@ -98,74 +95,66 @@ function SystemStatus() {
     </div>
   );
 }
+import { StatusWidget } from '@/components/status/StatusWidget';
+
+const consoleUrl = process.env.NEXT_PUBLIC_CONSOLE_URL || 'https://console.blackroad.systems';
+const docsUrl = process.env.NEXT_PUBLIC_DOCS_URL || 'https://docs.blackroad.systems';
+
+const pillars = [
+  {
+    title: 'Orchestration',
+    description: 'Coordinated workflows for agents, services, and ledger-aware actions.'
+  },
+  {
+    title: 'Observability',
+    description: 'Built-in telemetry, health, and audit layers to keep operators in control.'
+  },
+  {
+    title: 'Compliance',
+    description: 'Policy-driven safeguards that keep the platform aligned with governance.'
+  }
+];
 
 export default function HomePage() {
-  const systemLinks = [
-    { label: 'Prism Console', href: fallbackConsoleUrl, description: 'Manage agents, deployments, and OS resources.' },
-    { label: 'Docs', href: fallbackDocsUrl, description: 'Developer and operator guides for BlackRoad OS.' },
-    { label: 'Core API', href: fallbackCoreApiUrl, description: 'Primary API surface for orchestrating the OS.' },
-    { label: 'Public API', href: publicApiUrl, description: 'External integrations and public endpoints.' }
-  ];
-
   return (
     <div className={styles.page}>
       <section className={`panel ${styles.hero}`}>
         <p className="muted">BlackRoad Operating System</p>
         <h1>BlackRoad OS</h1>
         <p className={styles.subtitle}>
-          Distributed operating system for agents, finance, and quantum-native infrastructure.
+          The operations layer for secure, ledger-native automation. Build, observe, and control the
+          BlackRoad stack from a single, trusted interface.
         </p>
-        <div className={styles.metaRow}>
-          <div className={styles.metaItem}>
-            <span className="muted">Service ID</span>
-            <strong>{serviceConfig.SERVICE_ID}</strong>
-          </div>
-          <div className={styles.metaItem}>
-            <span className="muted">Service Name</span>
-            <strong>{serviceConfig.SERVICE_NAME}</strong>
-          </div>
-          <div className={styles.metaItem}>
-            <span className="muted">Base URL</span>
-            <strong>{serviceConfig.SERVICE_BASE_URL}</strong>
-          </div>
-        </div>
         <div className={styles.ctaRow}>
-          <a className={styles.ctaButton} href={fallbackConsoleUrl} target="_blank" rel="noreferrer">
-            Open Prism Console
+          <a className={styles.ctaButton} href={consoleUrl} target="_blank" rel="noreferrer">
+            View Console
           </a>
-          <a className={styles.ctaButtonSecondary} href={fallbackDocsUrl} target="_blank" rel="noreferrer">
-            View Documentation
+          <a className={styles.ctaButtonSecondary} href={docsUrl} target="_blank" rel="noreferrer">
+            Read Docs
           </a>
         </div>
       </section>
 
-      <div className="grid">
-        <InfoCard title="System Links" description="Entrypoints into the BlackRoad ecosystem.">
-          <ul className={styles.linkList}>
-            {systemLinks.map((link) => (
-              <li key={link.href} className={styles.linkRow}>
-                <div>
-                  <a className={styles.linkAnchor} href={link.href} target="_blank" rel="noreferrer">
-                    {link.label}
-                  </a>
-                  <p className="muted">{link.description}</p>
-                </div>
-                <span className={styles.externalHint}>↗</span>
-              </li>
-            ))}
-          </ul>
-        </InfoCard>
-
-        <InfoCard
-          title="Service Metadata"
-          description="Static configuration exported for consumers and diagnostics."
-        >
-          <div className={styles.metadataGrid}>
-            <div className={styles.badge}>OS Root: {serviceConfig.OS_ROOT}</div>
-            <div className={styles.badge}>Base URL: {serviceConfig.SERVICE_BASE_URL}</div>
-            <div className={styles.badge}>Service: {serviceConfig.SERVICE_NAME}</div>
+      <section className={`panel ${styles.section}`}>
+        <div className={styles.sectionHeader}>
+          <div>
+            <p className="muted">Platform overview</p>
+            <h2>What is BlackRoad OS?</h2>
+            <p className={styles.subtitle}>
+              A cohesive runtime that spans the core ledger, operator services, web interfaces, and
+              console workflows.
+            </p>
           </div>
-        </InfoCard>
+        </div>
+        <div className={styles.cardGrid}>
+          {pillars.map((pillar) => (
+            <div key={pillar.title} className={styles.card}>
+              <h3>{pillar.title}</h3>
+              <p className="muted">{pillar.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
         <InfoCard
           title="System Status"
@@ -174,6 +163,18 @@ export default function HomePage() {
           <SystemStatus />
         </InfoCard>
       </div>
+      <section className={`panel ${styles.section}`}>
+        <div className={styles.sectionHeader}>
+          <div>
+            <p className="muted">Live telemetry</p>
+            <h2>System Snapshot</h2>
+            <p className={styles.subtitle}>
+              Quick glance at the public-facing services powering BlackRoad OS.
+            </p>
+          </div>
+        </div>
+        <StatusWidget />
+      </section>
     </div>
   );
 }
