@@ -1,23 +1,10 @@
 {
-  "$schema": "https://railway.app/railway.schema.json",
-  "project": "blackroad-web",
-  "services": [
-    {
-      "name": "web",
-      "buildCommand": "npm ci && npm run build",
-      "startCommand": "npm run start",
-      "port": 3000,
-      "healthcheckPath": "/api/health",
-      "envVariables": {
-        "NODE_ENV": { "required": true },
-        "CORE_API_URL": { "required": true },
-        "NEXT_PUBLIC_CORE_API_URL": { "required": true },
-        "PUBLIC_WEB_URL": { "required": true },
-        "PUBLIC_CONSOLE_URL": { "required": true },
-        "PUBLIC_DOCS_URL": { "required": true },
-        "NEXT_PUBLIC_CONSOLE_URL": { "required": true },
-        "NEXT_PUBLIC_DOCS_URL": { "required": true }
-      }
+  "build": "npm install && npm run build",
+  "start": "npm start",
+  "service": {
+    "port": 8080,
+    "healthcheck": {
+      "path": "/api/health"
     }
-  ]
+  }
 }

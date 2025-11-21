@@ -4,38 +4,38 @@
   gap: 1.25rem;
 }
 
-.badges {
+.hero {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 1rem;
+  flex-direction: column;
+  gap: 0.85rem;
 }
 
-.badge {
-  background: rgba(114, 228, 162, 0.12);
-  border: 1px solid rgba(114, 228, 162, 0.35);
-  color: var(--accent);
-  padding: 0.35rem 0.8rem;
-  border-radius: 999px;
-  font-size: 0.95rem;
-}
-
-.list {
+.subtitle {
+  color: var(--muted);
+  font-size: 1.1rem;
+  line-height: 1.6;
   margin: 0;
-  padding-left: 1.25rem;
-  color: var(--text);
 }
 
-.list li {
-  margin-bottom: 0.4rem;
-  line-height: 1.5;
+.metaRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.metaItem {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.9rem;
 }
 
 .ctaRow {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
-  margin-top: 1rem;
+  margin-top: 0.25rem;
 }
 
 .ctaButton,
@@ -43,15 +43,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.6rem 1.2rem;
+  padding: 0.65rem 1.4rem;
   border-radius: 12px;
-  font-weight: 600;
+  font-weight: 700;
   border: 1px solid var(--border);
+  transition: transform 120ms ease, box-shadow 120ms ease;
 }
 
 .ctaButton {
   background: var(--accent);
   color: #0b0c10;
+  box-shadow: 0 12px 30px rgba(114, 228, 162, 0.25);
 }
 
 .ctaButtonSecondary {
@@ -59,21 +61,105 @@
   background: transparent;
 }
 
-.serviceGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.85rem;
-  margin-top: 1rem;
+.ctaButton:hover,
+.ctaButtonSecondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
 }
 
-.serviceCard {
+.linkList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.linkRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 0.95rem;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 0.9rem;
+  gap: 0.75rem;
 }
 
-.serviceTitle {
+.linkAnchor {
+  font-size: 1.05rem;
   font-weight: 700;
-  margin-bottom: 0.3rem;
+}
+
+.externalHint {
+  color: var(--muted);
+}
+
+.metadataGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(114, 228, 162, 0.12);
+  border: 1px solid rgba(114, 228, 162, 0.35);
+  color: var(--accent);
+  padding: 0.45rem 0.85rem;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.statusWidget {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 90px;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  border: 1px solid var(--border);
+}
+
+.statusMeta {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.statusMessage {
+  margin: 0;
+  color: var(--muted);
+}
+
+.loading {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.online {
+  background: rgba(114, 228, 162, 0.16);
+  color: var(--accent);
+  border-color: rgba(114, 228, 162, 0.4);
+}
+
+.offline {
+  background: rgba(255, 99, 99, 0.16);
+  color: #ff8f8f;
+  border-color: rgba(255, 99, 99, 0.4);
 }

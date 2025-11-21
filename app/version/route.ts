@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
-import { appConfig } from '@/config';
 import packageJson from '../../package.json';
+import { appConfig } from '@/config';
+import { serviceConfig } from '@/config/serviceConfig';
 
-const serviceName = 'web-app';
-
-export async function GET() {
+function collectVersionPayload() {
   const commitSha =
     process.env.RAILWAY_GIT_COMMIT_SHA ||
     process.env.VERCEL_GIT_COMMIT_SHA ||
@@ -13,11 +12,19 @@ export async function GET() {
 
   const buildTime = process.env.RAILWAY_BUILD_TIMESTAMP || process.env.BUILD_TIME || '';
 
-  return NextResponse.json({
-    service: serviceName,
+  return {
+    service: serviceConfig.SERVICE_ID,
+    name: serviceConfig.SERVICE_NAME,
     appVersion: packageJson.version,
     commit: commitSha,
-    buildTime: buildTime,
-    environment: appConfig.env
-  });
+    buildTime,
+    environment: appConfig.env,
+    ts: new Date().toISOString()
+  };
 }
+
+export async function GET() {
+  return NextResponse.json(collectVersionPayload());
+}
+
+export type VersionPayload = ReturnType<typeof collectVersionPayload>;
