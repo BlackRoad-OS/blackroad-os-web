@@ -44,26 +44,12 @@
   padding: 32px 16px;
   color: var(--br-text);
   background:
-    radial-gradient(circle at top, #1a1026 0, #05000b 45%, #000 100%),
-    radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.05) 0, transparent 55%),
-    radial-gradient(circle at 100% 100%, rgba(0, 102, 255, 0.2) 0, transparent 55%);
+    radial-gradient(circle at 16% 24%, rgba(255, 0, 107, 0.14), transparent 32%),
+    radial-gradient(circle at 84% 16%, rgba(0, 102, 255, 0.15), transparent 36%),
+    radial-gradient(circle at 26% 72%, rgba(255, 157, 0, 0.12), transparent 38%),
+    linear-gradient(145deg, #0c0316, #04000b 40%, #020006 70%, #040014);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-}
-
-:global(.br-login-body) {
-  margin: 0;
-  background: #000;
-}
-
-:global(.br-login-body) main {
-  max-width: none;
-  padding: 0;
-}
-
-:global(.br-login-body) header,
-:global(.br-login-body) footer {
-  display: none;
 }
 
 .frameShell {
@@ -73,9 +59,9 @@
   border-radius: var(--radius-xxl);
   padding: 1px;
   background:
-    radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.18), transparent 55%),
-    radial-gradient(circle at 0 100%, rgba(255, 0, 107, 0.65), transparent 60%),
-    radial-gradient(circle at 100% 0, rgba(0, 102, 255, 0.7), transparent 60%);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 0, 107, 0.48), rgba(0, 102, 255, 0.4)),
+    radial-gradient(circle at 0 100%, rgba(255, 157, 0, 0.24), transparent 45%),
+    radial-gradient(circle at 100% 0, rgba(0, 102, 255, 0.32), transparent 45%);
   box-shadow:
     0 32px 80px rgba(0, 0, 0, 0.95),
     0 0 0 1px rgba(0, 0, 0, 0.9);
@@ -86,11 +72,13 @@
   position: relative;
   border-radius: calc(var(--radius-xxl) - 1px);
   background:
-    radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.08), transparent 50%),
-    linear-gradient(145deg, rgba(2, 0, 12, 0.96), rgba(0, 0, 0, 0.98));
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(24px);
-  padding: 18px 18px 18px;
+    radial-gradient(circle at 14% 8%, rgba(255, 255, 255, 0.1), transparent 40%),
+    radial-gradient(circle at 92% 10%, rgba(0, 102, 255, 0.2), transparent 45%),
+    radial-gradient(circle at 86% 84%, rgba(255, 0, 107, 0.28), transparent 45%),
+    linear-gradient(155deg, rgba(6, 1, 18, 0.96), rgba(0, 0, 0, 0.96));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(110%);
+  padding: 20px;
   overflow: hidden;
   isolation: isolate;
 }
@@ -211,16 +199,19 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .brandMark {
   width: 38px;
   height: 38px;
   border-radius: 14px;
-  padding: 1px;
-  background: #000;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18), 0 14px 28px rgba(0, 0, 0, 0.9);
+  padding: 2px;
+  background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.1)), #000;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 18px 34px rgba(0, 0, 0, 0.9),
+    0 0 34px rgba(255, 0, 107, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -232,19 +223,21 @@
   border-radius: 12px;
   background: var(--br-grad-full);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  font-size: 14px;
+  font-weight: 900;
+  font-size: 11px;
   letter-spacing: 0.04em;
-  color: #000;
+  color: #ffffff;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.brandMarkInner span {
-  background: #000;
-  padding: 2px 6px;
-  border-radius: 999px;
-  font-size: 10px;
+.brandMarkLine {
+  display: block;
+  width: 100%;
+  text-align: center;
 }
 
 .brandTextTitle {
@@ -259,6 +252,60 @@
   text-transform: uppercase;
   letter-spacing: 0.18em;
   color: var(--br-text-faint);
+}
+
+.identityStrip {
+  background:
+    radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.06), transparent 45%),
+    linear-gradient(120deg, rgba(255, 0, 107, 0.25), rgba(0, 102, 255, 0.25));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.65);
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.identityBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.55);
+}
+
+.identityMeta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  font-size: 11px;
+  color: var(--br-text-subtle);
+}
+
+.metaLabel {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--br-text-faint);
+  margin-bottom: 4px;
+}
+
+.metaValue {
+  font-weight: 700;
+  color: var(--br-text);
+}
+
+.metaValueSuccess {
+  font-weight: 800;
+  color: #00ffa0;
+  text-shadow: 0 0 18px rgba(0, 255, 160, 0.6);
 }
 
 .authTitle {

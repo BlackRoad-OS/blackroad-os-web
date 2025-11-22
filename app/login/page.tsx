@@ -44,12 +44,31 @@ export default function LoginPage() {
               <div className={styles.brandLockup}>
                 <div className={styles.brandMark}>
                   <div className={styles.brandMarkInner}>
-                    <span>BR</span>
+                    <span className={styles.brandMarkLine}>BR</span>
+                    <span className={styles.brandMarkLine}>OS</span>
                   </div>
                 </div>
                 <div>
                   <div className={styles.brandTextTitle}>BlackRoad OS</div>
-                  <div className={styles.brandTextSub}>Operator login</div>
+                  <div className={styles.brandTextSub}>Identity layer · Operator login</div>
+                </div>
+              </div>
+
+              <div className={styles.identityStrip}>
+                <span className={styles.identityBadge}>BR / OS Identity Layer</span>
+                <div className={styles.identityMeta}>
+                  <div>
+                    <span className={styles.metaLabel}>Token set</span>
+                    <span className={styles.metaValue}>BR-OS-LOGIN-v3</span>
+                  </div>
+                  <div>
+                    <span className={styles.metaLabel}>Scope</span>
+                    <span className={styles.metaValue}>Operators</span>
+                  </div>
+                  <div>
+                    <span className={styles.metaLabel}>Status</span>
+                    <span className={styles.metaValueSuccess}>Ready to wire</span>
+                  </div>
                 </div>
               </div>
 
@@ -111,7 +130,7 @@ export default function LoginPage() {
                 </div>
 
                 <button type="submit" className={styles.primaryButton}>
-                  Authenticate
+                  Enter operating system
                   <span className={styles.kbd}>↵</span>
                 </button>
               </form>
