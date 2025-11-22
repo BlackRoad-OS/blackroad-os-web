@@ -8,6 +8,7 @@ const navItems = [
   { href: '/', label: 'Home', external: false },
   { href: '/os', label: 'OS', external: false },
   { href: '/stack', label: 'Stack', external: false },
+  { href: '/typography', label: 'Type & spacing', external: false },
   { href: '/status', label: 'Status', external: false },
   { href: 'https://docs.blackroad.systems', label: 'Docs', external: true }
 ];
