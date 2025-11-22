@@ -1,13 +1,3 @@
-:global(:root) {
-  --br-gradient-start: #ff9d00;
-  --br-gradient-mid: #ff6b00;
-  --br-gradient-hot: #ff0066;
-  --os-gradient-start: #ff006b;
-  --os-gradient-mid: #d600aa;
-  --os-gradient-deep: #7700ff;
-  --os-gradient-end: #0066ff;
-}
-
 .brandPage {
   display: flex;
   flex-direction: column;
