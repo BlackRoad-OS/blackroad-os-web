@@ -1,0 +1,76 @@
+:root {
+  color-scheme: dark;
+  --br-sunrise: #FF9D00;
+  --br-warm: #FF6B00;
+  --br-hot-pink: #FF0066;
+  --br-magenta: #FF006B;
+  --br-deep-magenta: #D600AA;
+  --br-purple: #7700FF;
+  --br-cyber-blue: #0066FF;
+
+  --br-grad-full: linear-gradient(
+    135deg,
+    #FF9D00 0%,
+    #FF6B00 16%,
+    #FF0066 32%,
+    #FF006B 48%,
+    #D600AA 64%,
+    #7700FF 80%,
+    #0066FF 100%
+  );
+  --br-grad-br: linear-gradient(
+    180deg,
+    #FF9D00 0%,
+    #FF6B00 25%,
+    #FF0066 75%,
+    #FF006B 100%
+  );
+  --br-grad-os: linear-gradient(
+    180deg,
+    #FF006B 0%,
+    #D600AA 25%,
+    #7700FF 75%,
+    #0066FF 100%
+  );
+
+  --br-bg: #020008;
+  --br-bg-alt: #05010f;
+  --br-shell: rgba(4, 4, 10, 0.96);
+  --br-surface: #0b0b12;
+  --br-surface-alt: #13131f;
+
+  --br-text: #ffffff;
+  --br-text-subtle: rgba(255, 255, 255, 0.76);
+  --br-text-faint: rgba(255, 255, 255, 0.55);
+
+  --br-radius-lg: 20px;
+  --br-radius-xl: 26px;
+  --br-radius-xxl: 32px;
+
+  --br-font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  --br-font-mono: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+
+  --bg: var(--br-bg);
+  --panel: var(--br-surface);
+  --accent: #72e4a2;
+  --muted: rgba(255, 255, 255, 0.76);
+  --text: var(--br-text);
+  --border: rgba(255, 255, 255, 0.12);
+}
+
+html,
+body,
+#__next {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--br-font-sans);
+  color: var(--br-text);
+  background:
+    radial-gradient(circle at top, #1a1026 0, #05000b 45%, #000 100%),
+    radial-gradient(circle at 0 0, rgba(255,255,255,0.05) 0, transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(0,102,255,0.2) 0, transparent 55%);
+  -webkit-font-smoothing: antialiased;
+}
