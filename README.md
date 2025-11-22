@@ -53,14 +53,20 @@ npm run dev
 npm run build
 npm start
 ```
-Default port is **8080** (configurable via `PORT`).
+Default port is **8080** (configurable via `PORT`). The server binds to `0.0.0.0` and respects `PORT` for Railway compatibility.
+
+### Production Commands (Railway)
+- **Build**: `npm ci && npm run build`
+- **Start**: `npm run start` (uses `$PORT`, defaults to 8080)
+- **Service name**: `blackroad-os-web`
+- **Health**: `GET /health` → `{ "status": "ok", "service": "web" }`
 
 ## Railway Deployment
 
 This application is configured for deployment on [Railway](https://railway.app) using Nixpacks.
 
 - **Nixpacks flow**: `npm ci` → `npm run build` → `npm start` (configured in `railway.json` and `nixpacks.toml`)
-- **Healthcheck**: `/api/health` is used for liveness checks and the app binds to `$PORT` automatically
+- **Healthcheck**: `/health` is used for liveness checks and the app binds to `$PORT` automatically
 - **Environment**: Mirror the values from `.env.example` (including `NEXT_PUBLIC_*` keys) in the Railway dashboard
 
 ### Configuration Files
@@ -88,15 +94,15 @@ This application is configured for deployment on [Railway](https://railway.app) 
    - `NEXT_PUBLIC_PUBLIC_API_URL` - Public API base URL (client-side)
 
 3. **Deploy**: Railway will automatically:
-   - Detect Node.js and use Nixpacks builder
-   - Install dependencies with `npm ci`
-   - Build the application with `npm run build`
-   - Start the server with `npm start`
-   - Monitor health via `/api/health` endpoint
+     - Detect Node.js and use Nixpacks builder
+     - Install dependencies with `npm ci`
+     - Build the application with `npm run build`
+     - Start the server with `npm start`
+     - Monitor health via `/health` endpoint
 
 ### Technical Details
 - **Port**: Automatically assigned by Railway via `$PORT` environment variable
-- **Healthcheck**: `/api/health` (checks every 100 seconds)
+- **Healthcheck**: `/health` (checks every 100 seconds)
 - **Restart Policy**: ON_FAILURE with max 10 retries
 - **Builder**: Nixpacks (Node.js 18)
 
@@ -112,5 +118,5 @@ This application is configured for deployment on [Railway](https://railway.app) 
 - Review logs for any startup errors
 
 ## Notes
-- `/health` is also available and shares the `/api/health` handler.
+- `/health` returns `{ "status": "ok", "service": "web" }` and shares the `/api/health` handler.
 - Status widget on the landing page polls `/api/health` every 15 seconds.
