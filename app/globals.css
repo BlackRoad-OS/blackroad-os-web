@@ -1,3 +1,21 @@
+:root {
+  color-scheme: dark;
+  --bg: #0b0c10;
+  --panel: #12141b;
+  --accent: #72e4a2;
+  --muted: #9ba3af;
+  --text: #e5e7eb;
+  --border: #1f2937;
+  --br-gradient-start: #ff9d00;
+  --br-gradient-mid: #ff6b00;
+  --br-gradient-hot: #ff0066;
+  --os-gradient-start: #ff006b;
+  --os-gradient-mid: #d600aa;
+  --os-gradient-deep: #7700ff;
+  --os-gradient-end: #0066ff;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
 * {
   box-sizing: border-box;
 }
