@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import type { Route } from 'next';
 import styles from './Header.module.css';
 
 const navItems = [
@@ -12,7 +13,9 @@ const navItems = [
   { href: '/typography', label: 'Type & spacing', external: false },
   { href: '/status', label: 'Status', external: false },
   { href: 'https://docs.blackroad.systems', label: 'Docs', external: true }
-];
+] satisfies Array<
+  { href: Route; label: string; external: false } | { href: string; label: string; external: true }
+>;
 
 export function Header() {
   const pathname = usePathname();
