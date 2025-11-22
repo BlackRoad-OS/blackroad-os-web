@@ -16,8 +16,13 @@ export default function LoginPage() {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const payload = Object.fromEntries(formData.entries());
+    const redactedPayload = {
+      ...payload,
+      password: payload.password ? '••••••' : '',
+    };
+
     // eslint-disable-next-line no-console
-    console.log('Login form submitted', payload);
+    console.info('Login form submitted', redactedPayload);
   };
 
   return (
