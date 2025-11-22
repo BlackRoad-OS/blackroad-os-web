@@ -1,0 +1,83 @@
+:root {
+  color-scheme: dark;
+
+  /* Brand palette */
+  --br-sunrise: #ff9d00;
+  --br-warm: #ff6b00;
+  --br-hot-pink: #ff0066;
+  --br-magenta: #ff006b;
+  --br-deep-magenta: #d600aa;
+  --br-purple: #7700ff;
+  --br-cyber-blue: #0066ff;
+
+  /* Gradients */
+  --br-grad-full: linear-gradient(
+    135deg,
+    var(--br-sunrise) 0%,
+    var(--br-warm) 16%,
+    var(--br-hot-pink) 32%,
+    var(--br-magenta) 48%,
+    var(--br-deep-magenta) 64%,
+    var(--br-purple) 80%,
+    var(--br-cyber-blue) 100%
+  );
+  --br-grad-br: linear-gradient(
+    180deg,
+    var(--br-sunrise) 0%,
+    var(--br-warm) 25%,
+    var(--br-hot-pink) 75%,
+    var(--br-magenta) 100%
+  );
+  --br-grad-os: linear-gradient(
+    180deg,
+    var(--br-magenta) 0%,
+    var(--br-deep-magenta) 25%,
+    var(--br-purple) 75%,
+    var(--br-cyber-blue) 100%
+  );
+  --br-gradient-start: var(--br-sunrise);
+  --br-gradient-mid: var(--br-warm);
+  --br-gradient-hot: var(--br-hot-pink);
+  --os-gradient-start: var(--br-magenta);
+  --os-gradient-mid: var(--br-deep-magenta);
+  --os-gradient-deep: var(--br-purple);
+  --os-gradient-end: var(--br-cyber-blue);
+
+  /* Surfaces */
+  --br-bg: #020008;
+  --br-bg-alt: #05010f;
+  --br-shell: rgba(4, 4, 10, 0.96);
+  --br-surface: #0b0b12;
+  --br-surface-alt: #13131f;
+
+  /* Typography */
+  --br-text: #ffffff;
+  --br-text-subtle: rgba(255, 255, 255, 0.76);
+  --br-text-faint: rgba(255, 255, 255, 0.55);
+
+  /* Radii */
+  --br-radius-lg: 20px;
+  --br-radius-xl: 26px;
+  --br-radius-xxl: 32px;
+
+  /* Fonts */
+  --br-font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+  --br-font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, Menlo, monospace;
+
+  /* Global aliases */
+  --bg: var(--br-bg);
+  --panel: var(--br-surface);
+  --accent: #72e4a2;
+  --muted: var(--br-text-subtle);
+  --text: var(--br-text);
+  --border: rgba(255, 255, 255, 0.12);
+
+  /* Brand tokens */
+  --br-gradient-primary: var(--br-grad-full);
+  --br-gradient-os: var(--br-grad-os);
+  --br-background-neutral: var(--br-bg);
+  --br-text-primary: var(--br-text);
+  --br-text-secondary: var(--br-text-subtle);
+
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
