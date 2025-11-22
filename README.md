@@ -7,6 +7,20 @@ Public-facing website and entrypoint for the BlackRoad Operating System. Built w
 - React 18
 - TypeScript
 
+## Quickstart
+1. Copy environment defaults and tailor them for your workspace:
+   ```bash
+   cp .env.example .env.local
+   # Update OS_ROOT, SERVICE_BASE_URL, CORE_API_URL, PUBLIC_* URLs, and NEXT_PUBLIC_* values
+   ```
+   Both server-side variables (`OS_ROOT`, `SERVICE_BASE_URL`, `CORE_API_URL`, `PUBLIC_*`) and client-embedded variables (`NEXT_PUBLIC_*`) must be set so configuration resolves correctly at build and runtime.
+2. Install dependencies and run the local dev server:
+   ```bash
+   npm install
+   npm run dev
+   ```
+   Visit the marketing page at [http://localhost:3000](http://localhost:3000) and confirm API responses at `/api/health`, `/api/info`, and `/api/version`.
+
 ## Key Endpoints
 - `/` — marketing landing page with system links and live health widget
 - `/api/health` — service health probe
@@ -44,6 +58,10 @@ Default port is **8080** (configurable via `PORT`).
 ## Railway Deployment
 
 This application is configured for deployment on [Railway](https://railway.app) using Nixpacks.
+
+- **Nixpacks flow**: `npm ci` → `npm run build` → `npm start` (configured in `railway.json` and `nixpacks.toml`)
+- **Healthcheck**: `/api/health` is used for liveness checks and the app binds to `$PORT` automatically
+- **Environment**: Mirror the values from `.env.example` (including `NEXT_PUBLIC_*` keys) in the Railway dashboard
 
 ### Configuration Files
 - `railway.json` - Railway service configuration (healthcheck, restart policy)
