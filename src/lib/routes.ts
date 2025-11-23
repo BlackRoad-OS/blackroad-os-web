@@ -1,13 +1,16 @@
+export const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL || 'https://docs.blackroad.systems';
+export const PRISM_URL = process.env.NEXT_PUBLIC_PRISM_URL || 'https://prism.blackroad.systems';
+export const CONTACT_URL =
+  process.env.NEXT_PUBLIC_CONTACT_URL || 'mailto:blackroad.systems@gmail.com?subject=BlackRoad%20OS%20intro';
+
 export const NAV_LINKS = [
-  { href: '/', label: 'Home' },
-  { href: '/product', label: 'Product' },
-  { href: '/pricing', label: 'Pricing' },
-  { href: '/regulated', label: 'Regulated' },
-  { href: '/about', label: 'About' },
-  { href: '/contact', label: 'Contact' }
+  { href: '/', label: 'Product', external: false },
+  { href: '/stack', label: 'Stack', external: false },
+  { href: DOCS_URL, label: 'Docs', external: true },
+  { href: PRISM_URL, label: 'Prism Console', external: true },
+  { href: CONTACT_URL, label: 'Contact', external: true }
 ];
 
-export const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL || 'https://docs.blackroad.systems';
 export const GITHUB_URL = 'https://github.com/blackroadlabs/blackroad-os-web';
-export const CTA_LABEL = 'Request Early Access';
-export const CTA_DESTINATION = '/contact';
+export const CTA_LABEL = 'Open Prism Console';
+export const CTA_DESTINATION = PRISM_URL;

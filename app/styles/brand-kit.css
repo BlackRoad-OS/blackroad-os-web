@@ -9,6 +9,7 @@
   --br-deep-magenta: #d600aa;
   --br-purple: #7700ff;
   --br-cyber-blue: #0066ff;
+  --br-aqua: #5cf0d3;
 
   /* Gradients */
   --br-grad-full: linear-gradient(
@@ -21,13 +22,6 @@
     var(--br-purple) 80%,
     var(--br-cyber-blue) 100%
   );
-  --br-grad-br: linear-gradient(
-    180deg,
-    var(--br-sunrise) 0%,
-    var(--br-warm) 25%,
-    var(--br-hot-pink) 75%,
-    var(--br-magenta) 100%
-  );
   --br-grad-os: linear-gradient(
     180deg,
     var(--br-magenta) 0%,
@@ -35,6 +29,7 @@
     var(--br-purple) 75%,
     var(--br-cyber-blue) 100%
   );
+  --br-grad-soft: linear-gradient(120deg, rgba(255, 0, 102, 0.24), rgba(0, 102, 255, 0.16));
   --br-gradient-start: var(--br-sunrise);
   --br-gradient-mid: var(--br-warm);
   --br-gradient-hot: var(--br-hot-pink);
@@ -46,9 +41,12 @@
   /* Surfaces */
   --br-bg: #020008;
   --br-bg-alt: #05010f;
+  --br-bg-elevated: #0c0c18;
   --br-shell: rgba(4, 4, 10, 0.96);
   --br-surface: #0b0b12;
   --br-surface-alt: #13131f;
+  --br-border-subtle: rgba(255, 255, 255, 0.12);
+  --br-border-strong: rgba(255, 255, 255, 0.2);
 
   /* Typography */
   --br-text: #ffffff;
@@ -61,16 +59,19 @@
   --br-radius-xxl: 32px;
 
   /* Fonts */
-  --br-font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+  --br-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --br-font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, Menlo, monospace;
 
   /* Global aliases */
   --bg: var(--br-bg);
+  --bg-elevated: var(--br-bg-elevated);
   --panel: var(--br-surface);
-  --accent: #72e4a2;
+  --accent: var(--br-aqua);
+  --accent-strong: var(--br-hot-pink);
+  --accent-soft: rgba(255, 0, 102, 0.35);
   --muted: var(--br-text-subtle);
   --text: var(--br-text);
-  --border: rgba(255, 255, 255, 0.12);
+  --border: var(--br-border-subtle);
 
   /* Brand tokens */
   --br-gradient-primary: var(--br-grad-full);

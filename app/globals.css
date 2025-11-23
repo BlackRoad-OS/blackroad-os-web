@@ -17,7 +17,7 @@ body {
     radial-gradient(80% 80% at 50% 10%, rgba(255, 157, 0, 0.12), transparent 35%),
     var(--bg);
   color: var(--text);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--br-font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -32,28 +32,6 @@ main {
 
 button {
   font-family: inherit;
-}
-
-.panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 1.5rem;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
-}
-
-.muted {
-  color: var(--muted);
-}
-
-.accent {
-  color: var(--accent);
-}
-
-.grid {
-  display: grid;
-  gap: 1.25rem;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .section {
@@ -77,46 +55,8 @@ button {
   z-index: 1;
 }
 
-.section-title {
-  font-size: clamp(2rem, 4vw, 3rem);
-  margin-bottom: 0.5rem;
-}
-
-.section-subtitle {
+.muted {
   color: var(--muted);
-  max-width: 720px;
-  line-height: 1.6;
-}
-
-.cta-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.85rem 1.35rem;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: var(--br-grad-full);
-  color: #0a0a0f;
-  font-weight: 700;
-  transition: transform 180ms ease, box-shadow 200ms ease, opacity 180ms ease;
-  box-shadow: 0 16px 40px rgba(255, 0, 102, 0.28);
-}
-
-.cta-button:hover {
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
-}
-
-.cta-button.secondary {
-  background: transparent;
-  color: var(--text);
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: none;
-}
-
-.cta-button.secondary:hover {
-  border-color: rgba(255, 255, 255, 0.35);
 }
 
 .badge {
@@ -129,38 +69,6 @@ button {
   background: rgba(255, 255, 255, 0.05);
   color: var(--text);
   font-size: 0.85rem;
-}
-
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.5rem;
-}
-
-.card {
-  padding: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-
-.card h3 {
-  margin-top: 0;
-  margin-bottom: 0.5rem;
-}
-
-.card p {
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.list-disc {
-  list-style: disc;
-  margin: 0.75rem 0 0 1.5rem;
-  color: var(--muted);
-  line-height: 1.6;
 }
 
 body.br-login-body {

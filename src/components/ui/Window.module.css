@@ -1,0 +1,55 @@
+.window {
+  background: rgba(10, 10, 18, 0.85);
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  backdrop-filter: blur(14px);
+}
+
+.titleBar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(90deg, rgba(255, 0, 102, 0.2), rgba(0, 102, 255, 0.1));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.control {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--br-hot-pink);
+  box-shadow: 12px 0 0 var(--br-warm), 24px 0 0 var(--br-cyber-blue);
+}
+
+.title {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--br-text);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.body {
+  padding: 1.1rem 1.2rem 1.25rem;
+  color: var(--br-text);
+  font-family: var(--br-font-mono);
+  line-height: 1.6;
+  background: radial-gradient(circle at 20% 20%, rgba(255, 0, 102, 0.08), transparent 35%),
+    radial-gradient(circle at 80% 0%, rgba(0, 102, 255, 0.1), transparent 40%),
+    rgba(255, 255, 255, 0.01);
+}
+
+.subtitle {
+  color: var(--muted);
+  margin-top: 0.35rem;
+}
