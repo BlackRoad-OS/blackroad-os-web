@@ -3,6 +3,9 @@ export const NAV_LINKS = [
   { href: '/product', label: 'Product' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/regulated', label: 'Regulated' },
+  { href: '/console', label: 'Console' },
+  { href: '/roadchain', label: 'Roadchain' },
+  { href: '/agents', label: 'Agents' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' }
 ];
