@@ -26,9 +26,6 @@ export function NavBar() {
               {link.label}
             </Link>
           ))}
-          <a className={styles.navLink} href={DOCS_URL} target="_blank" rel="noreferrer">
-            Docs
-          </a>
         </div>
 
         <div className={styles.actions}>

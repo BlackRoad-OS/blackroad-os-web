@@ -1,9 +1,12 @@
 export const NAV_LINKS = [
   { href: '/', label: 'Home' },
   { href: '/product', label: 'Product' },
+  { href: '/vision', label: 'Vision' },
+  { href: '/docs', label: 'Docs' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/regulated', label: 'Regulated' },
   { href: '/about', label: 'About' },
+  { href: '/company', label: 'Company' },
   { href: '/contact', label: 'Contact' }
 ];
 
