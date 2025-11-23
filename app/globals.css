@@ -4,12 +4,163 @@
   box-sizing: border-box;
 }
 
+:root {
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
-  background: radial-gradient(120% 120% at 50% 15%, rgba(114, 228, 162, 0.08), transparent 50%), var(--bg);
+  background:
+    radial-gradient(160% 120% at 20% 20%, rgba(255, 0, 102, 0.14), transparent 45%),
+    radial-gradient(120% 120% at 80% 0%, rgba(0, 102, 255, 0.18), transparent 40%),
+    radial-gradient(80% 80% at 50% 10%, rgba(255, 157, 0, 0.12), transparent 35%),
+    var(--bg);
   color: var(--text);
-  font-family: var(--br-font-sans);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+main {
+  width: 100%;
+}
+
+button {
+  font-family: inherit;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.accent {
+  color: var(--accent);
+}
+
+.grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.section {
+  padding: 72px 0;
+  position: relative;
+}
+
+.section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
+  opacity: 0.35;
+}
+
+.section-inner {
+  width: min(1200px, 92vw);
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.section-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 0.5rem;
+}
+
+.section-subtitle {
+  color: var(--muted);
+  max-width: 720px;
+  line-height: 1.6;
+}
+
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.35rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--br-grad-full);
+  color: #0a0a0f;
+  font-weight: 700;
+  transition: transform 180ms ease, box-shadow 200ms ease, opacity 180ms ease;
+  box-shadow: 0 16px 40px rgba(255, 0, 102, 0.28);
+}
+
+.cta-button:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+.cta-button.secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+}
+
+.cta-button.secondary:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.card h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.list-disc {
+  list-style: disc;
+  margin: 0.75rem 0 0 1.5rem;
+  color: var(--muted);
+  line-height: 1.6;
 }
 
 body.br-login-body {
@@ -27,35 +178,16 @@ body.br-login-body footer {
   display: none;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+input.panel,
+textarea.panel {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 0.75rem 0.85rem;
 }
 
-main {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 2.5rem 1.25rem 3.5rem;
-}
-
-.panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
-}
-
-.muted {
-  color: var(--muted);
-}
-
-.accent {
-  color: var(--accent);
-}
-
-.grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+label {
+  color: var(--text);
+  display: block;
 }

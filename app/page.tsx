@@ -1,77 +1,138 @@
-import styles from './page.module.css';
-import { StatusWidget } from '@/components/status/StatusWidget';
+import type { Metadata } from 'next';
+import { CTASection } from '@/components/CTASection';
+import { FeatureSection } from '@/components/FeatureSection';
+import { Hero } from '@/components/Hero';
+import { LogoCloud } from '@/components/LogoCloud';
+import { SplitSection } from '@/components/SplitSection';
+import { CTA_DESTINATION } from '@/lib/routes';
 
-const consoleUrl = process.env.NEXT_PUBLIC_CONSOLE_URL || 'https://console.blackroad.systems';
-const docsUrl = process.env.NEXT_PUBLIC_DOCS_URL || 'https://docs.blackroad.systems';
+export const metadata: Metadata = {
+  title: 'BlackRoad OS — AI Operating System',
+  description:
+    'Run a 10,000-person company with one human orchestrator. BlackRoad OS coordinates AI agents with cryptographic audit trails, finance automation, and policy-driven guardrails.'
+};
 
-const pillars = [
+const heroMetrics = [
   {
-    title: 'Orchestration',
-    description: 'Coordinated workflows for agents, services, and ledger-aware actions.'
+    title: '10,000+ virtual employees',
+    description: 'Composable agents for finance, legal, operations, and product domains.'
   },
   {
-    title: 'Observability',
-    description: 'Built-in telemetry, health, and audit layers to keep operators in control.'
+    title: 'One human orchestrator',
+    description: 'Humans approve thresholds, policies, and critical actions while agents execute.'
   },
   {
-    title: 'Compliance',
-    description: 'Policy-driven safeguards that keep the platform aligned with governance.'
+    title: 'Audit-first architecture',
+    description: 'Every action is journaled with hashes, lineage, and policy context.'
+  }
+];
+
+const orchestrationFeatures = [
+  {
+    icon: '⚡️',
+    title: 'One orchestrator, many agents',
+    description: 'blackroad-os-core and blackroad-os-operator coordinate thousands of domain-specific agents with policies, queues, and service mesh awareness.'
+  },
+  {
+    icon: '🧭',
+    title: 'Policy-driven routing',
+    description: 'Safeguards ensure the right agent executes with the right context, approvals, and compliance envelopes.'
+  },
+  {
+    icon: '🛰️',
+    title: 'Event-native runtime',
+    description: 'Event bus, journaling, and replay let you simulate, approve, and monitor automated work before it touches production data.'
+  }
+];
+
+const financeFeatures = [
+  {
+    icon: '💹',
+    title: 'Automated Finance Layer',
+    description: 'CFO, Controller, FP&A, and Treasury agents collaborate on closes, cash, and capital flows—always tagged to immutable audit trails.'
+  },
+  {
+    icon: '📊',
+    title: 'Real-time reporting',
+    description: 'Programmatic reports with drill-downs, anomaly detection, and policy-aware escalations to humans.'
+  },
+  {
+    icon: '🔐',
+    title: 'Compliance-native',
+    description: 'PS-SHA∞ journaling with hash links across ledgers, advice, and actions so regulated teams stay exam-ready.'
+  }
+];
+
+const prismFeatures = [
+  {
+    icon: '🖥️',
+    title: 'Single pane of glass',
+    description: 'Prism Console shows live agents, tasks, audit logs, and controls in one secure interface.'
+  },
+  {
+    icon: '📡',
+    title: 'Health + observability',
+    description: 'Status, traces, and event trails across every automated workflow keep humans in charge.'
+  },
+  {
+    icon: '🛡️',
+    title: 'Human-in-the-loop safety',
+    description: 'High-impact actions always route through approvals and capture rationale for downstream audit.'
   }
 ];
 
 export default function HomePage() {
   return (
-    <div className={styles.page}>
-      <section className={`panel ${styles.hero}`}>
-        <p className="muted">BlackRoad Operating System</p>
-        <h1>BlackRoad OS</h1>
-        <p className={styles.subtitle}>
-          The operations layer for secure, ledger-native automation. Build, observe, and control the
-          BlackRoad stack from a single, trusted interface.
-        </p>
-        <div className={styles.ctaRow}>
-          <a className={styles.ctaButton} href={consoleUrl} target="_blank" rel="noreferrer">
-            View Console
-          </a>
-          <a className={styles.ctaButtonSecondary} href={docsUrl} target="_blank" rel="noreferrer">
-            Read Docs
-          </a>
-        </div>
-      </section>
+    <div>
+      <Hero
+        title="Run a 10,000-person company with one human orchestrator."
+        subtitle="BlackRoad OS is an AI-first operating system that coordinates thousands of specialized agents with cryptographic audit trails, policy guardrails, and finance automation built in."
+        primaryCta={{ label: 'Request Early Access', href: CTA_DESTINATION }}
+        secondaryCta={{ label: 'View Architecture', href: '/product' }}
+        metrics={heroMetrics}
+      />
 
-      <section className={`panel ${styles.section}`}>
-        <div className={styles.sectionHeader}>
-          <div>
-            <p className="muted">Platform overview</p>
-            <h2>What is BlackRoad OS?</h2>
-            <p className={styles.subtitle}>
-              A cohesive runtime that spans the core ledger, operator services, web interfaces, and
-              console workflows.
-            </p>
-          </div>
-        </div>
-        <div className={styles.cardGrid}>
-          {pillars.map((pillar) => (
-            <div key={pillar.title} className={styles.card}>
-              <h3>{pillar.title}</h3>
-              <p className="muted">{pillar.description}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <FeatureSection
+        title="Orchestration Engine"
+        subtitle="blackroad-os-core and blackroad-os-operator form a governed fabric where agents are composable, observable, and policy-aware."
+        items={orchestrationFeatures}
+      />
 
-      <section className={`panel ${styles.section}`}>
-        <div className={styles.sectionHeader}>
-          <div>
-            <p className="muted">Live telemetry</p>
-            <h2>System Snapshot</h2>
-            <p className={styles.subtitle}>
-              Quick glance at the public-facing services powering BlackRoad OS.
-            </p>
-          </div>
-        </div>
-        <StatusWidget />
-      </section>
+      <FeatureSection
+        title="Automated Finance & Compliance"
+        subtitle="Purpose-built finance agents cover close, cash, treasury, tax, and FP&A with human gates for critical moves."
+        items={financeFeatures}
+      />
+
+      <FeatureSection
+        title="Prism Console"
+        subtitle="Your single pane of glass for monitoring, approvals, audit trails, and human overrides across every agent."
+        items={prismFeatures}
+      />
+
+      <SplitSection
+        eyebrow="Regulated by design"
+        title="Born for FINRA/SEC/AML/KYC environments"
+        description="PS-SHA∞ journaling, suitability-aware logic, and policy-based routing make the system safe for regulated enterprises from day one."
+        bullets={[
+          'Every decision and payload hashed with lineage for auditability.',
+          'Policy-driven automation with human gates for critical thresholds.',
+          'Context-aware agents for finance, legal, and governance-heavy workflows.'
+        ]}
+        visualTitle="Built-in controls"
+        visualCopy="Deterministic approvals, immutable journals, and safe rollback paths mean you can trust large-scale automation without giving up governance."
+      />
+
+      <LogoCloud />
+
+      <CTASection
+        title="Book a session with Cecilia"
+        copy="Tell us about your operating model, regulatory posture, and where you need scale. We will map your environment to the BlackRoad OS agent fabric."
+        primaryLabel="Talk to Cecilia"
+        primaryHref={CTA_DESTINATION}
+        secondaryLabel="View docs"
+        secondaryHref={process.env.NEXT_PUBLIC_DOCS_URL || 'https://docs.blackroad.systems'}
+      />
     </div>
   );
 }

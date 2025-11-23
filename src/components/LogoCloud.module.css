@@ -1,0 +1,32 @@
+.section {
+  padding: 48px 0;
+}
+
+.cloud {
+  width: min(1000px, 92vw);
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.title {
+  text-align: center;
+  margin: 0 0 1rem;
+}
+
+.logos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.85rem;
+}
+
+.logoItem {
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  text-align: center;
+  color: var(--br-text-secondary);
+  background: rgba(0, 0, 0, 0.2);
+}

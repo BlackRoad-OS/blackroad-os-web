@@ -1,0 +1,39 @@
+.pageHeader {
+  padding: 56px 0 28px;
+}
+
+.lead {
+  color: var(--muted);
+  max-width: 820px;
+  line-height: 1.7;
+  margin-top: 0.75rem;
+}
+
+.tagRow {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 0.9rem;
+}
+
+.callout {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.04);
+  margin: 1.25rem 0;
+  color: var(--muted);
+  line-height: 1.6;
+}

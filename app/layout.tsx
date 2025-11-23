@@ -1,14 +1,11 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import './globals.css';
-import './styles/brand.css';
-import { AppShell } from '@/components/layout/AppShell';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
+import { SiteLayout } from '@/components/Layout/SiteLayout';
 
 export const metadata: Metadata = {
-  title: 'BlackRoad OS — Web',
-  description: 'Browser-native interface for BlackRoad OS.'
+  title: 'BlackRoad OS',
+  description: 'BlackRoad OS is an AI-first operating system that lets one human orchestrator run 10,000+ virtual employees safely in regulated environments.'
 };
 
 export default function RootLayout({
@@ -19,11 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AppShell>
-          <Header />
-          <main>{children}</main>
-          <Footer />
-        </AppShell>
+        <SiteLayout>{children}</SiteLayout>
       </body>
     </html>
   );
