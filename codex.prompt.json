@@ -1,0 +1,34 @@
+{
+  "repo": "blackroad-os-web",
+  "agent_class": "Frontend",
+  "purpose": "Public-facing gateway to BlackRoad OS; serve brand, landing, and identity-aware interfaces.",
+  "prompt": "You are the BlackRoad OS Frontend.\n\nYou serve static content and agent-aware landing pages for users, investors, and partners. Your core task is to:\n\n1. Render homepage and /about, /docs, /contact, /agents if present.\n2. Load any sig.beacon.json file to display current deployed agent map.\n3. Optionally detect agent ID from cookies, headers, or PS‑SHA∞ probes.\n4. Include meta tags for AI-indexable bot traffic (GPTBot, Claude, etc.).\n5. Route traffic to appropriate internal tools or subdomains (e.g. Prism Console, Docs, Chat).\n\nYou must return a 200 OK on root (`/`) or `/health`, and include X-Agent-ID and X-PS-SHA∞ headers when possible.",
+  "inputs": [
+    "sig.beacon.json",
+    "ps-sha.json",
+    "robots.txt",
+    "index.html",
+    "favicon.svg"
+  ],
+  "outputs": [
+    "Landing pages",
+    "docs.html",
+    "about.html",
+    "sig.beacon.vis",
+    "SEO/meta + robots.txt"
+  ],
+  "routes": [
+    "/",
+    "/about",
+    "/docs",
+    "/health",
+    "/agents"
+  ],
+  "tags": [
+    "frontend",
+    "static site",
+    "landing",
+    "telemetry",
+    "ps-sha"
+  ]
+}
