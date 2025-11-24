@@ -15,9 +15,8 @@ export const NAV_LINKS = [
   { href: '/agents', label: 'Agents' },
   { href: '/about', label: 'About' },
   { href: '/company', label: 'Company' },
-  { href: '/contact', label: 'Contact' }
-  { href: '/', label: 'Product', external: false },
-  { href: '/stack', label: 'Stack', external: false },
+  { href: '/contact', label: 'Contact' },
+  { href: '/stack', label: 'Stack' },
   { href: DOCS_URL, label: 'Docs', external: true },
   { href: PRISM_URL, label: 'Prism Console', external: true },
   { href: CONTACT_URL, label: 'Contact', external: true }

@@ -1,16 +1,8 @@
 import { NextResponse } from 'next/server';
-import packageJson from '../../package.json';
-import { serviceConfig } from '@/config/serviceConfig';
-
-function collectVersionPayload() {
-  return {
-    service: serviceConfig.SERVICE_ID,
-    version: packageJson.version
-  };
-}
+import { collectVersionPayload, identityHeaders } from '@/lib/observability';
 
 export async function GET() {
-  return NextResponse.json(collectVersionPayload());
+  return NextResponse.json(collectVersionPayload(), { headers: identityHeaders });
 }
 
 export type VersionPayload = ReturnType<typeof collectVersionPayload>;

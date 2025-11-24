@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
+import { collectHealthPayload, identityHeaders } from '@/lib/observability';
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  return NextResponse.json({ status: 'ok', service: 'web' });
+  return NextResponse.json(collectHealthPayload(), { headers: identityHeaders });
 }
