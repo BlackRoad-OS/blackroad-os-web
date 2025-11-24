@@ -1,4 +1,26 @@
-User-agent: *
+# BlackRoad OS - Robots.txt
+# Only verified, beneficial crawlers allowed
+
+User-agent: GPTBot
 Allow: /
 
-Sitemap: https://blackroad.os/sitemap.xml
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: archive.org_bot
+Allow: /
+
+User-agent: ia_archiver
+Allow: /
+
+User-agent: *
+Disallow: /
+
+# Sitemap
+Sitemap: https://blackroad.systems/sitemap.xml

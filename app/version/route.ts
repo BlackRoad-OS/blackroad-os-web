@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { collectVersionPayload, identityHeaders } from '@/lib/observability';
+import { collectVersionPayload, identityHeaders } from '../../src/lib/observability';
 
 export async function GET() {
   return NextResponse.json(collectVersionPayload(), { headers: identityHeaders });

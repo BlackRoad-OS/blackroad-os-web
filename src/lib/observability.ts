@@ -1,6 +1,6 @@
 import packageJson from '../../package.json';
-import { appConfig } from '@/config';
-import { serviceConfig } from '@/config/serviceConfig';
+import { appConfig } from '../config/index';
+import { serviceConfig } from '../config/serviceConfig';
 
 const startedAt = Date.now();
 
@@ -37,12 +37,12 @@ export function collectHealthPayload() {
   };
 }
 
-export const identityHeaders = compact({
+export const identityHeaders: Record<string, string> = compact({
   'X-Agent-ID': process.env.NEXT_PUBLIC_SERVICE_ID || 'blackroad-os-web',
   'X-Service-ID': serviceConfig.SERVICE_ID,
   'X-Service-Name': serviceConfig.SERVICE_NAME,
-  'X-PS-SHA∞': process.env.PS_SHA_INFINITY
-});
+  'X-PS-SHA-INFINITY': process.env.PS_SHA_INFINITY
+}) as Record<string, string>;
 
 export type VersionPayload = ReturnType<typeof collectVersionPayload>;
 export type HealthPayload = ReturnType<typeof collectHealthPayload>;
