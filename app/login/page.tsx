@@ -134,6 +134,24 @@ export default function LoginPage() {
                   </a>
                 </div>
 
+                <div className={styles.ssoGrid}>
+                  <button type="button" className={styles.secondaryButton}>
+                    <div className={styles.ssoBadge}>BR · SSO</div>
+                    <div className={styles.ssoCopy}>
+                      <span className={styles.ssoTitle}>BlackRoad SSO</span>
+                      <span className={styles.ssoHint}>Route through the identity layer</span>
+                    </div>
+                  </button>
+
+                  <button type="button" className={`${styles.secondaryButton} ${styles.walletButton}`}>
+                    <div className={styles.ssoBadge}>RoadWallet</div>
+                    <div className={styles.ssoCopy}>
+                      <span className={styles.ssoTitle}>Wallet SSO</span>
+                      <span className={styles.ssoHint}>Hardware-backed session attestation</span>
+                    </div>
+                  </button>
+                </div>
+
                 <button type="submit" className={styles.primaryButton}>
                   Enter operating system
                   <span className={styles.kbd}>↵</span>

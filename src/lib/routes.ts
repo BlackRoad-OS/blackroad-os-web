@@ -5,6 +5,9 @@ export const NAV_LINKS = [
   { href: '/docs', label: 'Docs' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/regulated', label: 'Regulated' },
+  { href: '/console', label: 'Console' },
+  { href: '/roadchain', label: 'Roadchain' },
+  { href: '/agents', label: 'Agents' },
   { href: '/about', label: 'About' },
   { href: '/company', label: 'Company' },
   { href: '/contact', label: 'Contact' }
