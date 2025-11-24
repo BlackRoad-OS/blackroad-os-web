@@ -1,19 +1,15 @@
 FROM node:18-alpine AS builder
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
+COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
+RUN corepack enable && pnpm install --frozen-lockfile --prefer-offline
 COPY . .
-RUN npm run build
+RUN pnpm build && pnpm postbuild
 
 FROM node:18-alpine AS runner
 WORKDIR /app
-COPY package*.json ./
-RUN npm install --omit=dev
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.* ./
-COPY --from=builder /app/app ./app
-COPY --from=builder /app/src ./src
-ENV PORT=8080
-EXPOSE 8080
-CMD ["npm", "start"]
+COPY --from=builder /app/.out ./.out
+COPY --from=builder /app/package.json ./package.json
+RUN corepack enable && pnpm add --global serve
+ENV PORT=3000
+EXPOSE 3000
+CMD ["serve", "-s", ".out", "-l", "${PORT}"]
