@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { CTA_DESTINATION, CTA_LABEL, DOCS_URL, NAV_LINKS } from '@/lib/routes';
+import { CONTACT_URL, DOCS_URL, NAV_LINKS, PRISM_URL } from '@/lib/routes';
 import styles from './NavBar.module.css';
 
 export function NavBar() {
@@ -26,15 +26,37 @@ export function NavBar() {
               {link.label}
             </Link>
           ))}
+          {NAV_LINKS.map((link) => {
+            if (link.external) {
+              return (
+                <a key={link.href} href={link.href} className={styles.navLink} target="_blank" rel="noreferrer">
+                  {link.label}
+                </a>
+              );
+            }
+
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`${styles.navLink} ${pathname === link.href ? styles.active : ''}`.trim()}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
 
         <div className={styles.actions}>
           <a className={styles.docsLink} href={DOCS_URL} target="_blank" rel="noreferrer">
             Docs
           </a>
-          <Link href={CTA_DESTINATION} className={styles.ctaButton}>
-            {CTA_LABEL}
-          </Link>
+          <a className={styles.ctaButton} href={PRISM_URL} target="_blank" rel="noreferrer">
+            Prism Console
+          </a>
+          <a className={styles.docsLink} href={CONTACT_URL} target="_blank" rel="noreferrer">
+            Contact
+          </a>
         </div>
       </div>
     </nav>
