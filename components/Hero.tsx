@@ -1,8 +1,19 @@
 import GlowButton from './GlowButton';
+import Link from 'next/link';
 
 export default function Hero() {
   return (
     <section className="relative isolate overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 px-6 pb-20 pt-24 text-center">
+      {/* Simple Navigation */}
+      <nav className="absolute left-6 top-6 flex gap-4 text-sm">
+        <Link href="/status" className="text-slate-400 hover:text-cyan-400 transition-colors">
+          Status
+        </Link>
+        <Link href="/docs/intro" className="text-slate-400 hover:text-cyan-400 transition-colors">
+          Docs
+        </Link>
+      </nav>
+
       <div className="pointer-events-none absolute inset-0 opacity-60" aria-hidden>
         <div className="absolute left-1/2 top-10 h-72 w-72 -translate-x-1/2 rounded-full bg-cyan-500/20 blur-3xl" />
         <div className="absolute left-1/3 top-48 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl" />

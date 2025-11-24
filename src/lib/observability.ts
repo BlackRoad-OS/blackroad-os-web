@@ -5,7 +5,13 @@ import { serviceConfig } from '../config/serviceConfig';
 const startedAt = Date.now();
 
 function resolveGitCommit() {
-  return process.env.VERCEL_GIT_COMMIT_SHA || process.env.GIT_COMMIT_SHA || process.env.NEXT_PUBLIC_GIT_SHA;
+  return (
+    process.env.BR_OS_WEB_COMMIT ||
+    process.env.VERCEL_GIT_COMMIT_SHA ||
+    process.env.GIT_COMMIT_SHA ||
+    process.env.NEXT_PUBLIC_GIT_SHA ||
+    'UNKNOWN'
+  );
 }
 
 function resolveBuildTime() {
@@ -19,8 +25,11 @@ function compact<T extends Record<string, unknown>>(value: T): T {
 export function collectVersionPayload() {
   return compact({
     service: serviceConfig.SERVICE_ID,
-    name: serviceConfig.SERVICE_NAME,
     version: packageJson.version,
+    commit: resolveGitCommit(),
+    env: appConfig.env,
+    // Additional fields for observability
+    name: serviceConfig.SERVICE_NAME,
     environment: appConfig.env,
     gitCommit: resolveGitCommit(),
     buildTime: resolveBuildTime()
@@ -29,9 +38,12 @@ export function collectVersionPayload() {
 
 export function collectHealthPayload() {
   return {
+    // Core health fields (spec-compliant)
+    ok: true,
     ...collectVersionPayload(),
-    status: 'ok' as const,
     timestamp: new Date().toISOString(),
+    // Additional observability fields
+    status: 'ok' as const,
     uptime: Math.round(process.uptime() * 1000) / 1000,
     startedAt: new Date(startedAt).toISOString()
   };

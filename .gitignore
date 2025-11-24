@@ -19,3 +19,7 @@ coverage
 .cache
 parcel-cache
 .contentlayer
+
+# Test artifacts
+test-results
+playwright-report
