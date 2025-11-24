@@ -1,34 +1,22 @@
-import type { Metadata, Viewport } from 'next';
-import type { ReactNode } from 'react';
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 import './globals.css';
-import { SiteLayout } from '@/components/Layout/SiteLayout';
+import { siteMetadata } from '../lib/metadata';
+import { PlausibleProvider } from '../lib/plausible';
 
-export const metadata: Metadata = {
-  title: 'BlackRoad OS',
-  description:
-    'BlackRoad OS is the desktop-style marketing shell that links Prism Console, docs, and the orchestration stack.',
-  openGraph: {
-    title: 'BlackRoad OS',
-    description:
-      'Public-facing web shell for the BlackRoad OS stack: Core, Operator, API, Prism, Web, Infra, Docs, and Agents.',
-    type: 'website'
-  },
-  metadataBase: new URL('https://blackroad.systems')
-};
+const inter = Inter({ subsets: ['latin'] });
 
-export const viewport: Viewport = {
-  themeColor: '#020008'
-};
+export const metadata: Metadata = siteMetadata;
 
-export default function RootLayout({
-  children
-}: {
-  children: ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>
-        <SiteLayout>{children}</SiteLayout>
+    <html lang="en" className="bg-slate-950 text-slate-50">
+      <body className={`${inter.className} min-h-screen bg-slate-950 text-slate-50 antialiased`}>
+        <PlausibleProvider>
+          <div className="flex min-h-screen flex-col">
+            <main className="flex-1">{children}</main>
+          </div>
+        </PlausibleProvider>
       </body>
     </html>
   );

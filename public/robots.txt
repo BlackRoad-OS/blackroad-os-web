@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
-Sitemap: https://blackroad.io/sitemap.xml
-Host: blackroad.io
+
+Sitemap: https://blackroad.os/sitemap.xml
