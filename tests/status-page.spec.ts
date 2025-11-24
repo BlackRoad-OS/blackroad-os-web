@@ -20,8 +20,10 @@ test.describe('Status Page', () => {
   test('displays web service status from health endpoint', async ({ page }) => {
     await page.goto('/status');
     
-    // Wait for the health check to complete
-    await page.waitForTimeout(1000);
+    // Wait for the health check API call to complete
+    await page.waitForResponse(response => 
+      response.url().includes('/api/health') && response.status() === 200
+    );
     
     // Web service should show OK status after fetching from /api/health
     const webCard = page.locator('text=Web').locator('..');

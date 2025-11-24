@@ -28,10 +28,7 @@ export function collectVersionPayload() {
     version: packageJson.version,
     commit: resolveGitCommit(),
     env: appConfig.env,
-    // Additional fields for observability
     name: serviceConfig.SERVICE_NAME,
-    environment: appConfig.env,
-    gitCommit: resolveGitCommit(),
     buildTime: resolveBuildTime()
   });
 }
