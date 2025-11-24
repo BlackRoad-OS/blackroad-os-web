@@ -17,30 +17,21 @@ export function NavBar() {
         </Link>
 
         <div className={styles.navLinks}>
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`${styles.navLink} ${pathname === link.href ? styles.active : ''}`.trim()}
-            >
-              {link.label}
-            </Link>
-          ))}
           {NAV_LINKS.map((link) => {
+            const className = `${styles.navLink} ${
+              !link.external && pathname === link.href ? styles.active : ''
+            }`.trim();
+
             if (link.external) {
               return (
-                <a key={link.href} href={link.href} className={styles.navLink} target="_blank" rel="noreferrer">
+                <a key={link.href} href={link.href} className={className} target="_blank" rel="noreferrer">
                   {link.label}
                 </a>
               );
             }
 
             return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`${styles.navLink} ${pathname === link.href ? styles.active : ''}`.trim()}
-              >
+              <Link key={link.href} href={link.href} className={className}>
                 {link.label}
               </Link>
             );
