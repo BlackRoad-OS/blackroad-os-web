@@ -1,21 +1,76 @@
 ---
 title: Get Started
-description: How to run the BlackRoad OS portal locally.
+description: How to run the BlackRoad web portal locally.
 ---
+
+# Getting Started
+
+This guide will help you set up and run the BlackRoad web portal locally for development.
+
+## Prerequisites
+
+- Node.js 18 or higher
+- pnpm 10.11.0 (required package manager)
+
+## Installation
+
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/BlackRoad-OS/blackroad-os-web.git
+cd blackroad-os-web
+pnpm install
+```
 
 ## Running locally
 
+Start the development server:
+
 ```bash
-pnpm install
 pnpm dev
 ```
 
-Visit `http://localhost:3000` to see the portal.
+Visit `http://localhost:3000` to see the portal in your browser. The dev server supports hot reloading for instant feedback.
 
-## Static export
+## Configuration
+
+Copy `.env.example` to `.env.local` and configure your environment variables:
+
+```bash
+SITE_URL=https://blackroad.io
+PLAUSIBLE_DOMAIN=analytics.blackroad.io
+```
+
+## Building for production
+
+Create a static export:
 
 ```bash
 pnpm build
 ```
 
-The static site is emitted to `.out`. Serve it with `pnpm start`.
+The static site is emitted to `.out/`. Serve it locally with:
+
+```bash
+pnpm start
+```
+
+## Testing
+
+Run all tests (Vitest + Playwright):
+
+```bash
+pnpm test
+```
+
+Run TypeScript type checking:
+
+```bash
+pnpm typecheck
+```
+
+## Next Steps
+
+- Explore the [documentation structure](/docs/intro)
+- Learn about [agent orchestration](#)
+- Check out the [API health endpoint](/api/health)

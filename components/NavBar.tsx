@@ -24,7 +24,7 @@ export default function NavBar() {
           <span className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-cyan-500 to-blue-600 text-sm font-bold">
             BR
           </span>
-          <span className="hidden sm:inline">BlackRoad OS</span>
+          <span className="hidden sm:inline">BlackRoad</span>
         </Link>
 
         {/* Desktop Navigation */}

@@ -19,15 +19,15 @@ export default function Hero() {
         <div className="absolute left-1/3 top-48 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl" />
       </div>
       <div className="relative mx-auto flex max-w-3xl flex-col items-center gap-6">
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">BlackRoad OS</p>
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">BlackRoad</p>
         <h1 className="text-balance text-4xl font-bold leading-tight text-white sm:text-5xl">
-          BlackRoad OS – Public Web Portal for autonomous operations
+          Composable Agent Orchestration for Autonomous Operations
         </h1>
         <p className="text-lg text-slate-300 sm:text-xl">
-          Instrumentation, docs, and live agent affordances designed for static-first delivery.
+          Wire services, signals, and humans together with event-driven flows. Built for operations with observability-ready primitives.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-4">
-          <GlowButton href="/docs/intro" label="Explore documentation" />
+          <GlowButton href="/docs/intro" label="Get started" />
           <GlowButton href="/api/health" label="API health" />
         </div>
       </div>
