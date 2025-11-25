@@ -1,8 +1,8 @@
 {
-  "name": "blackroad-os-web",
+  "name": "blackroad-web",
   "version": "0.1.0",
   "private": true,
-  "description": "BlackRoad OS public web portal",
+  "description": "BlackRoad - Composable agent orchestration platform",
   "scripts": {
     "dev": "next dev",
     "build": "next build && rm -rf .out && mv out .out",

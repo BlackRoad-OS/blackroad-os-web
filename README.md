@@ -1,6 +1,13 @@
-# BlackRoad OS · Public Web Portal
+# BlackRoad
 
-Static-first Next.js 14 portal with Tailwind typography, Contentlayer MDX docs, and Plausible hooks.
+**Composable agent orchestration platform for autonomous operations**
+
+Static-first Next.js 14 web portal with Tailwind typography, Contentlayer MDX docs, and observability-ready primitives.
+
+## Domains
+
+- **Production**: [blackroad.io](https://blackroad.io)
+- **Systems**: [blackroad.systems](https://blackroad.systems)
 
 ## Quickstart
 
@@ -14,12 +21,28 @@ pnpm start        # serve the static bundle
 ## Tests
 
 ```bash
-pnpm test
+pnpm test         # run Vitest + Playwright tests
+pnpm typecheck    # run TypeScript type checking
+pnpm lint         # run ESLint
+pnpm format       # check code formatting
 ```
 
 ## Docker
 
 ```bash
-docker build -t blackroad/web:0.0.1 .
-docker run -e PORT=3000 -p 3000:3000 blackroad/web:0.0.1
+docker build -t blackroad/web:0.1.0 .
+docker run -e PORT=3000 -p 3000:3000 blackroad/web:0.1.0
 ```
+
+## Environment Configuration
+
+Copy `.env.example` to `.env.local` and configure:
+
+```bash
+SITE_URL=https://blackroad.io
+PLAUSIBLE_DOMAIN=analytics.blackroad.io
+```
+
+## Documentation
+
+See [CLAUDE.md](./CLAUDE.md) for comprehensive AI assistant guidance and development workflows.

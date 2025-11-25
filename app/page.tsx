@@ -40,7 +40,7 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="mx-auto flex max-w-4xl flex-col items-center gap-4 px-6 pb-20 text-center">
         <p className="text-lg text-slate-300">
-          BlackRoad OS is a public-facing surface for orchestrating intelligent systems.
+          BlackRoad is a composable platform for orchestrating intelligent systems with observability-ready primitives.
         </p>
         <p className="text-sm text-cyan-400">✓ Live agent monitoring • Real-time orchestration • Enterprise scale</p>
         <div className="flex flex-wrap items-center justify-center gap-4">
