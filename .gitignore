@@ -19,3 +19,4 @@ coverage
 .cache
 parcel-cache
 .contentlayer
+tsconfig.tsbuildinfo
