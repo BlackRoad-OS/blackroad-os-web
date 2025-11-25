@@ -11,29 +11,44 @@ export default function Footer() {
             © {currentYear} BlackRoad OS. All rights reserved.
           </p>
           <nav className="flex gap-6 text-sm">
-            <Link href="/docs/intro" className="text-slate-400 hover:text-cyan-400 transition-colors">
+            <Link
+              href="/docs/intro"
+              className="text-slate-400 hover:text-cyan-400 transition-colors"
+            >
               Docs
             </Link>
-            <Link href="/status" className="text-slate-400 hover:text-cyan-400 transition-colors">
+            <Link
+              href="/status"
+              className="text-slate-400 hover:text-cyan-400 transition-colors"
+            >
               Status
             </Link>
-            <Link href="/privacy" className="text-slate-400 hover:text-cyan-400 transition-colors">
+            <Link
+              href="/privacy"
+              className="text-slate-400 hover:text-cyan-400 transition-colors"
+            >
               Privacy
             </Link>
           </nav>
-    <footer className="border-t border-slate-800 bg-slate-950/80 px-6 py-8 text-center">
-      <div className="mx-auto max-w-7xl">
-        <p className="text-sm text-slate-400">
-          BlackRoad · Composable agent orchestration for autonomous operations
-        </p>
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-500">
-          <a href="https://blackroad.io" className="hover:text-cyan-400 transition-colors">
-            blackroad.io
-          </a>
-          <a href="https://blackroad.systems" className="hover:text-cyan-400 transition-colors">
-            blackroad.systems
-          </a>
-          <span>© {currentYear} BlackRoad</span>
+        </div>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500 sm:justify-between">
+          <p>
+            BlackRoad · Composable agent orchestration for autonomous operations
+          </p>
+          <div className="flex gap-4">
+            <a
+              href="https://blackroad.io"
+              className="hover:text-cyan-400 transition-colors"
+            >
+              blackroad.io
+            </a>
+            <a
+              href="https://blackroad.systems"
+              className="hover:text-cyan-400 transition-colors"
+            >
+              blackroad.systems
+            </a>
+          </div>
         </div>
       </div>
     </footer>
