@@ -40,6 +40,8 @@ The design system is composed of **64 canonical UI tokens**, formed by:
 
 ### 8 Shades Each → 64 tokens
 
+Shade scale: `50`, `100`, `200`, `400`, `600`, `800`, `900`, `950`
+
 Each token includes:
 
 - hue
@@ -48,6 +50,22 @@ Each token includes:
 - semantic meaning
 - perceptual cues
 - recommended use cases
+
+#### Token Reference Examples
+
+| Token Name       | Hex Value | Use Case                         |
+| ---------------- | --------- | -------------------------------- |
+| clarity-50       | #f8fafc   | Backgrounds, light surfaces      |
+| clarity-900      | #0f172a   | High-contrast text on light      |
+| depth-400        | #475569   | Secondary text, borders          |
+| depth-950        | #020617   | Primary dark backgrounds         |
+| logic-400        | #38bdf8   | Links, interactive elements      |
+| logic-600        | #0284c7   | Primary buttons, active states   |
+| energy-500       | #ef4444   | Error states, destructive alerts |
+| signal-400       | #facc15   | Warnings, attention markers      |
+| growth-500       | #22c55e   | Success states, confirmations    |
+| intelligence-500 | #a855f7   | AI/agent indicators, highlights  |
+| creativity-400   | #f472b6   | Accents, creative elements       |
 
 Tokens form the UI language across all components.
 
@@ -124,10 +142,25 @@ All components follow **semantic naming**:
 <layer>-<purpose>-<variation>-v64
 ```
 
+#### Layer Taxonomy
+
+| Layer      | Description                     | Example Component        |
+| ---------- | ------------------------------- | ------------------------ |
+| `core`     | Foundation UI primitives        | `core-button-primary`    |
+| `prism`    | Agent visualization components  | `prism-agentcard-visual` |
+| `gateway`  | Authentication & entry flows    | `gateway-login-form`     |
+| `operator` | System control & routing        | `operator-routemap-tree` |
+| `docs`     | Documentation & content display | `docs-codeblock-syntax`  |
+| `dash`     | Dashboard & analytics           | `dash-metric-card`       |
+| `signal`   | Alerts, notifications, status   | `signal-toast-warning`   |
+| `console`  | Terminal & command interfaces   | `console-input-prompt`   |
+
 Example:
 
 - `core-button-primary-v64`
 - `prism-agentcard-visual-v64`
+- `gateway-auth-oauth-v64`
+- `operator-route-selector-v64`
 
 ---
 
@@ -244,6 +277,40 @@ Web system responds as:
   "states": ["state1", "state2"],
   "accessibility": { "..." },
   "notes": ["insight1", "insight2"]
+}
+```
+
+### Concrete Example
+
+```json
+{
+  "component": "core-button-primary-v64",
+  "tokens": ["logic-600", "clarity-50", "depth-400"],
+  "np_view": {
+    "type": "button",
+    "variant": "primary",
+    "size": "md",
+    "props": ["label", "onClick", "disabled", "loading"],
+    "children": "text | icon"
+  },
+  "p_view": {
+    "background": "logic-600",
+    "text": "clarity-50",
+    "border": "none",
+    "radius": "8px",
+    "shadow": "sm",
+    "hover": { "background": "logic-500", "scale": 1.02 }
+  },
+  "states": ["idle", "active", "disabled", "loading"],
+  "accessibility": {
+    "role": "button",
+    "focusRing": "logic-400",
+    "ariaLabel": "required"
+  },
+  "notes": [
+    "Use for primary CTAs only",
+    "Pair with signal-toast-success on completion"
+  ]
 }
 ```
 
