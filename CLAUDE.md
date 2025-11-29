@@ -13,15 +13,115 @@ This document provides comprehensive guidance for AI assistants working on the B
 - **Systems Domain**: https://blackroad.systems
 - **Package Manager**: pnpm 10.11.0 (required)
 
+## 🖥️🌈 Browser Shell Role
+
+This repository is the **Browser Shell** – the BlackRoad "computer in a browser" UI.
+
+### 🎯 Mission
+
+- Render the **BlackRoad OS desktop** in the browser: windows, panels, docks, dashboards 🖥️
+- Talk to APIs, never invent business rules that belong in core/api 🌐
+- Make infra + agents feel playful, visual, and understandable 🎨
+
+### ✅ What This Repo Owns
+
+#### 🖥️ Shell & Layout
+
+- Desktop-style layout (windows, panes, modals, dock, sidebars) 🪟
+- Routing + navigation (apps, envs, workspaces, agents) 🧭
+- Responsive behavior (laptop, tablet, phone) 📱
+
+#### 🌐 Data & Views
+
+- Calling `blackroad-os-api` / `blackroad-os-api-gateway` 🌐
+- View models derived from `blackroad-os-core` types 🧠
+- Rendering dashboards for services, agents, packs, environments 📊
+
+#### 🎨 Visual Identity
+
+- Using tokens from `blackroad-os-brand` 🎨
+- Fonts: JetBrains Mono + Inter stack ✍️
+- Neon road / fractal vibes where appropriate 🛣️🌀
+
+#### 🔐 UX + Safety
+
+- Login / logout / session UX 🔐
+- Safe error surfaces ("what broke" in human words) ⚠️
+- "Next best action" hints for confused humans + agents 👉
+
+### 🚫 What This Repo Does NOT Own
+
+- 🚫 Core domain models → `blackroad-os-core` 🧠
+- 🚫 API contract definitions → `blackroad-os-api` / `-api-gateway` 🌐
+- 🚫 Infra / DNS / Railway configs → `blackroad-os-infra` ☁️
+- 🚫 Research math / long theory → `blackroad-os-research` 🧪
+- 🚫 Brand guidelines source of truth → `blackroad-os-brand` 🎨
+- 🚫 System logs / append-only history → `blackroad-os-archive` 🧾
+
+### 🧪 Testing Requirements
+
+Critical flows must have tests:
+
+- ✅ Auth: login / logout / session restore
+- ✅ Navigation: switch org / env / workspace / app
+- ✅ Data: render + empty states + error states
+
+Any new "app window" should have:
+
+- 🧪 Component tests for main view
+- 🧪 At least one test for loading + error
+
+### 🔐 Security & Compliance
+
+- Never store secrets in front-end code (keys, tokens, real creds) 🚫
+- Respect server-provided permissions: hide/disable actions the user can't take 🔑
+- Avoid dumping raw stack traces or internal IDs to users 🧼
+
+### 📏 Design Principles
+
+`blackroad-os-web` is **presentation + interaction**, not core logic:
+
+- 🧠 Use types/interfaces from `blackroad-os-core` where possible
+- 🌐 Treat APIs as the source of truth for data
+- 🎯 Keep components small, composable, and reusable
+
+Every major screen should answer:
+
+1. 🧭 Where am I? (org / env / workspace / app)
+2. 🟢🟡🔴 What is the current status? (OK / Warning / Error)
+3. 👉 What can I do next? (clear primary action)
+
+### 🎯 Success Criteria
+
+If a new human or agent only touches this repo, they should be able to:
+
+1. See a coherent BlackRoad desktop in the browser 🖥️
+2. Understand how to plug new "apps" into the shell 🧩
+3. Know which APIs + types to call/reuse without redefining anything 📖
+
+### 🧬 Local Emoji Legend
+
+| Emoji | Meaning                 |
+| ----- | ----------------------- |
+| 🖥️    | UI shell / desktop      |
+| 🌐    | API calls / remote data |
+| 🎨    | Brand look & feel       |
+| 🧭    | Navigation / routing    |
+| 📊    | Dashboards / status     |
+| 🔐    | Auth / session          |
+| 🧪    | Tests                   |
+
 ## Technology Stack
 
 ### Core Framework
+
 - **Next.js 14.2.3** with App Router
 - **React 18.3.1**
 - **TypeScript 5.4.5** (strict mode enabled)
 - **Static Export Mode** (`output: 'export'`)
 
 ### Styling & UI
+
 - **Tailwind CSS 3.4.4** with custom configuration
 - **@tailwindcss/typography** for prose content
 - **Custom color scheme**:
@@ -31,21 +131,25 @@ This document provides comprehensive guidance for AI assistants working on the B
 - **Inter font** from Google Fonts
 
 ### Content Management
+
 - **Contentlayer 0.3.4** for type-safe MDX content
 - **MDX** for documentation and blog posts
 - Content stored in `content/` directory
 
 ### Analytics & Observability
+
 - **Plausible Analytics** (next-plausible integration)
 - Custom beacon system (sig.beacon.json)
 
 ### Testing & Quality
+
 - **Vitest 1.6.0** for unit tests
 - **Playwright 1.45.0** for E2E tests
 - **ESLint** with Next.js and Prettier configs
 - **Prettier** for code formatting
 
 ### Build & Deployment
+
 - **serve** for static file serving
 - **Docker** support with multi-stage builds
 - **Static export** to `.out` directory
@@ -242,11 +346,13 @@ Two document types:
 ## API Routes
 
 ### Health Check
+
 - **Path**: `/api/health` and `/health`
 - **Response**: `{ status: 'ok', ts: ISO_TIMESTAMP }`
 - **Use**: Readiness/liveness probes
 
 ### Version Info
+
 - **Path**: `/api/version` and `/version`
 - **Response**: `{ version: '0.1.0', name: 'blackroad-os-web' }`
 - **Use**: Deployment verification
@@ -256,6 +362,7 @@ Two document types:
 ### Creating Documentation
 
 1. Create MDX file in `content/docs/`:
+
 ```mdx
 ---
 title: Page Title
@@ -291,6 +398,7 @@ docker run -e PORT=3000 -p 3000:3000 blackroad/web:0.0.1
 ```
 
 **Dockerfile stages**:
+
 1. **Builder**: Install deps, build static export
 2. **Runner**: Copy `.out/`, serve with `serve`
 
@@ -303,6 +411,7 @@ docker run -e PORT=3000 -p 3000:3000 blackroad/web:0.0.1
 ### CI/CD Pipeline (.github/workflows/ci.yml)
 
 Runs on push to `main` and all PRs:
+
 1. Setup Node.js 18
 2. Enable corepack (for pnpm)
 3. Install dependencies (`--frozen-lockfile`)
@@ -412,16 +521,19 @@ Based on code comments and TODOs:
 ## Quick Reference
 
 ### Path Aliases
+
 - `@/*` → Project root
 - `contentlayer/generated` → Generated types
 
 ### Key Files
+
 - `app/layout.tsx` → Root layout
 - `app/page.tsx` → Home page
 - `lib/metadata.ts` → SEO config
 - `contentlayer.config.ts` → Content schema
 
 ### Important Commands
+
 ```bash
 pnpm dev         # Development
 pnpm build       # Production build
@@ -430,6 +542,7 @@ pnpm typecheck   # Type checking
 ```
 
 ### Component Locations
+
 - Home page components: `components/`
 - Layout components: `src/components/Layout/`
 - Doc rendering: `lib/mdx.tsx`
@@ -437,6 +550,7 @@ pnpm typecheck   # Type checking
 ## Questions?
 
 When in doubt:
+
 1. Check existing code patterns
 2. Follow Next.js 14 App Router conventions
 3. Maintain static-first approach
