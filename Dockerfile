@@ -7,9 +7,9 @@ RUN pnpm build && pnpm postbuild
 
 FROM node:18-alpine AS runner
 WORKDIR /app
+RUN npm install -g serve
 COPY --from=builder /app/.out ./.out
 COPY --from=builder /app/package.json ./package.json
-RUN corepack enable && pnpm add --global serve
 ENV PORT=3000
 EXPOSE 3000
-CMD ["serve", "-s", ".out", "-l", "${PORT}"]
+CMD ["sh", "-c", "serve -s .out -l $PORT"]
