@@ -1,8 +1,7 @@
-import AgentTable from '../../components/AgentTable';
-import { gatewayVersion } from '../../lib/trpc';
+import AgentTable from '../../../components/demo/AgentTable';
 
 export default async function AgentsPage() {
-  const version = await gatewayVersion().catch(() => 'unknown');
+  const version = 'unknown';
   return (
     <div className="space-y-4">
       <header className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-6">

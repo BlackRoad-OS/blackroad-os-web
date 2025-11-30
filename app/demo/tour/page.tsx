@@ -1,4 +1,4 @@
-import TourStep from '../../components/TourStep';
+import TourStep from '../../../components/demo/TourStep';
 
 const checklist = [
   'Set GATEWAY_URL and BEACON_URL environment variables.',
