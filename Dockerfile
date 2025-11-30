@@ -21,9 +21,9 @@ WORKDIR /app
 
 RUN npm install -g serve@14
 
-COPY --from=builder /app/.out ./.out
+COPY --from=builder /app/out ./out
 
 ENV PORT=3000
 EXPOSE 3000
 
-CMD ["npx", "serve", "-s", ".out", "-p", "3000"]
+CMD ["npx", "serve", "-s", "out", "-p", "3000"]
