@@ -26,4 +26,4 @@ COPY --from=builder /app/.out ./.out
 ENV PORT=3000
 EXPOSE 3000
 
-CMD ["sh", "-c", "serve -s .out -l $PORT"]
+CMD ["sh", "-c", "serve -s .out --listen $PORT"]
