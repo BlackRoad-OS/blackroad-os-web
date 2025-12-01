@@ -2,29 +2,45 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 /**
- * Host-based routing middleware for BlackRoad Universe
+ * Host-based routing middleware for BlackRoad Universe v2.0
  *
- * Routes:
- * - blackroad.io / www.blackroad.io → / (marketing)
- * - app.blackroad.io → /workspace
- * - console.blackroad.io → /console
- * - docs.blackroad.io → /docs
+ * ┌─────────────────────────────────────────────────────────────┐
+ * │                    UNIVERSE ROUTING TABLE                    │
+ * ├─────────────────────────┬───────────────┬───────────────────┤
+ * │ Domain                  │ Route         │ Description       │
+ * ├─────────────────────────┼───────────────┼───────────────────┤
+ * │ blackroad.io            │ /             │ Marketing         │
+ * │ www.blackroad.io        │ /             │ Marketing         │
+ * │ app.blackroad.io        │ /workspace    │ User Workspace    │
+ * │ console.blackroad.io    │ /console      │ Operator Console  │
+ * │ docs.blackroad.io       │ /docs         │ Developer Hub     │
+ * │ lucidia.earth           │ /lucidia      │ Lore/Education    │
+ * └─────────────────────────┴───────────────┴───────────────────┘
  *
- * Local development (localhost) passes through without rewrites
- * so you can manually navigate to /workspace, /console, etc.
+ * Local Development:
+ * - localhost passes through WITHOUT rewrites
+ * - Manually navigate to /workspace, /console, /docs, /lucidia
  */
 
-const HOST_REWRITES: Record<string, string> = {
+// Subdomain-based rewrites (blackroad.io subdomains)
+const SUBDOMAIN_REWRITES: Record<string, string> = {
   app: '/workspace',
   console: '/console',
   docs: '/docs',
+};
+
+// Full domain rewrites (external TLDs)
+const DOMAIN_REWRITES: Record<string, string> = {
+  'lucidia.earth': '/lucidia',
 };
 
 export function middleware(request: NextRequest) {
   const hostname = request.nextUrl.hostname;
   const pathname = request.nextUrl.pathname;
 
-  // Skip middleware for static assets, API routes, and Next.js internals
+  // ─────────────────────────────────────────────────────────────
+  // SKIP: Static assets, API routes, Next.js internals
+  // ─────────────────────────────────────────────────────────────
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
@@ -33,39 +49,65 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Local development: don't rewrite, allow manual navigation
+  // ─────────────────────────────────────────────────────────────
+  // LOCAL DEV: Don't rewrite, allow manual navigation
+  // ─────────────────────────────────────────────────────────────
   if (hostname === 'localhost' || hostname.startsWith('127.0.0.1')) {
     return NextResponse.next();
   }
 
-  // Extract subdomain from hostname
-  // e.g., "app.blackroad.io" → "app"
-  // e.g., "console.blackroad.io" → "console"
-  const subdomain = hostname.split('.')[0];
-
-  // Check if this subdomain should be rewritten
-  const targetRoute = HOST_REWRITES[subdomain];
-
-  if (targetRoute) {
-    // Only rewrite root path to the target route
-    // Allow deeper paths to pass through
-    if (pathname === '/') {
-      const url = request.nextUrl.clone();
-      url.pathname = targetRoute;
-      return NextResponse.rewrite(url);
-    }
-
-    // For app/console subdomains, if they're hitting a path that doesn't
-    // start with the target route, prefix it
-    // e.g., app.blackroad.io/settings → /workspace/settings
-    if (!pathname.startsWith(targetRoute)) {
-      const url = request.nextUrl.clone();
-      url.pathname = `${targetRoute}${pathname}`;
-      return NextResponse.rewrite(url);
+  // ─────────────────────────────────────────────────────────────
+  // EXTERNAL DOMAINS: Check for full domain matches (lucidia.earth)
+  // ─────────────────────────────────────────────────────────────
+  for (const [domain, targetRoute] of Object.entries(DOMAIN_REWRITES)) {
+    if (hostname === domain || hostname.endsWith(`.${domain}`)) {
+      return rewriteToRoute(request, pathname, targetRoute);
     }
   }
 
+  // ─────────────────────────────────────────────────────────────
+  // SUBDOMAINS: Check for subdomain prefix (app., console., docs.)
+  // ─────────────────────────────────────────────────────────────
+  const subdomain = hostname.split('.')[0];
+  const targetRoute = SUBDOMAIN_REWRITES[subdomain];
+
+  if (targetRoute) {
+    return rewriteToRoute(request, pathname, targetRoute);
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // DEFAULT: Pass through (marketing on blackroad.io)
+  // ─────────────────────────────────────────────────────────────
   return NextResponse.next();
+}
+
+/**
+ * Rewrite a request to a target route
+ * - Root path (/) → target route
+ * - Other paths → prefix with target route if not already prefixed
+ */
+function rewriteToRoute(
+  request: NextRequest,
+  pathname: string,
+  targetRoute: string
+): NextResponse {
+  // Root path: rewrite to target route
+  if (pathname === '/') {
+    const url = request.nextUrl.clone();
+    url.pathname = targetRoute;
+    return NextResponse.rewrite(url);
+  }
+
+  // Already on the target route: pass through
+  if (pathname.startsWith(targetRoute)) {
+    return NextResponse.next();
+  }
+
+  // Other paths: prefix with target route
+  // e.g., app.blackroad.io/settings → /workspace/settings
+  const url = request.nextUrl.clone();
+  url.pathname = `${targetRoute}${pathname}`;
+  return NextResponse.rewrite(url);
 }
 
 export const config = {
@@ -75,7 +117,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public folder files
+     * - public folder files (anything with a file extension)
+     * - API routes
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\..*|api/).*)',
   ],
