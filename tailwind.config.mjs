@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Neon Spectrum
+        // Neon Spectrum (hardcoded values from brand)
         sunrise: '#FF9D00',
         'warm-orange': '#FF6B00',
         'hot-pink': '#FF0066',
@@ -13,7 +13,7 @@ export default {
         'vivid-purple': '#7700FF',
         'cyber-blue': '#0066FF',
 
-        // Neutrals (darker - almost black)
+        // Neutrals
         'br-black': '#000000',
         'deep-black': '#050505',
         charcoal: '#0D0D0D',
@@ -28,7 +28,30 @@ export default {
         focus: '#FF006B',
         depth: '#D600AA',
 
-        // Surfaces (darker)
+        // Surfaces (CSS variable based)
+        'br-bg': 'var(--br-bg)',
+        'br-surface': 'var(--br-surface)',
+        'br-surface-2': 'var(--br-surface-2)',
+        'br-border': 'var(--br-border)',
+
+        // Text
+        'br-text': 'var(--br-text)',
+        'br-text-muted': 'var(--br-text-muted)',
+
+        // Brand palette (CSS variable based)
+        'br-sunrise-orange': 'var(--br-sunrise-orange)',
+        'br-warm-orange': 'var(--br-warm-orange)',
+        'br-hot-pink': 'var(--br-hot-pink)',
+        'br-electric-magenta': 'var(--br-electric-magenta)',
+        'br-deep-magenta': 'var(--br-deep-magenta)',
+        'br-vivid-purple': 'var(--br-vivid-purple)',
+        'br-cyber-blue': 'var(--br-cyber-blue)',
+
+        // Legacy aliases
+        'br-night': 'var(--br-bg)',
+        'br-dawn': 'var(--br-hot-pink)',
+
+        // Surface objects
         surface: {
           base: '#000000',
           elevated: '#050505',
@@ -51,10 +74,11 @@ export default {
       },
       boxShadow: {
         'glow-orange': '0 0 30px rgba(255, 157, 0, 0.4)',
-        'glow-pink': '0 0 30px rgba(255, 0, 102, 0.4)',
-        'glow-purple': '0 0 30px rgba(119, 0, 255, 0.4)',
+        'glow-pink': '0 0 24px rgba(255, 0, 102, 0.45)',
+        'glow-purple': '0 0 24px rgba(119, 0, 255, 0.45)',
         'glow-blue': '0 0 30px rgba(0, 102, 255, 0.4)',
         'glow-magenta': '0 0 30px rgba(255, 0, 107, 0.4)',
+        card: '0 14px 32px rgba(0, 0, 0, 0.9)',
       },
       backgroundImage: {
         'gradient-brand': 'linear-gradient(180deg, #FF9D00 0%, #FF6B00 50%, #FF0066 100%)',
@@ -65,10 +89,10 @@ export default {
       typography: {
         DEFAULT: {
           css: {
-            '--tw-prose-body': 'rgba(255, 255, 255, 0.7)',
-            '--tw-prose-headings': '#FFFFFF',
-            '--tw-prose-links': '#0066FF',
-            '--tw-prose-pre-bg': '#0D0D0D',
+            '--tw-prose-body': 'var(--br-text)',
+            '--tw-prose-headings': 'white',
+            '--tw-prose-links': 'var(--br-hot-pink)',
+            '--tw-prose-pre-bg': 'var(--br-surface)',
           },
         },
       },

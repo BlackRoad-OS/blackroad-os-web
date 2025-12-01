@@ -6,6 +6,25 @@
 
 :root {
   color-scheme: dark;
+
+  /* Surfaces */
+  --br-bg: #000000;
+  --br-surface: #050505;
+  --br-surface-2: #0a0a0a;
+  --br-border: #262626;
+
+  /* Text */
+  --br-text: #f9fafb;
+  --br-text-muted: #a3a3a3;
+
+  /* Brand palette */
+  --br-sunrise-orange: #ff9d00;
+  --br-warm-orange: #ff6b00;
+  --br-hot-pink: #ff0066;
+  --br-electric-magenta: #ff006b;
+  --br-deep-magenta: #d600aa;
+  --br-vivid-purple: #7700ff;
+  --br-cyber-blue: #0066ff;
 }
 
 a {
@@ -13,19 +32,20 @@ a {
 }
 
 body {
-  background: var(--br-surface-base);
-  color: var(--br-text-primary);
-  font-family: var(--br-font-body);
+  background: radial-gradient(circle at 20% 20%, rgba(255, 0, 102, 0.08), transparent 25%),
+    radial-gradient(circle at 80% 0%, rgba(119, 0, 255, 0.06), transparent 30%),
+    var(--br-bg);
+  color: var(--br-text);
 }
 
 .prose a {
-  color: var(--br-cyber-blue);
+  color: var(--br-hot-pink);
 }
 
 .prose h1, .prose h2, .prose h3 {
-  font-family: var(--br-font-display);
+  font-family: var(--br-font-display, 'Inter Tight', sans-serif);
 }
 
 code {
-  font-family: var(--br-font-mono);
+  font-family: var(--br-font-mono, 'JetBrains Mono', monospace);
 }
