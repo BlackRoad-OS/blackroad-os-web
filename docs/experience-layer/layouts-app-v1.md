@@ -95,16 +95,28 @@ The main logged-in experience. A user's command center for projects, agents, and
 ```
 
 #### Right Panel (Cece)
+
+> **Implementation Note**: The Cece panel is wired to the Operator Engine `/chat`
+> endpoint via `NEXT_PUBLIC_OPERATOR_URL`. See [Routing & Hosts](./routing-and-hosts-v1.md)
+> for configuration details.
+
 ```
 ┌─────────────┐
-│ CECE        │ ← Agent name
+│ CECE    [DBG]│ ← Agent name + debug toggle
 │             │
 │ ┌─────────┐ │
-│ │ 💬      │ │ ← Chat messages
+│ │ 💬      │ │ ← Chat messages (live!)
 │ │ Hi! How │ │
 │ │ can I   │ │
 │ │ help?   │ │
 │ └─────────┘ │
+│             │
+│ TRACE INFO  │ ← Debug panel (when DBG on)
+│ Model: llama│
+│ Provider:   │
+│   ollama    │
+│ RAG: false  │
+│ Time: 234ms │
 │             │
 │ ┌─────────┐ │
 │ │ Type... │ │ ← Input
@@ -351,6 +363,11 @@ The admin/operator view for managing the entire BlackRoad infrastructure.
 ```
 
 #### Right Panel (Cece Governor)
+
+> **Implementation Note**: The Cece Governor panel is wired to the same Operator
+> Engine `/chat` endpoint. In the future, Governor mode may use specialized
+> prompts or elevated permissions. See [Routing & Hosts](./routing-and-hosts-v1.md).
+
 ```
 ┌─────────────┐
 │ CECE GOV    │

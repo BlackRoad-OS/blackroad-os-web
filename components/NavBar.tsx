@@ -4,13 +4,25 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
+/**
+ * Universe Domain Links
+ * In production, these will be full URLs to subdomains.
+ * In local dev, they're relative paths for easy testing.
+ *
+ * TODO: When deploying with proper DNS:
+ * - APP_URL → https://app.blackroad.io
+ * - CONSOLE_URL → https://console.blackroad.io
+ * - DOCS_URL → https://docs.blackroad.io
+ */
+const APP_URL = '/workspace';
+const CONSOLE_URL = '/console';
+const DOCS_URL = '/docs';
+
 const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/docs', label: 'Docs' },
-  { href: '/infra', label: 'Infra' },
+  { href: '/', label: 'Product' },
   { href: '/pricing', label: 'Pricing' },
+  { href: DOCS_URL, label: 'Docs' },
   { href: '/blog', label: 'Blog' },
-  { href: '/dashboard', label: 'Dashboard' },
 ];
 
 export default function NavBar() {
@@ -18,11 +30,11 @@ export default function NavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-slate-800/50 bg-slate-950/80 backdrop-blur-md">
+    <nav className="sticky top-0 z-50 border-b border-br-border bg-br-bg/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 text-xl font-bold text-white">
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-cyan-500 to-blue-600 text-sm font-bold">
+        <Link href="/" className="flex items-center gap-2 text-xl font-bold text-br-text">
+          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-br-hot-pink to-br-vivid-purple text-sm font-bold">
             BR
           </span>
           <span className="hidden sm:inline">BlackRoad</span>
@@ -31,15 +43,15 @@ export default function NavBar() {
         {/* Desktop Navigation */}
         <div className="hidden items-center gap-6 md:flex">
           {navLinks.map((link) => {
-            const isActive = pathname === link.href;
+            const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
             return (
               <Link
                 key={link.href}
                 href={link.href}
                 className={`text-sm font-medium transition-colors ${
                   isActive
-                    ? 'text-cyan-400'
-                    : 'text-slate-300 hover:text-white'
+                    ? 'text-br-hot-pink'
+                    : 'text-br-text-muted hover:text-br-text'
                 }`}
               >
                 {link.label}
@@ -48,19 +60,25 @@ export default function NavBar() {
           })}
         </div>
 
-        {/* Auth Buttons */}
+        {/* Auth + App Buttons */}
         <div className="hidden items-center gap-3 md:flex">
           <Link
-            href="/login"
-            className="rounded-full px-4 py-2 text-sm font-medium text-slate-300 transition hover:text-white"
+            href={CONSOLE_URL}
+            className="rounded-full px-4 py-2 text-sm font-medium text-br-text-muted transition hover:text-br-text"
           >
-            Log in
+            Console
           </Link>
           <Link
-            href="/signup"
-            className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:shadow-[0_0_20px_rgba(6,182,212,0.5)]"
+            href="/login"
+            className="rounded-full px-4 py-2 text-sm font-medium text-br-text-muted transition hover:text-br-text"
           >
-            Sign up
+            Sign in
+          </Link>
+          <Link
+            href={APP_URL}
+            className="rounded-full bg-gradient-to-r from-br-hot-pink to-br-vivid-purple px-4 py-2 text-sm font-medium text-white transition hover:shadow-glow-pink"
+          >
+            Open App
           </Link>
         </div>
 
@@ -71,7 +89,7 @@ export default function NavBar() {
           aria-label="Toggle menu"
         >
           <svg
-            className="h-6 w-6 text-slate-300"
+            className="h-6 w-6 text-br-text-muted"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -87,7 +105,7 @@ export default function NavBar() {
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="border-t border-slate-800 bg-slate-950 md:hidden">
+        <div className="border-t border-br-border bg-br-bg md:hidden">
           <div className="flex flex-col gap-2 px-6 py-4">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
@@ -97,8 +115,8 @@ export default function NavBar() {
                   href={link.href}
                   className={`rounded-md px-3 py-2 text-sm font-medium ${
                     isActive
-                      ? 'bg-slate-800 text-cyan-400'
-                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                      ? 'bg-br-surface text-br-hot-pink'
+                      : 'text-br-text-muted hover:bg-br-surface hover:text-br-text'
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -106,20 +124,27 @@ export default function NavBar() {
                 </Link>
               );
             })}
-            <div className="mt-2 flex flex-col gap-2 border-t border-slate-800 pt-4">
+            <div className="mt-2 flex flex-col gap-2 border-t border-br-border pt-4">
               <Link
-                href="/login"
-                className="rounded-md px-3 py-2 text-center text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
+                href={CONSOLE_URL}
+                className="rounded-md px-3 py-2 text-center text-sm font-medium text-br-text-muted hover:bg-br-surface hover:text-br-text"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Log in
+                Console
               </Link>
               <Link
-                href="/signup"
-                className="rounded-md bg-gradient-to-r from-cyan-500 to-blue-600 px-3 py-2 text-center text-sm font-medium text-white"
+                href="/login"
+                className="rounded-md px-3 py-2 text-center text-sm font-medium text-br-text-muted hover:bg-br-surface hover:text-br-text"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Sign up
+                Sign in
+              </Link>
+              <Link
+                href={APP_URL}
+                className="rounded-md bg-gradient-to-r from-br-hot-pink to-br-vivid-purple px-3 py-2 text-center text-sm font-medium text-white"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Open App
               </Link>
             </div>
           </div>
