@@ -9,8 +9,8 @@ export const metadata: Metadata = siteMetadata;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="bg-slate-950 text-slate-50">
-      <body className="min-h-screen bg-slate-950 text-slate-50 antialiased font-sans">
+    <html lang="en" className="bg-br-black text-br-white">
+      <body className="min-h-screen bg-surface-base text-br-white antialiased font-body">
         <PlausibleProvider>
           <div className="flex min-h-screen flex-col">
             <NavBar />

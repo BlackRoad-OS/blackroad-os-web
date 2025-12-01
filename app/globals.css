@@ -1,3 +1,5 @@
+@import url('https://brand.blackroad.io/css/brand.css');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,11 +13,19 @@ a {
 }
 
 body {
-  background: radial-gradient(circle at 20% 20%, rgba(6, 182, 212, 0.12), transparent 25%),
-    radial-gradient(circle at 80% 0%, rgba(14, 165, 233, 0.1), transparent 30%),
-    #0b1220;
+  background: var(--br-surface-base);
+  color: var(--br-text-primary);
+  font-family: var(--br-font-body);
 }
 
 .prose a {
-  color: #67e8f9;
+  color: var(--br-cyber-blue);
+}
+
+.prose h1, .prose h2, .prose h3 {
+  font-family: var(--br-font-display);
+}
+
+code {
+  font-family: var(--br-font-mono);
 }
