@@ -7,13 +7,13 @@ const docsNav = [
     items: [
       { href: '/docs/intro', label: 'Introduction' },
       { href: '/docs/get-started', label: 'Quickstart' },
-      { href: '/docs/concepts', label: 'Core Concepts', soon: true },
+      { href: '/docs/concepts', label: 'Core Concepts' },
     ],
   },
   {
     title: 'Operator Engine',
     items: [
-      { href: '/docs/operator/overview', label: 'Overview', soon: true },
+      { href: '/docs/operator/overview', label: 'Overview' },
       { href: '/docs/operator/chat', label: '/chat Endpoint', soon: true },
       { href: '/docs/operator/agents', label: 'Agent Registry', soon: true },
       { href: '/docs/operator/llm', label: 'LLM Integration', soon: true },
@@ -22,15 +22,15 @@ const docsNav = [
   {
     title: 'Agents & Lucidia',
     items: [
-      { href: '/docs/agents/intro', label: 'What are Agents?', soon: true },
+      { href: '/docs/agents/intro', label: 'What are Agents?' },
       { href: '/docs/agents/cece', label: 'Meet Cece', soon: true },
-      { href: '/docs/lucidia/intro', label: 'Lucidia Overview', soon: true },
+      { href: '/docs/lucidia/intro', label: 'Lucidia Overview' },
     ],
   },
   {
     title: 'API Reference',
     items: [
-      { href: '/docs/api/health', label: 'Health Endpoints', soon: true },
+      { href: '/docs/api/health', label: 'Health Endpoints' },
       { href: '/docs/api/chat', label: 'Chat API', soon: true },
       { href: '/docs/api/rag', label: 'RAG API', soon: true },
     ],

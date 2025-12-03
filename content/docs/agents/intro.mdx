@@ -1,0 +1,33 @@
+---
+title: Agents and Packs
+description: How BlackRoad agents are modeled, governed, and delivered through the web shell.
+---
+
+# Agents and Packs
+
+Agents are reusable automation personas backed by prompts, tools, and policies. They can run fully autonomously or co-pilot with humans from the BlackRoad desktop.
+
+## Agent anatomy
+
+- **Identity**: Name, description, and owner for auditability.
+- **Persona**: Guardrailed prompt scaffolding that shapes tone, decision-making, and escalation rules.
+- **Capabilities**: Assigned packs that expose concrete actions (open incident, query metrics, file reports).
+- **Safety rails**: Allowed tools, rate limits, and masking rules defined per environment.
+
+## Pack assignment
+
+- Packs are attached to agents through the Operator with explicit versions so upgrades are controlled.
+- Each pack declares inputs/outputs; the UI should surface these in forms so users know what is required.
+- When a pack is unavailable, the shell should show the degraded state and offer alternative actions.
+
+## Collaboration patterns
+
+- Use **co-pilot mode** for risky actions: the agent drafts a plan, the human approves execution.
+- Agents emit **breadcrumbs** while working so operators can follow progress, cancel, or nudge.
+- For recurring work, pin agent shortcuts to the dock or workspace layout so teams can trigger flows quickly.
+
+## Readiness checklist
+
+- Every new agent should have an assigned owner, escalation path, and rollback strategy.
+- Confirm observability hooks are wired (traces + metrics) before exposing an agent to production users.
+- Document expected inputs, response formats, and failure modes in the Codex so other teams can adopt the agent safely.

@@ -1,0 +1,46 @@
+---
+title: Health Endpoints
+description: Verify the BlackRoad web shell and downstream services are alive and ready.
+---
+
+# Health Endpoints
+
+BlackRoad exposes lightweight health signals so operators and probes can verify the stack without expensive calls. Use these endpoints for uptime checks, dashboards, and local smoke tests.
+
+## `/api/health` and `/health`
+
+- **Purpose**: Confirm the web shell is running and able to serve requests.
+- **Example response:**
+
+```json
+{
+  "ok": true,
+  "service": "blackroad-os-web",
+  "timestamp": "2024-01-01T00:00:00.000Z",
+  "region": "local",
+  "dependencies": {
+    "contentlayer": "ready",
+    "next": "ready"
+  }
+}
+```
+
+- **Usage**: Ideal for liveness probes and quick diagnostics from the status page.
+
+## `/api/ready`
+
+- **Purpose**: Indicates the service is ready to handle real traffic without relying on external networks.
+- **Behavior**: Returns `{ ready: true }` when internal initialization completes; does not fan out to other systems.
+- **Usage**: Pair with `/api/health` to separate startup readiness from ongoing liveness.
+
+## `/api/version` and `/version`
+
+- **Purpose**: Report build metadata for traceability.
+- **Fields**: service name, semantic version, commit SHA, and environment tag.
+- **Usage**: Expose version info in dashboards or attach it to bug reports when filing incidents.
+
+## Operational guidance
+
+- Cache responses briefly in monitoring tools to reduce noise but alert on sustained failures.
+- When adding new services behind the shell, extend the response payload with dependency checks and timestamps.
+- Document any health semantics changes in the Codex so downstream teams update their monitors.

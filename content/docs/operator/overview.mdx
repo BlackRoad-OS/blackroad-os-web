@@ -1,0 +1,35 @@
+---
+title: Operator Engine Overview
+description: How the Operator layer brokers requests between the web shell, agents, and data planes.
+---
+
+# Operator Engine Overview
+
+The Operator engine is the policy-aware broker that decides **which agent, tool, or model should handle a request**. It keeps the web shell simple while ensuring every invocation is auditable and predictable.
+
+## Responsibilities
+
+- **Routing & composition**: Fan out a request to the right agent pack, orchestrate multi-step chains, and collapse responses for the UI.
+- **Policy enforcement**: Apply per-environment rules for which tools, connectors, or models are allowed and how data should be masked.
+- **Reliability controls**: Standardize retries, timeouts, rate limits, and circuit breakers so downstream services stay healthy.
+- **Telemetry**: Emit structured traces, metrics, and breadcrumbs to the observability spine and surface status to `/status` and dashboards.
+
+## Request lifecycle
+
+1. **Ingress** – The web shell issues a typed request (chat message, action, or webhook) with org/env context.
+2. **Validation** – Inputs are validated against schemas; unsafe prompts are filtered and annotated.
+3. **Planning** – The Operator selects an agent pack, chooses tools, and reserves capacity; fallbacks are prepared.
+4. **Execution** – Calls into LLMs, vector stores, or external APIs with guardrails and streaming status updates.
+5. **Post-processing** – Responses are normalized, redacted if needed, and tagged with trace IDs before returning to the UI.
+
+## Connectors and packs
+
+- **Connectors** wrap external systems (ticketing, infra, incident tools) with consistent auth and observability.
+- **Packs** bundle connectors, prompts, and safety policies into reusable capabilities that can be assigned to agents.
+- **Versioning** allows packs to be rolled out gradually across environments to reduce risk.
+
+## Operating tips
+
+- Prefer **idempotent** actions exposed by the Operator; avoid calling downstream systems directly from the browser.
+- Surface **clear action buttons** in the UI so operators know which pack or capability they are invoking.
+- Mirror Operator statuses (ready, degraded, unavailable) in the shell so users trust the automation layer.

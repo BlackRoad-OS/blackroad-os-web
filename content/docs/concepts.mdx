@@ -1,0 +1,43 @@
+---
+title: BlackRoad OS Core Concepts
+description: The foundational ideas behind the BlackRoad OS desktop, operator engine, and agent mesh.
+---
+
+# Core Concepts
+
+BlackRoad OS is a composable surface for orchestrating autonomous operations. The platform combines a browser-native desktop, an operator engine for routing intelligence, and an agent mesh that adapts to production signals.
+
+## System layers
+
+- **Desktop shell (this repo)**: Renders the BlackRoad workspace with windows, panes, and navigation primitives so humans and agents share a common surface.
+- **Operator engine**: Normalizes requests, applies policies, and calls the right runtime (LLMs, tools, data planes) while enforcing audit and safety gates.
+- **Agent mesh**: A registry of typed agents, packs, and behaviors that can be invoked directly or composed into larger playbooks.
+- **Observability spine**: Every layer reports health, readiness, traces, and metrics so operators can spot regressions quickly.
+
+## Workspaces and environments
+
+Work happens inside **orgs → environments → workspaces**:
+
+- Use environments (local, staging, prod) to isolate data-plane integrations and secrets.
+- Workspaces group related apps (status, console, docs) and saved layouts so teams can resume where they left off.
+- Navigation should always communicate the current org and environment so actions stay scoped.
+
+## Events over imperative scripts
+
+BlackRoad favors **events and contracts** instead of handwritten glue code:
+
+- Inputs and outputs are described with typed payloads that the operator engine validates before execution.
+- Agents publish structured events (success, degraded, remediation-started) that feed dashboards and prompts.
+- Deterministic fallbacks keep degraded flows usable: timeouts, retries with backoff, and circuit-breaker semantics.
+
+## Safety and policy
+
+- All agent calls pass through policy checks (allowed tools, data residency, PII handling) defined per environment.
+- User-facing errors should stay human-readable and avoid leaking internal IDs or stack traces.
+- Long-running tasks stream status updates so operators know whether to wait, cancel, or escalate.
+
+## Extensibility patterns
+
+- Build new windows or panels as **small, composable React components** with clear loading and error states.
+- Prefer server-provided capabilities over hardcoded rules; the web shell reflects what the operator engine exposes.
+- Add feature flags for experimental agents or UI affordances so they can be rolled out progressively.

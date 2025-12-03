@@ -1,0 +1,27 @@
+---
+title: Lucidia Overview
+description: How Lucidia extends the BlackRoad desktop with contextual co-pilots.
+---
+
+# Lucidia Overview
+
+Lucidia is the ambient companion embedded in the BlackRoad desktop. It listens for context, proposes next actions, and can hand off tasks to specialized agents without leaving your workspace.
+
+## What Lucidia does
+
+- **Context awareness**: Reads the active window, selection, and environment to ground suggestions.
+- **Action handoff**: Routes requests to the right agent pack while keeping users in the loop.
+- **Inline guidance**: Surfaces shortcuts, safety warnings, and remediation checklists directly in the UI.
+- **Learning loop**: Captures feedback to tune prompts and tool preferences without changing code in the shell.
+
+## Interaction patterns
+
+- Pin Lucidia to the dock for quick prompts or open it as a **side panel** beside dashboards.
+- Use **inline suggestions** when filling forms or triaging incidents; Lucidia can pre-fill data from recent events.
+- When Lucidia cannot act autonomously, it suggests the best agent to take over and explains why.
+
+## Building with Lucidia
+
+- Provide **structured context** from pages and components (entity IDs, selected rows, filters) so suggestions stay relevant.
+- Respect **privacy boundaries**: do not stream sensitive data unless the environment policies allow it.
+- Expose **clear controls** for dismissing or downgrading suggestions so operators feel in control.
