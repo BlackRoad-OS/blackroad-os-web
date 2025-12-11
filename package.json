@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "serve -s out -l ${PORT:-3000}",
     "lint": "next lint",
-    "test": "vitest run --passWithNoTests && playwright test",
+    "test": "tsx scripts/run-tests.ts",
     "postbuild": "tsx scripts/postbuild.ts",
     "typecheck": "tsc --noEmit",
     "format": "prettier --check ."
