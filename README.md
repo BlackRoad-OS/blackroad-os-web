@@ -77,6 +77,10 @@ Simple status overview showing:
 - API status (mock/stub for now)
 - Operator status (mock/stub for now)
 
+## Infrastructure Reference
+
+For the full infrastructure blueprint—including hardware layout, Cloudflare setup, Tailscale mesh, deployment pipeline, and operational runbooks—see [INFRASTRUCTURE.md](./INFRASTRUCTURE.md).
+
 ## Environment Variables
 
 ```bash
