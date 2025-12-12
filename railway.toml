@@ -1,15 +1,18 @@
 [build]
-builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
+builder = "NIXPACKS"
 
 [deploy]
-numReplicas = 1
-# Dockerfile uses: npx serve -s .out -p 3000
-healthcheckPath = "/"
-healthcheckTimeout = 30
+startCommand = "npm start"
+healthcheckPath = "/health"
+healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 5
+restartPolicyMaxRetries = 10
 
-[variables]
+[[services]]
+name = "blackroad-os-web"
+
+[services.env]
+PORT = "8080"
 NODE_ENV = "production"
-PORT = "3000"
+REPO_NAME = "blackroad-os-web"
+ORG_NAME = "BlackRoad-OS"

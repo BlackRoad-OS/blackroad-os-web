@@ -1,29 +1,12 @@
-FROM node:20-alpine AS builder
+FROM node:20-alpine
+
 WORKDIR /app
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@10.11.0 --activate
+COPY package*.json ./
+RUN npm ci --only=production
 
-# Copy package files
-COPY package.json pnpm-lock.yaml ./
-
-# Install dependencies
-RUN pnpm install --frozen-lockfile
-
-# Copy source files
 COPY . .
 
-# Build and postbuild
-RUN pnpm build || (echo "Build failed" && exit 1)
+EXPOSE 8080
 
-FROM node:20-alpine AS runner
-WORKDIR /app
-
-RUN npm install -g serve@14
-
-COPY --from=builder /app/out ./out
-
-ENV PORT=3000
-EXPOSE 3000
-
-CMD ["npx", "serve", "-s", "out", "-p", "3000"]
+CMD ["npm", "start"]
