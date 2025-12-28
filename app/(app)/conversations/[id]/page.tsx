@@ -5,6 +5,7 @@ import { Send, Bot, User, Copy, Check, RotateCcw, Sparkles } from 'lucide-react'
 import { useParams } from 'next/navigation';
 import { toast } from '@/stores/toast-store';
 import { cn } from '@/lib/cn';
+import Markdown from '@/components/Markdown';
 
 interface Message {
   id: string;
@@ -13,13 +14,68 @@ interface Message {
   timestamp: Date;
 }
 
+const demoResponses = [
+  `Great question! Here's what I can help you with:
+
+**Key Features:**
+- Code generation and review
+- Debugging assistance
+- Research and analysis
+- Creative writing
+
+Let me know which area you'd like to explore!`,
+
+  `I'd be happy to help! Here's a quick example:
+
+\`\`\`javascript
+function greet(name) {
+  return \`Hello, \${name}!\`;
+}
+
+console.log(greet('World'));
+\`\`\`
+
+This is a simple JavaScript function. Would you like me to explain it further?`,
+
+  `Here are some **key points** to consider:
+
+1. First, understand the requirements
+2. Break down the problem into smaller parts
+3. Write tests before implementation
+4. Refactor and optimize
+
+> "Code is like humor. When you have to explain it, it's bad." - Cory House
+
+Let me know if you need more details on any of these!`,
+
+  `That's an interesting question! Let me break it down:
+
+### Overview
+The concept involves several interconnected parts.
+
+### Details
+- **Part A**: Handles the initial processing
+- **Part B**: Manages the data flow
+- **Part C**: Renders the final output
+
+Would you like me to dive deeper into any specific part?`,
+];
+
 export default function ConversationPage() {
   const params = useParams();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       role: 'assistant',
-      content: 'Hello! I\'m Lucidia, your AI companion built on BlackRoad OS. How can I help you today?',
+      content: `Hello! I'm **Lucidia**, your AI companion built on BlackRoad OS.
+
+I can help you with:
+- Code generation and review
+- Debugging and troubleshooting
+- Research and documentation
+- Creative problem-solving
+
+How can I assist you today?`,
       timestamp: new Date(),
     },
   ]);
@@ -53,7 +109,6 @@ export default function ConversationPage() {
   };
 
   const handleRetry = (message: Message) => {
-    // Find the previous user message and resend
     const messageIndex = messages.findIndex(m => m.id === message.id);
     if (messageIndex > 0) {
       const previousUserMessage = messages[messageIndex - 1];
@@ -79,22 +134,18 @@ export default function ConversationPage() {
     setInput('');
     setIsLoading(true);
 
-    // TODO: Replace with actual WebSocket/API call
+    // Demo response with markdown
     setTimeout(() => {
-      const responses = [
-        `I understand you're asking about "${userMessage.content}". Let me help you with that!`,
-        `That's a great question! Here's what I know about "${userMessage.content}"...`,
-        `Thanks for asking! I'd be happy to assist with "${userMessage.content}".`,
-      ];
+      const randomResponse = demoResponses[Math.floor(Math.random() * demoResponses.length)];
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: responses[Math.floor(Math.random() * responses.length)] + '\n\nThis is a demo response. WebSocket streaming will be integrated for real-time AI responses.',
+        content: randomResponse,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, assistantMessage]);
       setIsLoading(false);
-    }, 1000);
+    }, 1200);
   };
 
   const formatTime = (date: Date) => {
@@ -129,7 +180,11 @@ export default function ConversationPage() {
                       : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-bl-md'
                   )}
                 >
-                  <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                  {message.role === 'assistant' ? (
+                    <Markdown content={message.content} className="text-sm" />
+                  ) : (
+                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                  )}
                 </div>
 
                 {/* Message Actions & Timestamp */}
@@ -221,7 +276,7 @@ export default function ConversationPage() {
             </button>
           </div>
           <p className="text-xs text-gray-400 dark:text-gray-500 text-center mt-2">
-            Lucidia may make mistakes. Please verify important information.
+            Press <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">⌘K</kbd> for commands • <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">⌘/</kbd> for shortcuts
           </p>
         </form>
       </div>

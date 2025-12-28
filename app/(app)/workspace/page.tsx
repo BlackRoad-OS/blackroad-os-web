@@ -1,79 +1,128 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { MessageSquare, Plus, Search, Clock, Sparkles, Trash2 } from 'lucide-react';
+import { MessageSquare, Plus, Search, Clock, Sparkles, Trash2, Pin, PinOff } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import { ConversationCardSkeleton } from '@/components/Skeleton';
 import { toast } from '@/stores/toast-store';
-
-interface Conversation {
-  id: string;
-  title: string;
-  lastMessage: string;
-  timestamp: string;
-  agent: string;
-}
+import { useConversationStore, Conversation } from '@/stores/conversation-store';
 
 export default function WorkspacePage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [conversations, setConversations] = useState<Conversation[]>([
-    {
-      id: '1',
-      title: 'Getting Started with BlackRoad OS',
-      lastMessage: 'How can I help you today? I can assist with code generation, debugging, research, and more.',
-      timestamp: '2 hours ago',
-      agent: 'Lucidia',
-    },
-    {
-      id: '2',
-      title: 'Project Planning Session',
-      lastMessage: 'Let me summarize the key tasks and milestones we discussed...',
-      timestamp: 'Yesterday',
-      agent: 'Lucidia',
-    },
-    {
-      id: '3',
-      title: 'Code Review: API Endpoints',
-      lastMessage: 'I found a few potential improvements in your authentication logic.',
-      timestamp: '3 days ago',
-      agent: 'Codex',
-    },
-    {
-      id: '4',
-      title: 'Infrastructure Setup',
-      lastMessage: 'Your Docker configuration looks good! Here are some optimization tips...',
-      timestamp: 'Last week',
-      agent: 'Aria',
-    },
-  ]);
+
+  const { conversations, removeConversation, togglePin } = useConversationStore();
 
   useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => setIsLoading(false), 800);
+    const timer = setTimeout(() => setIsLoading(false), 600);
     return () => clearTimeout(timer);
   }, []);
 
-  const filteredConversations = conversations.filter(
-    (conv) =>
-      conv.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      conv.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredConversations = useMemo(() => {
+    return conversations.filter(
+      (conv) =>
+        conv.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        conv.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [conversations, searchQuery]);
+
+  const pinnedConversations = useMemo(() => {
+    return filteredConversations.filter((c) => c.isPinned);
+  }, [filteredConversations]);
+
+  const unpinnedConversations = useMemo(() => {
+    return filteredConversations.filter((c) => !c.isPinned);
+  }, [filteredConversations]);
 
   const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    setConversations(prev => prev.filter(c => c.id !== id));
+    removeConversation(id);
     toast.success('Conversation deleted');
+  };
+
+  const handleTogglePin = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const conv = conversations.find((c) => c.id === id);
+    togglePin(id);
+    toast.success(conv?.isPinned ? 'Unpinned' : 'Pinned', conv?.isPinned ? 'Conversation unpinned' : 'Conversation pinned to top');
   };
 
   const handleNewConversation = () => {
     const newId = Date.now().toString();
     router.push(`/conversations/${newId}`);
   };
+
+  const ConversationCard = ({ conversation }: { conversation: Conversation }) => (
+    <Link
+      href={`/conversations/${conversation.id}`}
+      className={cn(
+        'group bg-white dark:bg-gray-800 border rounded-xl p-5 hover:shadow-lg transition-all',
+        conversation.isPinned
+          ? 'border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/10'
+          : 'border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500'
+      )}
+    >
+      <div className="flex items-start gap-4">
+        <div className={cn(
+          'h-10 w-10 rounded-full flex items-center justify-center text-white flex-shrink-0 shadow-md',
+          conversation.isPinned
+            ? 'bg-gradient-to-br from-blue-600 to-purple-600'
+            : 'bg-gradient-to-br from-blue-800 to-blue-600'
+        )}>
+          <Sparkles className="h-5 w-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              {conversation.isPinned && (
+                <Pin className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
+              )}
+              <h3 className="font-semibold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                {conversation.title}
+              </h3>
+            </div>
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={(e) => handleTogglePin(conversation.id, e)}
+                className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-blue-500 transition-all"
+                title={conversation.isPinned ? 'Unpin' : 'Pin to top'}
+              >
+                {conversation.isPinned ? (
+                  <PinOff className="h-4 w-4" />
+                ) : (
+                  <Pin className="h-4 w-4" />
+                )}
+              </button>
+              <button
+                onClick={(e) => handleDelete(conversation.id, e)}
+                className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-red-500 transition-all"
+                title="Delete conversation"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3 mt-1">
+            {conversation.lastMessage}
+          </p>
+          <div className="flex items-center justify-between">
+            <span className="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full">
+              {conversation.agent}
+            </span>
+            <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+              <Clock className="h-3 w-3" />
+              {conversation.timestamp}
+            </span>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
 
   return (
     <div className="min-h-full bg-gray-50 dark:bg-gray-900 p-4 sm:p-6">
@@ -144,48 +193,34 @@ export default function WorkspacePage() {
           </div>
         )}
 
-        {/* Conversation grid */}
-        {!isLoading && filteredConversations.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredConversations.map((conversation) => (
-              <Link
-                key={conversation.id}
-                href={`/conversations/${conversation.id}`}
-                className="group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-lg transition-all"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-800 to-blue-600 flex items-center justify-center text-white flex-shrink-0 shadow-md">
-                    <Sparkles className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                        {conversation.title}
-                      </h3>
-                      <button
-                        onClick={(e) => handleDelete(conversation.id, e)}
-                        className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-red-500 transition-all"
-                        title="Delete conversation"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3">
-                      {conversation.lastMessage}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full">
-                        {conversation.agent}
-                      </span>
-                      <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                        <Clock className="h-3 w-3" />
-                        {conversation.timestamp}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
+        {/* Pinned conversations */}
+        {!isLoading && pinnedConversations.length > 0 && (
+          <div className="mb-8">
+            <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+              <Pin className="h-4 w-4" />
+              Pinned
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {pinnedConversations.map((conversation) => (
+                <ConversationCard key={conversation.id} conversation={conversation} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Other conversations */}
+        {!isLoading && unpinnedConversations.length > 0 && (
+          <div>
+            {pinnedConversations.length > 0 && (
+              <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                Recent
+              </h2>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {unpinnedConversations.map((conversation) => (
+                <ConversationCard key={conversation.id} conversation={conversation} />
+              ))}
+            </div>
           </div>
         )}
       </div>

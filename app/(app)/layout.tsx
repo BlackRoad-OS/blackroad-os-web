@@ -7,6 +7,8 @@ import { useWorkspaceStore } from '@/stores/workspace-store';
 import { useThemeStore } from '@/stores/theme-store';
 import Sidebar from '@/components/Sidebar';
 import AppHeader from '@/components/AppHeader';
+import CommandPalette from '@/components/CommandPalette';
+import KeyboardShortcuts from '@/components/KeyboardShortcuts';
 
 export default function AppLayout({
   children,
@@ -60,6 +62,8 @@ export default function AppLayout({
           {children}
         </main>
       </div>
+      <CommandPalette />
+      <KeyboardShortcuts />
     </div>
   );
 }
