@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Sparkles, Mail, Lock, ArrowRight } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 
 export default function LoginPage() {
@@ -29,84 +30,115 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 px-4">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-600/20 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-800/20 rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative max-w-md w-full space-y-8">
+        {/* Logo and Header */}
         <div className="text-center">
-          <h1 className="text-4xl font-semibold text-gray-900">
-            BlackRoad<span className="text-blue-800"> OS</span>
+          <div className="inline-flex items-center justify-center gap-2 mb-6">
+            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-lg shadow-blue-600/30">
+              <Sparkles className="h-6 w-6 text-white" />
+            </div>
+          </div>
+          <h1 className="text-3xl font-bold text-white">
+            BlackRoad<span className="text-blue-400"> OS</span>
           </h1>
-          <h2 className="mt-6 text-3xl font-semibold text-gray-900">
+          <h2 className="mt-4 text-xl font-semibold text-white">
             Welcome back
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-gray-400">
             Sign in to your workspace
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="rounded-md bg-red-50 border border-red-200 p-4">
-              <p className="text-sm text-red-800">{error}</p>
-            </div>
-          )}
+        {/* Form Card */}
+        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8 shadow-xl">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {error && (
+              <div className="rounded-lg bg-red-900/30 border border-red-800 p-4">
+                <p className="text-sm text-red-400">{error}</p>
+              </div>
+            )}
 
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-              />
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                  Email address
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder="you@example.com"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-800 focus:border-blue-800"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <Link href="/forgot-password" className="font-medium text-blue-800 hover:text-blue-700">
+            <div className="flex items-center justify-end">
+              <Link href="/forgot-password" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
                 Forgot your password?
               </Link>
             </div>
-          </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-800 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Signing in...' : 'Sign in'}
-          </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-600/30 hover:shadow-blue-500/40"
+            >
+              {loading ? (
+                <>
+                  <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  Sign in
+                  <ArrowRight className="h-5 w-5" />
+                </>
+              )}
+            </button>
+          </form>
+        </div>
 
-          <div className="text-center text-sm">
-            <span className="text-gray-600">Don't have an account? </span>
-            <Link href="/signup" className="font-medium text-blue-800 hover:text-blue-700">
-              Sign up
-            </Link>
-          </div>
-        </form>
+        <div className="text-center text-sm">
+          <span className="text-gray-400">Don&apos;t have an account? </span>
+          <Link href="/signup" className="font-medium text-blue-400 hover:text-blue-300 transition-colors">
+            Sign up
+          </Link>
+        </div>
       </div>
     </div>
   );
