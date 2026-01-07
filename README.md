@@ -1,36 +1,201 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌌 BlackRoad OS Web
 
-## Getting Started
+**Production-grade Next.js application with 5 quantum domains** - Full-stack BlackRoad OS web platform with official brand design system.
 
-First, run the development server:
+## 🌐 Live Deployments
+
+This application serves **5 quantum domains**:
+- **blackroad.io** - Primary domain
+- **blackroadai.com** - AI-focused portal
+- **blackroadquantum.com** - Quantum computing interface
+- **lucidia.earth** - Companion AI platform
+- **earth.blackroad.io** - Earth visualization
+
+## ✨ Features
+
+- **Next.js 15** - Latest App Router architecture
+- **TypeScript** - Full type safety
+- **Brand Compliant** - Official BlackRoad design system
+- **Authentication** - Secure login/signup flows
+- **Workspace** - Multi-domain workspace interface
+- **Real-time** - Conversation and collaboration features
+- **Responsive** - Mobile-first design
+
+## 🎨 Brand Compliance
+
+✅ **OFFICIAL BlackRoad Brand Design System Integrated:**
+- Hot Pink (#FF1D6C) primary color
+- Golden Ratio spacing (φ = 1.618): 8px, 13px, 21px, 34px, 55px, 89px, 144px
+- SF Pro Display typography
+- Line height: 1.618 (Golden Ratio)
+- Official gradient: 135deg @ 38.2% & 61.8%
+- No forbidden old colors
+
+See `app/globals.css` for complete brand system implementation.
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+ or Bun
+- npm, yarn, pnpm, or bun
+
+### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/BlackRoad-OS/blackroad-os-web.git
+cd blackroad-os-web
+
+# Install dependencies
+npm install
+# or
+bun install
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 # or
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+blackroad-os-web/
+├── app/                    # Next.js App Router
+│   ├── (app)/             # Authenticated app routes
+│   │   ├── workspace/     # Main workspace
+│   │   └── conversations/ # Chat interface
+│   ├── (auth)/            # Authentication routes
+│   │   ├── login/         # Login page
+│   │   └── signup/        # Signup page
+│   ├── globals.css        # 🌌 OFFICIAL BRAND SYSTEM
+│   └── layout.tsx         # Root layout
+├── components/            # React components
+├── stores/               # Zustand state management
+├── lib/                  # Utilities
+└── public/              # Static assets
+```
 
-## Learn More
+## 🔧 Development
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Development server
+npm run dev
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Production build
+npm run build
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Start production server
+npm start
 
-## Deploy on Vercel
+# Lint code
+npm run lint
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Type check
+npm run type-check
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🚢 Deployment
+
+### Cloudflare Pages (Recommended)
+
+```bash
+# Build for production
+npm run build
+
+# Deploy with Wrangler
+wrangler pages deploy ./out --project-name=blackroad-os-web
+```
+
+### Automatic Deployment
+Push to `main` branch triggers automatic deployment via GitHub Actions (if configured).
+
+## 🔐 Environment Variables
+
+Create `.env.local`:
+
+```env
+# Required
+NEXT_PUBLIC_API_URL=https://api.blackroad.io
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_key
+
+# Optional
+NEXT_PUBLIC_ANALYTICS_ID=your_analytics_id
+```
+
+## 📊 Performance
+
+- **Lighthouse Score Target:** >90
+- **First Contentful Paint:** <1.5s
+- **Time to Interactive:** <3s
+- **Core Web Vitals:** All Green
+
+## 🔒 Security
+
+- HTTPS enforced across all domains
+- Security headers configured
+- CSP (Content Security Policy)
+- XSS protection
+- CORS properly configured
+- Environment variables for secrets
+
+## 🧪 Testing
+
+```bash
+# Unit tests (when configured)
+npm run test
+
+# E2E tests (when configured)
+npm run test:e2e
+```
+
+## 📚 Tech Stack
+
+- **Framework:** Next.js 15 (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS + Official Brand System
+- **State:** Zustand
+- **Deployment:** Cloudflare Pages
+- **CI/CD:** GitHub Actions
+
+## 🤝 Contributing
+
+This is a production repository serving 5 live domains. All changes require:
+
+1. GitHub issue or approved task
+2. Pull request with comprehensive description
+3. Brand compliance verification
+4. All tests passing
+5. Code review approval
+6. No breaking changes to live domains
+
+## 📄 License
+
+Copyright © 2026 BlackRoad OS, Inc. All rights reserved.
+
+See [LICENSE](./LICENSE) for details.
+
+## 🔗 Related Projects
+
+- [BlackRoad API](https://github.com/BlackRoad-OS/blackroad-api)
+- [BlackRoad OS Interface](https://github.com/BlackRoad-OS/blackroad-os-interface)
+- [BlackRoad Quantum](https://github.com/BlackRoad-OS/blackroad-os-quantum)
+- [BlackRoad 30k Agents](https://github.com/BlackRoad-OS/blackroad-30k-agents)
+
+## 📖 Documentation
+
+- [Next.js Docs](https://nextjs.org/docs)
+- [BlackRoad Brand System](../../BLACKROAD_BRAND_SYSTEM.md)
+- [Traffic Light System](./TRAFFIC_LIGHT_SYSTEM.md)
+
+## 💬 Support
+
+- **Issues:** [GitHub Issues](https://github.com/BlackRoad-OS/blackroad-os-web/issues)
+- **Email:** blackroad.systems@gmail.com
+
+---
+
+**Built with ❤️ by BlackRoad OS Team** | [blackroad.io](https://blackroad.io) | Powering 5 quantum domains
