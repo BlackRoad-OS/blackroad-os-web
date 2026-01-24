@@ -21,6 +21,7 @@ interface ConversationState {
   togglePin: (id: string) => void;
   updateConversation: (id: string, updates: Partial<Conversation>) => void;
   getConversation: (id: string) => Conversation | undefined;
+  renameConversation: (id: string, title: string) => void;
 }
 
 const initialConversations: Conversation[] = [
@@ -115,6 +116,14 @@ export const useConversationStore = create<ConversationState>()(
 
       getConversation: (id) => {
         return get().conversations.find((c) => c.id === id);
+      },
+
+      renameConversation: (id, title) => {
+        set((state) => ({
+          conversations: state.conversations.map((c) =>
+            c.id === id ? { ...c, title } : c
+          ),
+        }));
       },
     }),
     {

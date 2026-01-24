@@ -9,6 +9,7 @@ import Sidebar from '@/components/Sidebar';
 import AppHeader from '@/components/AppHeader';
 import CommandPalette from '@/components/CommandPalette';
 import KeyboardShortcuts from '@/components/KeyboardShortcuts';
+import Onboarding from '@/components/Onboarding';
 
 export default function AppLayout({
   children,
@@ -64,6 +65,7 @@ export default function AppLayout({
       </div>
       <CommandPalette />
       <KeyboardShortcuts />
+      <Onboarding />
     </div>
   );
 }

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { MessageSquare, Plus, Search, Clock, Sparkles, Trash2, Pin, PinOff } from 'lucide-react';
+import { MessageSquare, Plus, Search, Clock, Sparkles, Trash2, Pin, PinOff, Pencil, Check, X } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import { ConversationCardSkeleton } from '@/components/Skeleton';
@@ -14,7 +14,10 @@ export default function WorkspacePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const { conversations, removeConversation, togglePin } = useConversationStore();
+  const { conversations, removeConversation, togglePin, renameConversation } = useConversationStore();
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
+  const editInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 600);
@@ -52,6 +55,32 @@ export default function WorkspacePage() {
     toast.success(conv?.isPinned ? 'Unpinned' : 'Pinned', conv?.isPinned ? 'Conversation unpinned' : 'Conversation pinned to top');
   };
 
+  const handleStartRename = (id: string, title: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setEditingId(id);
+    setEditingTitle(title);
+    setTimeout(() => editInputRef.current?.focus(), 0);
+  };
+
+  const handleSaveRename = (id: string, e?: React.MouseEvent | React.FormEvent) => {
+    e?.stopPropagation();
+    e?.preventDefault();
+    if (editingTitle.trim()) {
+      renameConversation(id, editingTitle.trim());
+      toast.success('Renamed', 'Conversation renamed successfully');
+    }
+    setEditingId(null);
+    setEditingTitle('');
+  };
+
+  const handleCancelRename = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    e?.preventDefault();
+    setEditingId(null);
+    setEditingTitle('');
+  };
+
   const handleNewConversation = () => {
     const newId = Date.now().toString();
     router.push(`/conversations/${newId}`);
@@ -78,34 +107,77 @@ export default function WorkspacePage() {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
               {conversation.isPinned && (
                 <Pin className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
               )}
-              <h3 className="font-semibold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                {conversation.title}
-              </h3>
+              {editingId === conversation.id ? (
+                <form
+                  onSubmit={(e) => handleSaveRename(conversation.id, e)}
+                  className="flex items-center gap-1 flex-1"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <input
+                    ref={editInputRef}
+                    type="text"
+                    value={editingTitle}
+                    onChange={(e) => setEditingTitle(e.target.value)}
+                    className="flex-1 px-2 py-1 text-sm bg-white dark:bg-gray-700 border border-blue-500 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') handleCancelRename();
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    className="p-1 rounded hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 transition-all"
+                    title="Save"
+                  >
+                    <Check className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancelRename}
+                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-red-500 transition-all"
+                    title="Cancel"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </form>
+              ) : (
+                <h3 className="font-semibold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  {conversation.title}
+                </h3>
+              )}
             </div>
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button
-                onClick={(e) => handleTogglePin(conversation.id, e)}
-                className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-blue-500 transition-all"
-                title={conversation.isPinned ? 'Unpin' : 'Pin to top'}
-              >
-                {conversation.isPinned ? (
-                  <PinOff className="h-4 w-4" />
-                ) : (
-                  <Pin className="h-4 w-4" />
-                )}
-              </button>
-              <button
-                onClick={(e) => handleDelete(conversation.id, e)}
-                className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-red-500 transition-all"
-                title="Delete conversation"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
+            {editingId !== conversation.id && (
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  onClick={(e) => handleStartRename(conversation.id, conversation.title, e)}
+                  className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-blue-500 transition-all"
+                  title="Rename"
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={(e) => handleTogglePin(conversation.id, e)}
+                  className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-blue-500 transition-all"
+                  title={conversation.isPinned ? 'Unpin' : 'Pin to top'}
+                >
+                  {conversation.isPinned ? (
+                    <PinOff className="h-4 w-4" />
+                  ) : (
+                    <Pin className="h-4 w-4" />
+                  )}
+                </button>
+                <button
+                  onClick={(e) => handleDelete(conversation.id, e)}
+                  className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-red-500 transition-all"
+                  title="Delete conversation"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            )}
           </div>
           <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3 mt-1">
             {conversation.lastMessage}
