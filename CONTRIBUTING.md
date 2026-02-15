@@ -90,12 +90,36 @@ background: linear-gradient(135deg,
 
 1. **Fork** the repository
 2. **Clone** your fork locally
-3. **Create a branch** for your feature/fix
-4. **Make your changes** following our guidelines
-5. **Test** your changes thoroughly
-6. **Commit** with a descriptive message
-7. **Push** to your fork
-8. **Open a Pull Request**
+3. **Set up upstream remote** (see below)
+4. **Create a branch** for your feature/fix
+5. **Make your changes** following our guidelines
+6. **Test** your changes thoroughly
+7. **Commit** with a descriptive message
+8. **Push** to your fork
+9. **Open a Pull Request**
+
+### Setting Up BlackRoad-Private Upstream
+
+This repository connects to the private BlackRoad-Private upstream for advanced features and internal development. To set up the upstream connection:
+
+```bash
+# Add the private upstream remote
+git remote add upstream https://github.com/BlackRoad-OS/BlackRoad-Private.git
+
+# Verify remotes are configured
+git remote -v
+
+# Fetch from upstream (requires access)
+git fetch upstream
+
+# Keep your fork synchronized
+git fetch upstream
+git checkout main
+git merge upstream/main
+git push origin main
+```
+
+**Note:** Access to BlackRoad-Private requires team membership and appropriate permissions.
 
 ### Commit Message Format
 

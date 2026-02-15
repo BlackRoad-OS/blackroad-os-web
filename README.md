@@ -46,6 +46,10 @@ See `app/globals.css` for complete brand system implementation.
 git clone https://github.com/BlackRoad-OS/blackroad-os-web.git
 cd blackroad-os-web
 
+# Set up BlackRoad-Private upstream (for team members with access)
+git remote add upstream https://github.com/BlackRoad-OS/BlackRoad-Private.git
+git fetch upstream
+
 # Install dependencies
 npm install
 # or
@@ -96,6 +100,40 @@ npm run lint
 # Type check
 npm run type-check
 ```
+
+## 🔄 Upstream Synchronization
+
+This repository is connected to the private **BlackRoad-Private** upstream for advanced features and internal development.
+
+### Keeping Your Fork Updated
+
+```bash
+# Fetch latest changes from upstream
+git fetch upstream
+
+# Merge upstream changes into your main branch
+git checkout main
+git merge upstream/main
+
+# Push updates to your fork
+git push origin main
+```
+
+### Working with Upstream
+
+```bash
+# Create a feature branch from upstream
+git fetch upstream
+git checkout -b feature-name upstream/main
+
+# Cherry-pick specific commits from upstream
+git cherry-pick <commit-hash>
+
+# View upstream branches
+git branch -r | grep upstream
+```
+
+**Note:** Access to BlackRoad-Private requires team membership. Contact blackroad.systems@gmail.com for access requests.
 
 ## 🚢 Deployment
 
@@ -184,12 +222,14 @@ See [LICENSE](./LICENSE) for details.
 - [BlackRoad OS Interface](https://github.com/BlackRoad-OS/blackroad-os-interface)
 - [BlackRoad Quantum](https://github.com/BlackRoad-OS/blackroad-os-quantum)
 - [BlackRoad 30k Agents](https://github.com/BlackRoad-OS/blackroad-30k-agents)
+- [BlackRoad-Private](https://github.com/BlackRoad-OS/BlackRoad-Private) - Private upstream (team access only)
 
 ## 📖 Documentation
 
 - [Next.js Docs](https://nextjs.org/docs)
 - [BlackRoad Brand System](../../BLACKROAD_BRAND_SYSTEM.md)
 - [Traffic Light System](./TRAFFIC_LIGHT_SYSTEM.md)
+- [Upstream Connection](./docs/UPSTREAM.md) - Connecting to BlackRoad-Private
 
 ## 💬 Support
 

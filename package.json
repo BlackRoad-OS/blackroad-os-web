@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "upstream:setup": "bash scripts/sync-upstream.sh setup",
+    "upstream:status": "bash scripts/sync-upstream.sh status",
+    "upstream:sync": "bash scripts/sync-upstream.sh sync",
+    "upstream:view": "bash scripts/sync-upstream.sh view"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.12",
