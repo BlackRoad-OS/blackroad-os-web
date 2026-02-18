@@ -165,6 +165,91 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Agents Section */}
+      <section id="agents" className="relative z-10 py-32 border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Meet Your <span className="bg-gradient-to-r from-amber-500 to-hot-pink bg-clip-text text-transparent">AI Agents</span>
+            </h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">Specialized agents working together to power your infrastructure.</p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { name: 'CECE', role: 'Orchestrator', color: 'from-hot-pink to-violet-600' },
+              { name: 'Lucidia', role: 'AI Inference', color: 'from-electric-blue to-cyan-500' },
+              { name: 'Mercury', role: 'Revenue Ops', color: 'from-amber-500 to-orange-600' },
+              { name: 'Guardian', role: 'Security', color: 'from-violet-500 to-purple-600' },
+              { name: 'Athena', role: 'Strategy', color: 'from-hot-pink to-electric-blue' },
+              { name: 'Roadie', role: 'Navigator', color: 'from-amber-500 to-hot-pink' },
+              { name: 'Radius', role: 'Network Ops', color: 'from-electric-blue to-violet-600' },
+              { name: 'RoadMind', role: 'Coordinator', color: 'from-violet-500 to-hot-pink' },
+            ].map((agent) => (
+              <div key={agent.name} className="p-6 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${agent.color} mb-4 flex items-center justify-center`}>
+                  <span className="text-xl font-bold">{agent.name[0]}</span>
+                </div>
+                <h3 className="text-lg font-semibold mb-1">{agent.name}</h3>
+                <p className="text-gray-400 text-sm mb-3">{agent.role}</p>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-xs text-green-400 uppercase tracking-wider">online</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="relative z-10 py-32 border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Simple, <span className="bg-gradient-to-r from-electric-blue to-violet-500 bg-clip-text text-transparent">Transparent Pricing</span>
+            </h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">Start free, scale as you grow.</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div className="p-8 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
+              <h3 className="text-2xl font-bold mb-2">Starter</h3>
+              <div className="text-4xl font-bold mb-3">Free</div>
+              <p className="text-gray-400 mb-6">Perfect for experimentation</p>
+              <ul className="space-y-3 mb-8 text-gray-300">
+                <li>✓ 5 AI Agents</li>
+                <li>✓ 10K API calls/mo</li>
+                <li>✓ Community support</li>
+              </ul>
+              <Link href="/signup" className="block text-center py-3 rounded-lg font-medium bg-white/10 hover:bg-white/15 transition-all">Get Started</Link>
+            </div>
+            <div className="p-8 rounded-2xl bg-gradient-to-br from-hot-pink/10 to-violet-600/10 border border-hot-pink/50 scale-105">
+              <h3 className="text-2xl font-bold mb-2">Pro</h3>
+              <div className="flex items-baseline gap-1 mb-3"><span className="text-4xl font-bold">$99</span><span className="text-gray-400">/mo</span></div>
+              <p className="text-gray-400 mb-6">For growing teams</p>
+              <ul className="space-y-3 mb-8 text-gray-300">
+                <li>✓ 100 AI Agents</li>
+                <li>✓ 1M API calls/mo</li>
+                <li>✓ Priority support</li>
+                <li>✓ Advanced analytics</li>
+              </ul>
+              <Link href="/signup" className="block text-center py-3 rounded-lg font-medium bg-gradient-to-r from-hot-pink to-violet-600 hover:shadow-lg transition-all">Start Pro Trial</Link>
+            </div>
+            <div className="p-8 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
+              <h3 className="text-2xl font-bold mb-2">Enterprise</h3>
+              <div className="text-4xl font-bold mb-3">Custom</div>
+              <p className="text-gray-400 mb-6">For large organizations</p>
+              <ul className="space-y-3 mb-8 text-gray-300">
+                <li>✓ Unlimited Agents</li>
+                <li>✓ Unlimited API calls</li>
+                <li>✓ Dedicated support</li>
+                <li>✓ SLA guarantee</li>
+              </ul>
+              <Link href="/signup" className="block text-center py-3 rounded-lg font-medium bg-white/10 hover:bg-white/15 transition-all">Contact Sales</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="relative z-10 py-32">
         <div className="max-w-4xl mx-auto px-6 text-center">
