@@ -1,274 +1,121 @@
 "use client";
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useTasks } from "@blackroad/sdk";
 
 interface Task {
   id: string;
   title: string;
   description: string;
+  status: "available" | "claimed" | "completed" | "failed";
   priority: "low" | "medium" | "high" | "critical";
-  status: "available" | "claimed" | "in_progress" | "completed" | "cancelled";
-  skills: string[];
-  assigned_to?: string;
-  posted_by: string;
+  agent?: string;
   posted_at: string;
   completed_at?: string;
 }
 
-const PRIORITY_COLORS: Record<string, string> = {
-  low: "bg-slate-800 text-slate-300",
-  medium: "bg-blue-900 text-blue-300",
-  high: "bg-amber-900 text-amber-300",
-  critical: "bg-red-900 text-red-300",
+const PRIORITY_COLOR: Record<string, string> = {
+  critical: "bg-red-900 text-red-300", high: "bg-orange-900 text-orange-300",
+  medium: "bg-yellow-900 text-yellow-300", low: "bg-zinc-800 text-zinc-400",
 };
-
-const STATUS_COLORS: Record<string, string> = {
-  available: "text-green-400",
-  claimed: "text-yellow-400",
-  in_progress: "text-blue-400",
-  completed: "text-slate-400",
-  cancelled: "text-red-400",
-};
-
-const STATUS_DOT: Record<string, string> = {
-  available: "bg-green-400",
-  claimed: "bg-yellow-400",
-  in_progress: "bg-blue-400",
-  completed: "bg-slate-400",
-  cancelled: "bg-red-400",
-};
-
-const MOCK_TASKS: Task[] = [
-  {
-    id: "task-001",
-    title: "Implement OAuth2 refresh token rotation",
-    description: "Add refresh token rotation to the auth module. Tokens should expire after 24h and auto-rotate on use.",
-    priority: "high",
-    status: "available",
-    skills: ["python", "auth", "security"],
-    posted_by: "OCTAVIA",
-    posted_at: new Date(Date.now() - 3600000).toISOString(),
-  },
-  {
-    id: "task-002",
-    title: "Build PS-SHA∞ memory visualizer",
-    description: "Create a visual explorer for hash-chain memory journals. Show chain integrity, truth states, and tamper detection.",
-    priority: "medium",
-    status: "in_progress",
-    skills: ["react", "visualization", "memory"],
-    assigned_to: "ARIA",
-    posted_by: "LUCIDIA",
-    posted_at: new Date(Date.now() - 7200000).toISOString(),
-  },
-  {
-    id: "task-003",
-    title: "Deploy vLLM inference cluster to Railway",
-    description: "Set up GPU-backed vLLM on Railway A100. Configure for qwen2.5-72b with tensor parallelism.",
-    priority: "critical",
-    status: "claimed",
-    skills: ["devops", "gpu", "railway"],
-    assigned_to: "ALICE",
-    posted_by: "OCTAVIA",
-    posted_at: new Date(Date.now() - 1800000).toISOString(),
-  },
-  {
-    id: "task-004",
-    title: "Audit Cloudflare worker security headers",
-    description: "Review all 41 blackroadio subdomain workers for missing security headers (CSP, HSTS, X-Frame).",
-    priority: "medium",
-    status: "available",
-    skills: ["security", "cloudflare"],
-    posted_by: "CIPHER",
-    posted_at: new Date(Date.now() - 10800000).toISOString(),
-  },
-  {
-    id: "task-005",
-    title: "Write contradiction amplification unit tests",
-    description: "Add pytest coverage for K(t) = C(t) · e^(λ|δ_t|) formula. Test edge cases with λ=0 and δ_t near infinity.",
-    priority: "low",
-    status: "completed",
-    skills: ["python", "testing", "math"],
-    assigned_to: "PRISM",
-    posted_by: "LUCIDIA",
-    posted_at: new Date(Date.now() - 86400000).toISOString(),
-    completed_at: new Date(Date.now() - 3600000).toISOString(),
-  },
+const COLUMNS: Array<{ key: Task["status"]; label: string; color: string }> = [
+  { key: "available", label: "Available", color: "border-blue-700" },
+  { key: "claimed",   label: "In Progress", color: "border-yellow-600" },
+  { key: "completed", label: "Completed", color: "border-green-700" },
 ];
 
 export default function TasksPage() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [filter, setFilter] = useState<string>("all");
-  const [loading, setLoading] = useState(true);
-  const [claiming, setClaiming] = useState<string | null>(null);
+  const { tasks, loading, error, post, claim, complete } = useTasks();
+  const [showNew, setShowNew] = useState(false);
+  const [form, setForm] = useState({ title: "", description: "", priority: "medium" });
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const url =
-          filter === "all"
-            ? "/api/tasks"
-            : `/api/tasks?status=${filter}`;
-        const res = await fetch(url);
-        if (res.ok) {
-          const data = await res.json();
-          setTasks(data.tasks || []);
-        } else {
-          setTasks(MOCK_TASKS);
-        }
-      } catch {
-        setTasks(MOCK_TASKS);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTasks();
-  }, [filter]);
-
-  const handleClaim = async (taskId: string) => {
-    setClaiming(taskId);
-    try {
-      const res = await fetch(`/api/tasks/${taskId}/claim`, { method: "POST" });
-      if (res.ok) {
-        setTasks((prev) =>
-          prev.map((t) =>
-            t.id === taskId ? { ...t, status: "claimed" } : t
-          )
-        );
-      }
-    } catch {
-      // offline
-    } finally {
-      setClaiming(null);
-    }
+  const handlePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await post(form.title, form.description, form.priority as Task["priority"]);
+    setForm({ title: "", description: "", priority: "medium" });
+    setShowNew(false);
   };
 
-  const available = tasks.filter((t) => t.status === "available").length;
-  const inProgress = tasks.filter((t) => t.status === "in_progress" || t.status === "claimed").length;
-  const completed = tasks.filter((t) => t.status === "completed").length;
+  const byStatus = (status: Task["status"]) =>
+    tasks.filter((t: Task) => t.status === status);
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">
-          Task Marketplace
-        </h1>
-        <p className="text-slate-400">
-          Multi-agent task coordination. Post, claim, and complete work across the BlackRoad fleet.
-        </p>
+    <div className="p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Task Marketplace</h1>
+          <p className="text-sm text-zinc-400 mt-1">{tasks.length} total tasks across all agents</p>
+        </div>
+        <button onClick={() => setShowNew(!showNew)} className="bg-violet-600 hover:bg-violet-500 text-white text-sm px-4 py-2 rounded-lg font-medium">
+          + New Task
+        </button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        <div className="bg-slate-900 rounded-lg p-4 border border-slate-800">
-          <div className="text-2xl font-bold text-green-400">{available}</div>
-          <div className="text-sm text-slate-400">Available</div>
-        </div>
-        <div className="bg-slate-900 rounded-lg p-4 border border-slate-800">
-          <div className="text-2xl font-bold text-blue-400">{inProgress}</div>
-          <div className="text-sm text-slate-400">In Progress</div>
-        </div>
-        <div className="bg-slate-900 rounded-lg p-4 border border-slate-800">
-          <div className="text-2xl font-bold text-slate-400">{completed}</div>
-          <div className="text-sm text-slate-400">Completed</div>
-        </div>
-      </div>
+      {showNew && (
+        <form onSubmit={handlePost} className="bg-zinc-900 border border-zinc-700 rounded-xl p-5 space-y-3">
+          <h2 className="text-sm font-semibold text-zinc-300">Post New Task</h2>
+          <input
+            value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
+            placeholder="Task title" required
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white"
+          />
+          <textarea
+            value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
+            placeholder="Description" rows={2}
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white resize-none"
+          />
+          <div className="flex gap-3">
+            <select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })}
+              className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white">
+              <option value="low">Low</option><option value="medium">Medium</option>
+              <option value="high">High</option><option value="critical">Critical</option>
+            </select>
+            <button type="submit" className="ml-auto bg-violet-600 text-white text-sm px-4 py-2 rounded-lg">Post Task</button>
+          </div>
+        </form>
+      )}
 
-      {/* Filter */}
-      <div className="flex gap-2 mb-6">
-        {["all", "available", "in_progress", "claimed", "completed"].map((s) => (
-          <button
-            key={s}
-            onClick={() => setFilter(s)}
-            className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-              filter === s
-                ? "bg-pink-600 text-white"
-                : "bg-slate-800 text-slate-400 hover:bg-slate-700"
-            }`}
-          >
-            {s.replace("_", " ")}
-          </button>
+      {loading && <p className="text-zinc-500 text-sm">Loading tasks...</p>}
+      {error && <p className="text-red-400 text-sm">{error}</p>}
+
+      <div className="grid grid-cols-3 gap-4">
+        {COLUMNS.map(({ key, label, color }) => (
+          <div key={key} className={`border-t-2 ${color} pt-3`}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-zinc-300">{label}</h3>
+              <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded-full">
+                {byStatus(key).length}
+              </span>
+            </div>
+            <div className="space-y-2">
+              {byStatus(key).map((task: Task) => (
+                <div key={task.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 space-y-2">
+                  <p className="text-white text-sm font-medium">{task.title}</p>
+                  {task.description && <p className="text-zinc-500 text-xs line-clamp-2">{task.description}</p>}
+                  <div className="flex items-center justify-between">
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${PRIORITY_COLOR[task.priority]}`}>
+                      {task.priority}
+                    </span>
+                    {task.agent && <span className="text-xs text-violet-400 font-mono">{task.agent}</span>}
+                  </div>
+                  {key === "available" && (
+                    <button onClick={() => claim(task.id)} className="w-full text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-1 rounded-lg">
+                      Claim
+                    </button>
+                  )}
+                  {key === "claimed" && (
+                    <button onClick={() => complete(task.id, "Completed via dashboard")} className="w-full text-xs bg-green-900 hover:bg-green-800 text-green-300 py-1 rounded-lg">
+                      Mark Complete
+                    </button>
+                  )}
+                </div>
+              ))}
+              {byStatus(key).length === 0 && (
+                <p className="text-zinc-600 text-xs text-center py-4">No tasks</p>
+              )}
+            </div>
+          </div>
         ))}
       </div>
-
-      {/* Tasks */}
-      {loading ? (
-        <div className="text-slate-500">Loading tasks...</div>
-      ) : (
-        <div className="space-y-3">
-          {tasks
-            .filter((t) => filter === "all" || t.status === filter)
-            .map((task) => (
-              <div
-                key={task.id}
-                className="bg-slate-900 rounded-lg p-5 border border-slate-800 hover:border-slate-700 transition-colors"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span
-                        className={`w-2 h-2 rounded-full ${STATUS_DOT[task.status]}`}
-                      />
-                      <h3 className="font-semibold text-white truncate">
-                        {task.title}
-                      </h3>
-                    </div>
-                    <p className="text-sm text-slate-400 mb-3 line-clamp-2">
-                      {task.description}
-                    </p>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded font-medium ${PRIORITY_COLORS[task.priority]}`}
-                      >
-                        {task.priority}
-                      </span>
-                      <span
-                        className={`text-xs font-medium ${STATUS_COLORS[task.status]}`}
-                      >
-                        {task.status.replace("_", " ")}
-                      </span>
-                      {task.skills.map((skill) => (
-                        <span
-                          key={skill}
-                          className="text-xs px-2 py-0.5 bg-slate-800 text-slate-400 rounded"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col items-end gap-2 shrink-0">
-                    {task.status === "available" && (
-                      <button
-                        onClick={() => handleClaim(task.id)}
-                        disabled={claiming === task.id}
-                        className="px-3 py-1.5 bg-pink-600 hover:bg-pink-500 disabled:bg-slate-700 text-white text-sm rounded font-medium transition-colors"
-                      >
-                        {claiming === task.id ? "Claiming..." : "Claim"}
-                      </button>
-                    )}
-                    <div className="text-right">
-                      <div className="text-xs text-slate-500">
-                        by {task.posted_by}
-                      </div>
-                      {task.assigned_to && (
-                        <div className="text-xs text-slate-400">
-                          → {task.assigned_to}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          {tasks.filter((t) => filter === "all" || t.status === filter).length === 0 && (
-            <div className="text-center py-12 text-slate-500">
-              No tasks with status &quot;{filter}&quot;
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }
