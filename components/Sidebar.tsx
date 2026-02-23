@@ -15,7 +15,8 @@ import {
   Cpu,
   FlaskConical,
   CheckCircle,
-  Server
+  Server,
+  Palette,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 import { useWorkspaceStore } from '@/stores/workspace-store';
@@ -66,6 +67,11 @@ export default function Sidebar() {
       name: 'Gateway',
       href: '/gateway',
       icon: Server,
+    },
+    {
+      name: 'Studio',
+      href: '/studio',
+      icon: Palette,
     },
     {
       name: 'Verify',
