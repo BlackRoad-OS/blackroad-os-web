@@ -18,6 +18,8 @@ import {
   CheckCircle,
   Server,
   Palette,
+  Building2,
+  BarChart3,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 import { useWorkspaceStore } from '@/stores/workspace-store';
@@ -63,6 +65,16 @@ export default function Sidebar() {
       name: 'Memory',
       href: '/memory',
       icon: Brain,
+    },
+    {
+      name: 'Organizations',
+      href: '/orgs',
+      icon: Building2,
+    },
+    {
+      name: 'Analytics',
+      href: '/analytics',
+      icon: BarChart3,
     },
     {
       name: 'Gateway',
