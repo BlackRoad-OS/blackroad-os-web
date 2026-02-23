@@ -14,7 +14,7 @@ import {
   Globe,
   Cpu,
   Cloud,
-  FlaskConical,
+  Brain,
   CheckCircle,
   Server,
   Palette,
@@ -62,7 +62,7 @@ export default function Sidebar() {
     {
       name: 'Memory',
       href: '/memory',
-      icon: FlaskConical,
+      icon: Brain,
     },
     {
       name: 'Gateway',
