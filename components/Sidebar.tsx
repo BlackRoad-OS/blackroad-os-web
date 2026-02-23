@@ -13,7 +13,8 @@ import {
   Activity,
   Globe,
   Cpu,
-  FlaskConical
+  FlaskConical,
+  CheckCircle
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 import { useWorkspaceStore } from '@/stores/workspace-store';
@@ -59,6 +60,11 @@ export default function Sidebar() {
       name: 'Memory',
       href: '/memory',
       icon: FlaskConical,
+    },
+    {
+      name: 'Verify',
+      href: '/verify',
+      icon: CheckCircle,
     },
     {
       name: 'Governance',
