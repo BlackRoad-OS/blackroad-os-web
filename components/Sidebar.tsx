@@ -13,6 +13,7 @@ import {
   Activity,
   Globe,
   Cpu,
+  Cloud,
   FlaskConical,
   CheckCircle,
   Server,
@@ -72,6 +73,16 @@ export default function Sidebar() {
       name: 'Studio',
       href: '/studio',
       icon: Palette,
+    },
+    {
+      name: 'Providers',
+      href: '/providers',
+      icon: Cloud,
+    },
+    {
+      name: 'Models',
+      href: '/models',
+      icon: Cpu,
     },
     {
       name: 'Verify',
