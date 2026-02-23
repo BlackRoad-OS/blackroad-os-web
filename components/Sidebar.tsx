@@ -57,7 +57,7 @@ export default function Sidebar() {
     {
       name: 'Fleet',
       href: '/fleet',
-      icon: Cpu,
+      icon: Server,
     },
     {
       name: 'Memory',
