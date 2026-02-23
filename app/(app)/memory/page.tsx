@@ -1,76 +1,65 @@
-async function getMemoryStats() {
+// app/(app)/memory/page.tsx
+// Shows PS-SHA∞ gateway memory journal
+
+async function getMemoryData() {
   try {
-    const res = await fetch("https://api.blackroad.io/memory/stats", { next: { revalidate: 60 } })
-    return res.ok ? res.json() : null
-  } catch { return null }
+    const [stats, recent] = await Promise.all([
+      fetch('http://127.0.0.1:8787/v1/memory', { next: { revalidate: 10 } }).then(r => r.json()),
+      fetch('http://127.0.0.1:8787/v1/memory/recent', { next: { revalidate: 10 } }).then(r => r.json()),
+    ])
+    return { stats, recent: recent.entries || [] }
+  } catch { return { stats: null, recent: [] } }
 }
 
 export default async function MemoryPage() {
-  const stats = await getMemoryStats()
-
-  const mockStats = {
-    sessions: 847,
-    journals: 12593,
-    facts: 4201,
-    sources: 89,
-    hash_chain_verified: true,
-  }
-
-  const data = stats ?? mockStats
-
+  const { stats, recent } = await getMemoryData()
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">🧠 Memory</h1>
-        <p className="text-gray-400 mt-1">PS-SHA∞ hash-chain persistent memory system</p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        {[
-          { label: "Sessions", value: data.sessions, color: "text-blue-400" },
-          { label: "Journal Entries", value: data.journals, color: "text-purple-400" },
-          { label: "Verified Facts", value: data.facts, color: "text-green-400" },
-          { label: "Trusted Sources", value: data.sources, color: "text-amber-400" },
-        ].map((item) => (
-          <div key={item.label} className="bg-gray-900 border border-gray-700 rounded-lg p-4">
-            <div className="text-gray-400 text-sm">{item.label}</div>
-            <div className={`text-2xl font-bold mt-1 ${item.color}`}>
-              {typeof item.value === "number" ? item.value.toLocaleString() : item.value}
-            </div>
+    <div className="p-8 max-w-5xl">
+      <h1 className="text-3xl font-bold mb-2">PS-SHA∞ Memory</h1>
+      <p className="text-muted-foreground mb-8">Hash-chain journal — every gateway interaction recorded</p>
+      
+      {stats ? (
+        <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="rounded-xl border p-5 text-center">
+            <div className="text-3xl font-bold">{stats.total_entries || 0}</div>
+            <div className="text-sm text-muted-foreground mt-1">Journal Entries</div>
           </div>
-        ))}
-      </div>
-
-      <div className="bg-gray-900 border border-gray-700 rounded-lg p-4">
-        <h2 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Hash Chain Status</h2>
-        <div className="flex items-center gap-3">
-          <span className={`w-3 h-3 rounded-full ${data.hash_chain_verified ? "bg-green-400" : "bg-red-400"}`}></span>
-          <span className={data.hash_chain_verified ? "text-green-400" : "text-red-400"}>
-            {data.hash_chain_verified ? "Verified — chain integrity intact" : "Verification failed"}
-          </span>
+          <div className="rounded-xl border p-5 text-center">
+            <div className="text-3xl font-bold">{stats.session_calls || 0}</div>
+            <div className="text-sm text-muted-foreground mt-1">Session Calls</div>
+          </div>
+          <div className="rounded-xl border p-5 text-center">
+            <div className="text-3xl font-bold text-green-500">SHA∞</div>
+            <div className="text-sm text-muted-foreground mt-1">Hash Chain</div>
+          </div>
         </div>
-        <p className="text-gray-500 text-sm mt-2">All journal entries are cryptographically linked via PS-SHA∞</p>
-      </div>
-
-      <div className="bg-gray-900 border border-gray-700 rounded-lg p-4">
-        <h2 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Memory Types</h2>
-        <div className="space-y-2 text-sm">
-          {[
-            { type: "fact", desc: "Verified true/false claims with confidence scores", color: "bg-green-400" },
-            { type: "observation", desc: "System observations logged during runtime", color: "bg-blue-400" },
-            { type: "inference", desc: "Agent-inferred conclusions from pattern matching", color: "bg-purple-400" },
-            { type: "commitment", desc: "Explicit agreements and action commitments", color: "bg-amber-400" },
-          ].map((m) => (
-            <div key={m.type} className="flex items-start gap-3 py-2 border-b border-gray-800 last:border-0">
-              <span className={`w-2 h-2 rounded-full mt-1.5 ${m.color}`}></span>
-              <div>
-                <span className="text-white font-mono capitalize">{m.type}</span>
-                <span className="text-gray-500 ml-2">{m.desc}</span>
+      ) : (
+        <div className="rounded-xl border p-6 mb-8 text-center text-muted-foreground">
+          Gateway offline · <code className="font-mono text-xs">br gateway start</code>
+        </div>
+      )}
+      
+      {recent.length > 0 && (
+        <div>
+          <h2 className="text-lg font-semibold mb-3">Recent Entries</h2>
+          <div className="rounded-xl border divide-y">
+            {recent.slice(0, 10).map((entry: any, i: number) => (
+              <div key={i} className="p-4 flex items-start gap-4">
+                <div className="font-mono text-xs text-muted-foreground pt-0.5 w-32 shrink-0">
+                  {entry.timestamp ? new Date(entry.timestamp).toLocaleTimeString() : '—'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium">{entry.agent || entry.type || 'unknown'}</div>
+                  <div className="text-xs text-muted-foreground font-mono truncate">{entry.hash?.slice(0,16)}...</div>
+                </div>
+                <div className={`text-xs px-2 py-0.5 rounded-full ${entry.status === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  {entry.status || 'ok'}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
