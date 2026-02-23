@@ -1,39 +1,29 @@
 "use client";
-
 import { useState, useRef, useEffect } from "react";
 
-const AGENTS = [
-  { id: null, name: "Default", color: "text-white" },
-  { id: "LUCIDIA", name: "Lucidia", color: "text-red-400" },
-  { id: "ALICE", name: "Alice", color: "text-green-400" },
-  { id: "OCTAVIA", name: "Octavia", color: "text-purple-400" },
-  { id: "PRISM", name: "Prism", color: "text-yellow-400" },
-  { id: "ECHO", name: "Echo", color: "text-blue-400" },
-  { id: "CIPHER", name: "Cipher", color: "text-slate-300" },
-];
+const AGENTS = ["LUCIDIA", "ALICE", "OCTAVIA", "PRISM", "ECHO", "CIPHER"] as const;
+type Agent = typeof AGENTS[number];
 
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-  agent?: string | null;
-}
+const AGENT_COLORS: Record<Agent, string> = {
+  LUCIDIA: "#9C27B0", ALICE: "#2979FF", OCTAVIA: "#F5A623",
+  PRISM: "#00BCD4",   ECHO: "#4CAF50",  CIPHER: "#FF1D6C",
+};
+
+interface Message { role: "user" | "assistant"; content: string; agent?: Agent; }
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
+  const [agent, setAgent] = useState<Agent>("LUCIDIA");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
-  const sendMessage = async () => {
+  async function send() {
     if (!input.trim() || loading) return;
-
-    const userMsg: Message = { role: "user", content: input.trim() };
-    setMessages((prev) => [...prev, userMsg]);
+    const userMsg: Message = { role: "user", content: input };
+    setMessages(m => [...m, userMsg]);
     setInput("");
     setLoading(true);
 
@@ -41,123 +31,63 @@ export default function ChatPage() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [...messages, userMsg].map((m) => ({
-            role: m.role,
-            content: m.content,
-          })),
-          agent: selectedAgent,
-          model: "qwen2.5:7b",
-        }),
+        body: JSON.stringify({ message: input, agent }),
       });
-
-      if (res.ok) {
-        const data = await res.json();
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content: data.message?.content || "...",
-            agent: selectedAgent,
-          },
-        ]);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content: "Gateway offline. Start it with: `br agent start`",
-            agent: selectedAgent,
-          },
-        ]);
-      }
+      const data = await res.json();
+      setMessages(m => [...m, { role: "assistant", content: data.content, agent }]);
     } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "Could not reach gateway.",
-          agent: selectedAgent,
-        },
-      ]);
+      setMessages(m => [...m, { role: "assistant", content: "Connection error. Is the gateway running?", agent }]);
     } finally {
       setLoading(false);
     }
-  };
-
-  const agent = AGENTS.find((a) => a.id === selectedAgent) ?? AGENTS[0];
+  }
 
   return (
     <div className="flex flex-col h-screen bg-black text-white">
       {/* Header */}
-      <div className="border-b border-slate-800 p-4 flex items-center justify-between">
-        <div>
-          <h1 className="font-bold text-lg">Chat</h1>
-          <p className="text-xs text-slate-400">
-            {selectedAgent ? `Speaking as ${selectedAgent}` : "Default model"}
-          </p>
-        </div>
-        {/* Agent selector */}
-        <div className="flex gap-1">
-          {AGENTS.map((a) => (
-            <button
-              key={a.id ?? "default"}
-              onClick={() => setSelectedAgent(a.id)}
-              className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                selectedAgent === a.id
-                  ? "bg-slate-700 " + a.color
-                  : "text-slate-500 hover:text-slate-300 hover:bg-slate-800"
-              }`}
-            >
-              {a.name}
+      <div className="border-b border-white/10 p-4 flex items-center gap-4">
+        <h1 className="text-lg font-bold">Agent Chat</h1>
+        <div className="flex gap-2">
+          {AGENTS.map(a => (
+            <button key={a} onClick={() => setAgent(a)}
+              className="px-3 py-1 rounded-full text-xs font-bold transition-all"
+              style={{
+                background: agent === a ? AGENT_COLORS[a] : "transparent",
+                border: `1px solid ${AGENT_COLORS[a]}`,
+                color: agent === a ? "#fff" : AGENT_COLORS[a],
+              }}>
+              {a}
             </button>
           ))}
         </div>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
-          <div className="text-center text-slate-600 mt-12">
-            <div className="text-4xl mb-3">◎</div>
-            <div className="text-sm">
-              Start a conversation. Select an agent persona above.
-            </div>
+          <div className="text-center text-white/40 mt-20">
+            <p className="text-4xl mb-4">💜</p>
+            <p>Select an agent and start chatting</p>
+            <p className="text-sm mt-2">Current: <span style={{ color: AGENT_COLORS[agent] }}>{agent}</span></p>
           </div>
         )}
         {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-          >
-            <div
-              className={`max-w-2xl rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                msg.role === "user"
-                  ? "bg-pink-600 text-white"
-                  : "bg-slate-800 text-slate-100"
-              }`}
-            >
+          <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div className={`max-w-2xl rounded-2xl px-4 py-3 ${msg.role === "user" ? "bg-white/10" : "bg-white/5 border border-white/10"}`}>
               {msg.role === "assistant" && msg.agent && (
-                <div
-                  className={`text-xs font-semibold mb-1 ${
-                    AGENTS.find((a) => a.id === msg.agent)?.color ?? "text-slate-400"
-                  }`}
-                >
+                <p className="text-xs font-bold mb-1" style={{ color: AGENT_COLORS[msg.agent as Agent] }}>
                   {msg.agent}
-                </div>
+                </p>
               )}
-              <div className="whitespace-pre-wrap">{msg.content}</div>
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
             </div>
           </div>
         ))}
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-slate-800 rounded-2xl px-4 py-3">
-              <div className="flex gap-1">
-                <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce [animation-delay:0ms]" />
-                <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce [animation-delay:150ms]" />
-                <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce [animation-delay:300ms]" />
-              </div>
+            <div className="rounded-2xl px-4 py-3 bg-white/5 border border-white/10">
+              <p className="text-xs font-bold mb-1" style={{ color: AGENT_COLORS[agent] }}>{agent}</p>
+              <p className="text-sm text-white/40">Thinking…</p>
             </div>
           </div>
         )}
@@ -165,25 +95,17 @@ export default function ChatPage() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-slate-800 p-4">
-        <div className="flex gap-3">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
-            placeholder={`Message ${agent.name}...`}
-            disabled={loading}
-            className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-pink-600 disabled:opacity-50"
-          />
-          <button
-            onClick={sendMessage}
-            disabled={loading || !input.trim()}
-            className="px-4 py-2.5 bg-pink-600 hover:bg-pink-500 disabled:bg-slate-700 text-white rounded-xl font-medium text-sm transition-colors"
-          >
-            Send
-          </button>
-        </div>
+      <div className="border-t border-white/10 p-4 flex gap-3">
+        <input
+          value={input} onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), send())}
+          placeholder={`Message ${agent}…`} disabled={loading}
+          className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-white/30 disabled:opacity-50" />
+        <button onClick={send} disabled={loading || !input.trim()}
+          className="px-6 py-3 rounded-xl text-sm font-bold disabled:opacity-40 transition-opacity"
+          style={{ background: AGENT_COLORS[agent] }}>
+          Send
+        </button>
       </div>
     </div>
   );
