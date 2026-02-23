@@ -10,7 +10,10 @@ import {
   Plus,
   LogOut,
   LayoutDashboard,
-  Activity
+  Activity,
+  Globe,
+  Cpu,
+  FlaskConical
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 import { useWorkspaceStore } from '@/stores/workspace-store';
@@ -41,6 +44,21 @@ export default function Sidebar() {
       name: 'Monitoring',
       href: '/monitoring',
       icon: Activity,
+    },
+    {
+      name: 'Worlds',
+      href: '/worlds',
+      icon: Globe,
+    },
+    {
+      name: 'Fleet',
+      href: '/fleet',
+      icon: Cpu,
+    },
+    {
+      name: 'Memory',
+      href: '/memory',
+      icon: FlaskConical,
     },
     {
       name: 'Governance',
