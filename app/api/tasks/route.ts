@@ -1,52 +1,96 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from 'next/server'
+import { readdirSync, readFileSync, writeFileSync, mkdirSync } from 'fs'
+import { join } from 'path'
 
-const GATEWAY = process.env.BLACKROAD_GATEWAY_URL ?? "http://127.0.0.1:8787";
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
-// Mock tasks for offline/dev mode
-const MOCK_TASKS = [
-  { id: "t1", title: "Deploy gateway to Railway", priority: "high", status: "available", agent: null, tags: ["devops"], createdAt: new Date().toISOString() },
-  { id: "t2", title: "Write memory system tests", priority: "medium", status: "claimed", agent: "ALICE", tags: ["testing"], createdAt: new Date().toISOString() },
-  { id: "t3", title: "Analyze agent communication patterns", priority: "low", status: "completed", agent: "PRISM", tags: ["research"], createdAt: new Date().toISOString() },
-];
+const TASKS_DIR = '/Users/alexa/.blackroad/memory/tasks'
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = req.nextUrl;
-  const status = searchParams.get("status");
-  const priority = searchParams.get("priority");
+type TaskStatus = 'available' | 'claimed' | 'completed' | 'failed'
 
+function readTasksFromDir(subdir: string): any[] {
+  const dir = join(TASKS_DIR, subdir)
   try {
-    const url = new URL(`${GATEWAY}/tasks`);
-    if (status) url.searchParams.set("status", status);
-    if (priority) url.searchParams.set("priority", priority);
-
-    const upstream = await fetch(url.toString(), { cache: "no-store" });
-    const data = await upstream.json();
-    return NextResponse.json(data);
-  } catch {
-    let tasks = MOCK_TASKS;
-    if (status) tasks = tasks.filter(t => t.status === status);
-    if (priority) tasks = tasks.filter(t => t.priority === priority);
-    return NextResponse.json({ tasks, total: tasks.length, offline: true });
-  }
+    return readdirSync(dir)
+      .filter(f => f.endsWith('.json'))
+      .map(f => {
+        try { return { ...JSON.parse(readFileSync(join(dir, f), 'utf8')), _file: f, _status: subdir } }
+        catch { return null }
+      })
+      .filter(Boolean)
+  } catch { return [] }
 }
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  try {
-    const upstream = await fetch(`${GATEWAY}/tasks`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    const data = await upstream.json();
-    return NextResponse.json(data, { status: 201 });
-  } catch {
-    return NextResponse.json({
-      id: `offline-${Date.now()}`,
-      ...body,
-      status: "available",
-      createdAt: new Date().toISOString(),
-      offline: true,
-    }, { status: 201 });
+function getAllTasks() {
+  return [
+    ...readTasksFromDir('available'),
+    ...readTasksFromDir('claimed'),
+    ...readTasksFromDir('completed'),
+  ].sort((a, b) => (b.posted_at || '').localeCompare(a.posted_at || ''))
+}
+
+export async function GET(req: Request) {
+  const url = new URL(req.url)
+  const status = url.searchParams.get('status') || 'all'
+  let tasks = getAllTasks()
+  if (status !== 'all') tasks = tasks.filter(t => t._status === status)
+  const counts = {
+    available: tasks.filter(t => t._status === 'available').length,
+    claimed: tasks.filter(t => t._status === 'claimed').length,
+    completed: tasks.filter(t => t._status === 'completed').length,
   }
+  return NextResponse.json({ tasks, counts, total: tasks.length })
+}
+
+export async function POST(req: Request) {
+  const body = await req.json().catch(() => ({}))
+  const { action, task_id, title, description, priority, tags, skills, assigned_to } = body
+
+  if (action === 'create') {
+    const id = task_id || `task-${Date.now()}`
+    const task = {
+      task_id: id, title, description,
+      priority: priority || 'normal',
+      tags: tags || '',
+      skills: skills || '',
+      status: 'available',
+      posted_at: new Date().toISOString(),
+      posted_by: 'web-ui',
+    }
+    const dir = join(TASKS_DIR, 'available')
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(join(dir, `${id}.json`), JSON.stringify(task, null, 2))
+    return NextResponse.json({ task, success: true })
+  }
+
+  if (action === 'claim' && task_id) {
+    // Move from available to claimed
+    try {
+      const src = join(TASKS_DIR, 'available', `${task_id}.json`)
+      const dst = join(TASKS_DIR, 'claimed', `${task_id}.json`)
+      mkdirSync(join(TASKS_DIR, 'claimed'), { recursive: true })
+      const task = JSON.parse(readFileSync(src, 'utf8'))
+      task.status = 'claimed'; task.claimed_by = assigned_to || 'web-ui'; task.claimed_at = new Date().toISOString()
+      writeFileSync(dst, JSON.stringify(task, null, 2))
+      const { unlinkSync } = require('fs'); unlinkSync(src)
+      return NextResponse.json({ task, success: true })
+    } catch (e: any) { return NextResponse.json({ error: e.message }, { status: 400 }) }
+  }
+
+  if (action === 'complete' && task_id) {
+    try {
+      let src = join(TASKS_DIR, 'claimed', `${task_id}.json`)
+      try { readFileSync(src) } catch { src = join(TASKS_DIR, 'available', `${task_id}.json`) }
+      const dst = join(TASKS_DIR, 'completed', `${task_id}.json`)
+      mkdirSync(join(TASKS_DIR, 'completed'), { recursive: true })
+      const task = JSON.parse(readFileSync(src, 'utf8'))
+      task.status = 'completed'; task.completed_at = new Date().toISOString(); task.result = body.result || ''
+      writeFileSync(dst, JSON.stringify(task, null, 2))
+      const { unlinkSync } = require('fs'); unlinkSync(src)
+      return NextResponse.json({ task, success: true })
+    } catch (e: any) { return NextResponse.json({ error: e.message }, { status: 400 }) }
+  }
+
+  return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
 }

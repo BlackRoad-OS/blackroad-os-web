@@ -12,14 +12,20 @@ import {
   LayoutDashboard,
   Activity,
   Globe,
+  ShieldCheck,
+  Sparkles,
   Cpu,
-  Cloud,
-  Brain,
-  CheckCircle,
   Server,
-  Palette,
-  Building2,
-  BarChart3,
+  Zap,
+  BarChart2,
+  Network,
+  Send,
+  Rocket,
+  Terminal,
+  Brain,
+  Database,
+  Lock,
+  CheckSquare,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 import { useWorkspaceStore } from '@/stores/workspace-store';
@@ -31,86 +37,28 @@ export default function Sidebar() {
   const currentWorkspace = useWorkspaceStore((state) => state.currentWorkspace);
 
   const navigation = [
-    {
-      name: 'Dashboard',
-      href: '/workspace',
-      icon: LayoutDashboard,
-    },
-    {
-      name: 'Conversations',
-      href: '/conversations',
-      icon: MessageSquare,
-    },
-    {
-      name: 'Agents',
-      href: '/agents',
-      icon: Bot,
-    },
-    {
-      name: 'Monitoring',
-      href: '/monitoring',
-      icon: Activity,
-    },
-    {
-      name: 'Worlds',
-      href: '/worlds',
-      icon: Globe,
-    },
-    {
-      name: 'Fleet',
-      href: '/fleet',
-      icon: Server,
-    },
-    {
-      name: 'Memory',
-      href: '/memory',
-      icon: Brain,
-    },
-    {
-      name: 'Organizations',
-      href: '/orgs',
-      icon: Building2,
-    },
-    {
-      name: 'Analytics',
-      href: '/analytics',
-      icon: BarChart3,
-    },
-    {
-      name: 'Gateway',
-      href: '/gateway',
-      icon: Server,
-    },
-    {
-      name: 'Studio',
-      href: '/studio',
-      icon: Palette,
-    },
-    {
-      name: 'Providers',
-      href: '/providers',
-      icon: Cloud,
-    },
-    {
-      name: 'Models',
-      href: '/models',
-      icon: Cpu,
-    },
-    {
-      name: 'Verify',
-      href: '/verify',
-      icon: CheckCircle,
-    },
-    {
-      name: 'Governance',
-      href: '/governance',
-      icon: Shield,
-    },
-    {
-      name: 'Settings',
-      href: '/settings',
-      icon: Settings,
-    },
+    { name: 'Dashboard',      href: '/workspace',     icon: LayoutDashboard },
+    { name: 'Conversations',  href: '/conversations',  icon: MessageSquare },
+    { name: 'Agents',         href: '/agents',         icon: Bot },
+    { name: 'Monitoring',     href: '/monitoring',     icon: Activity },
+    { name: 'Analytics',      href: '/analytics',      icon: BarChart2 },
+    { name: 'Fleet',          href: '/fleet',          icon: Server },
+    { name: 'Network',        href: '/network',        icon: Network },
+    { name: 'Mesh',           href: '/mesh',           icon: Send },
+    { name: 'Workers',        href: '/workers',        icon: Zap },
+    { name: 'Deployments',    href: '/deployments',    icon: Rocket },
+    { name: 'DNS',            href: '/dns',            icon: Globe },
+    { name: 'Logs',           href: '/logs',           icon: Terminal },
+    { name: 'Memory',         href: '/memory',         icon: Brain },
+    { name: 'KV Browser',     href: '/kv',             icon: Database },
+    { name: 'Terminal',       href: '/terminal',       icon: Terminal },
+    { name: 'Vault',          href: '/vault',          icon: Lock },
+    { name: 'Tasks',          href: '/agents-tasks',   icon: CheckSquare },
+    { name: 'Worlds',         href: '/worlds',         icon: Globe },
+    { name: 'Verify',         href: '/verify',         icon: ShieldCheck },
+    { name: 'Governance',     href: '/governance',     icon: Shield },
+    { name: 'Onboarding',     href: '/onboarding',     icon: Sparkles },
+    { name: 'Settings',       href: '/settings',       icon: Settings },
   ];
 
   return (
@@ -135,7 +83,7 @@ export default function Sidebar() {
       {/* New conversation button */}
       <div className="p-4">
         <Link
-          href="/workspace?new=true"
+          href="/conversations/new"
           className="group flex items-center justify-center gap-2 w-full px-4 py-3 bg-gradient-to-r from-[#FF1D6C] to-violet-600 hover:from-[#FF1D6C]/90 hover:to-violet-600/90 rounded-xl text-sm font-medium transition-all hover:shadow-lg hover:shadow-[#FF1D6C]/25"
         >
           <Plus className="h-4 w-4" />
@@ -171,8 +119,16 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* User footer */}
-      <div className="border-t border-white/10 p-4">
+      {/* Agent fleet stats footer */}
+      <div className="px-4 py-3 border-t border-white/10">
+        <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-white/5 mb-2">
+          <Cpu className="h-4 w-4 text-[#2979FF] flex-shrink-0" />
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-white">30,000 agents</p>
+            <p className="text-[10px] text-gray-500 truncate">aria64 · blackroad-pi · alice</p>
+          </div>
+          <div className="ml-auto w-2 h-2 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
+        </div>
         <button
           onClick={logout}
           className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-sm font-medium text-gray-400 hover:bg-white/5 hover:text-white transition-all"
