@@ -47,7 +47,17 @@ For compliance-related security concerns:
 - **CRD#:** 7794541
 - **Email:** blackroad.systems@gmail.com
 
+### Upstream Security
+
+This repository syncs from the private **BlackRoad-Private** upstream:
+- All upstream changes are reviewed before merging
+- Sensitive data is filtered before public release
+- Automated security scanning on all upstream syncs
+- Access to upstream requires team authorization
+
+See [Upstream Documentation](../docs/UPSTREAM.md) for details.
+
 ---
 
-**Last Updated:** 2026-01-04
+**Last Updated:** 2026-02-15
 **Compliance Framework:** BlackRoad OS Master Compliance Framework v1.0

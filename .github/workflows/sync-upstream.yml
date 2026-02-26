@@ -1,0 +1,277 @@
+# .github/workflows/sync-upstream.yml
+# Synchronize with BlackRoad-Private upstream repository
+
+name: "Sync BlackRoad-Private Upstream"
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      sync_mode:
+        description: 'Sync mode'
+        required: true
+        type: choice
+        options:
+          - check-only
+          - create-pr
+          - auto-merge
+        default: 'check-only'
+      branch:
+        description: 'Upstream branch to sync from'
+        required: false
+        default: 'main'
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  # ============================================
+  # Check Upstream Connection
+  # ============================================
+  check-upstream:
+    name: "Check Upstream Connection"
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ steps.check.outputs.has_changes }}
+      commit_count: ${{ steps.check.outputs.commit_count }}
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          
+      - name: Configure Git
+        run: |
+          git config user.name "BlackRoad Upstream Bot"
+          git config user.email "upstream@blackroad.ai"
+          
+      - name: Add Upstream Remote
+        run: |
+          # Check if upstream already exists
+          if git remote | grep -q '^upstream$'; then
+            git remote remove upstream
+          fi
+          
+          # Add BlackRoad-Private as upstream
+          git remote add upstream https://github.com/BlackRoad-OS/BlackRoad-Private.git
+          
+          echo "✅ Added upstream remote: BlackRoad-Private"
+          git remote -v
+          
+      - name: Fetch Upstream
+        id: fetch
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.UPSTREAM_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          # Attempt to fetch from upstream
+          # This will fail if the repo doesn't exist or we don't have access
+          if git ls-remote upstream &>/dev/null; then
+            git fetch upstream ${{ github.event.inputs.branch || 'main' }}
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "✅ Successfully fetched from upstream"
+          else
+            echo "status=unavailable" >> $GITHUB_OUTPUT
+            echo "⚠️ Upstream repository not available or access denied"
+          fi
+          
+      - name: Check for Changes
+        id: check
+        if: steps.fetch.outputs.status == 'success'
+        run: |
+          UPSTREAM_BRANCH="${{ github.event.inputs.branch || 'main' }}"
+          
+          # Count commits ahead
+          COMMIT_COUNT=$(git rev-list --count HEAD..upstream/$UPSTREAM_BRANCH 2>/dev/null || echo "0")
+          
+          echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+          
+          if [ "$COMMIT_COUNT" -gt "0" ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "📊 Found $COMMIT_COUNT new commits in upstream"
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "✅ Already up to date with upstream"
+          fi
+          
+      - name: Report Status
+        run: |
+          echo "## Upstream Connection Status"
+          echo "- Remote: BlackRoad-Private"
+          echo "- Branch: ${{ github.event.inputs.branch || 'main' }}"
+          echo "- Fetch Status: ${{ steps.fetch.outputs.status }}"
+          echo "- Has Changes: ${{ steps.check.outputs.has_changes }}"
+          echo "- Commit Count: ${{ steps.check.outputs.commit_count }}"
+
+  # ============================================
+  # Sync Upstream Changes
+  # ============================================
+  sync-changes:
+    name: "Sync Upstream Changes"
+    needs: check-upstream
+    if: needs.check-upstream.outputs.has_changes == 'true' && github.event.inputs.sync_mode != 'check-only'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.UPSTREAM_TOKEN || secrets.GITHUB_TOKEN }}
+          
+      - name: Configure Git
+        run: |
+          git config user.name "BlackRoad Upstream Bot"
+          git config user.email "upstream@blackroad.ai"
+          
+      - name: Add Upstream Remote
+        run: |
+          git remote add upstream https://github.com/BlackRoad-OS/BlackRoad-Private.git
+          git fetch upstream ${{ github.event.inputs.branch || 'main' }}
+          
+      - name: Create Sync Branch
+        run: |
+          SYNC_BRANCH="sync-upstream-$(date +%Y%m%d-%H%M%S)"
+          echo "SYNC_BRANCH=$SYNC_BRANCH" >> $GITHUB_ENV
+          
+          git checkout -b "$SYNC_BRANCH"
+          
+      - name: Merge Upstream Changes
+        id: merge
+        continue-on-error: true
+        run: |
+          UPSTREAM_BRANCH="${{ github.event.inputs.branch || 'main' }}"
+          
+          # Attempt to merge upstream changes
+          if git merge upstream/$UPSTREAM_BRANCH --no-edit; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "✅ Successfully merged upstream changes"
+          else
+            echo "status=conflict" >> $GITHUB_OUTPUT
+            echo "⚠️ Merge conflicts detected"
+            
+            # Abort the merge
+            git merge --abort
+          fi
+          
+      - name: Push Sync Branch
+        if: steps.merge.outputs.status == 'success'
+        run: |
+          git push -u origin "$SYNC_BRANCH"
+          
+      - name: Create Pull Request
+        if: steps.merge.outputs.status == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          UPSTREAM_BRANCH="${{ github.event.inputs.branch || 'main' }}"
+          
+          gh pr create \
+            --title "chore(upstream): Sync changes from BlackRoad-Private" \
+            --body "## Upstream Sync
+
+          This PR syncs changes from the **BlackRoad-Private** upstream repository.
+
+          **Source Branch:** upstream/$UPSTREAM_BRANCH
+          **Target Branch:** main
+          **Commits:** ${{ needs.check-upstream.outputs.commit_count }} new commits
+
+          ### Changes Included
+
+          This sync includes updates from the private upstream repository. Review the changes carefully before merging.
+
+          ### Merge Strategy
+
+          - ✅ No conflicts detected
+          - 🔍 Review required
+          - 🧪 Tests will run automatically
+
+          ---
+          *Automated by BlackRoad Upstream Sync*" \
+            --label "upstream,automated,sync" \
+            --base main \
+            --head "$SYNC_BRANCH"
+            
+      - name: Auto-merge PR (if enabled)
+        if: steps.merge.outputs.status == 'success' && github.event.inputs.sync_mode == 'auto-merge'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Enable auto-merge for the PR
+          PR_NUMBER=$(gh pr list --head "$SYNC_BRANCH" --json number --jq '.[0].number')
+          
+          if [ -n "$PR_NUMBER" ]; then
+            gh pr merge "$PR_NUMBER" --auto --squash
+            echo "✅ Auto-merge enabled for PR #$PR_NUMBER"
+          fi
+          
+      - name: Report Conflicts
+        if: steps.merge.outputs.status == 'conflict'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create an issue about the conflict
+          gh issue create \
+            --title "⚠️ Upstream Sync Conflict Detected" \
+            --body "## Merge Conflict
+
+          Automatic sync from **BlackRoad-Private** upstream failed due to merge conflicts.
+
+          **Upstream Branch:** ${{ github.event.inputs.branch || 'main' }}
+          **Commits Behind:** ${{ needs.check-upstream.outputs.commit_count }}
+
+          ### Manual Resolution Required
+
+          1. Fetch upstream: \`git fetch upstream\`
+          2. Create a branch: \`git checkout -b sync-upstream\`
+          3. Merge changes: \`git merge upstream/main\`
+          4. Resolve conflicts manually
+          5. Push and create PR
+
+          ### Command Reference
+
+          \`\`\`bash
+          git remote add upstream https://github.com/BlackRoad-OS/BlackRoad-Private.git
+          git fetch upstream
+          git checkout -b sync-upstream
+          git merge upstream/main
+          # Resolve conflicts
+          git add .
+          git commit
+          git push -u origin sync-upstream
+          \`\`\`
+
+          ---
+          *Automated by BlackRoad Upstream Sync*" \
+            --label "upstream,conflict,manual-action-required"
+
+  # ============================================
+  # Summary Report
+  # ============================================
+  summary:
+    name: "Generate Summary"
+    needs: [check-upstream, sync-changes]
+    if: always()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Summary Report
+        run: |
+          echo "## 🔄 Upstream Sync Summary"
+          echo ""
+          echo "**Repository:** BlackRoad-Private"
+          echo "**Branch:** ${{ github.event.inputs.branch || 'main' }}"
+          echo "**Mode:** ${{ github.event.inputs.sync_mode || 'scheduled' }}"
+          echo ""
+          echo "### Results"
+          echo "- Has Changes: ${{ needs.check-upstream.outputs.has_changes }}"
+          echo "- Commits Behind: ${{ needs.check-upstream.outputs.commit_count }}"
+          echo "- Sync Status: ${{ needs.sync-changes.result || 'skipped' }}"
+          echo ""
+          echo "---"
+          echo "*Sync completed at $(date -u +"%Y-%m-%d %H:%M:%S UTC")*"
