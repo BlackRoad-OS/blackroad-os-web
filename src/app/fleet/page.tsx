@@ -35,7 +35,7 @@ export default function FleetPage() {
             onClick={() => setSelected(selected === node.name ? null : node.name)}
             style={{
               background: "#111",
-              border: selected === node.name ? "1px solid #FF1D6C" : "1px solid #222",
+              border: selected === node.name ? "1px solid #FF2255" : "1px solid #222",
               borderRadius: "10px",
               padding: "16px 20px",
               cursor: "pointer",
@@ -55,7 +55,7 @@ export default function FleetPage() {
                 </div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontWeight: 600, color: "#FF1D6C" }}>{node.agents.toLocaleString()}</div>
+                <div style={{ fontWeight: 600, color: "#FF2255" }}>{node.agents.toLocaleString()}</div>
                 <div style={{ color: "#666", fontSize: "12px" }}>agents</div>
               </div>
             </div>
@@ -66,7 +66,7 @@ export default function FleetPage() {
                 <Stat label="Load" value={node.load || "N/A"} />
                 <Stat label="Uptime" value={node.uptime || "N/A"} />
                 <div style={{ marginLeft: "auto", display: "flex", gap: "8px" }}>
-                  <button style={{ background: "#1a1a2e", border: "1px solid #2979FF", color: "#2979FF", padding: "6px 14px", borderRadius: "6px", cursor: "pointer", fontSize: "13px" }}>
+                  <button style={{ background: "#1a1a2e", border: "1px solid #4488FF", color: "#4488FF", padding: "6px 14px", borderRadius: "6px", cursor: "pointer", fontSize: "13px" }}>
                     SSH
                   </button>
                   <button style={{ background: "#1a1a1a", border: "1px solid #333", color: "#888", padding: "6px 14px", borderRadius: "6px", cursor: "pointer", fontSize: "13px" }}>

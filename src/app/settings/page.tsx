@@ -49,7 +49,7 @@ export default function SettingsPage() {
             {s.type === "toggle" && (
               <div onClick={() => update(s.key, !(s.value as boolean))} style={{
                 width: "44px", height: "24px", borderRadius: "12px",
-                background: s.value ? "#FF1D6C" : "#333",
+                background: s.value ? "#FF2255" : "#333",
                 cursor: "pointer", position: "relative", transition: "background 0.2s", flexShrink: 0,
               }}>
                 <div style={{
@@ -79,7 +79,7 @@ export default function SettingsPage() {
 
       <button onClick={save} style={{
         marginTop: "24px",
-        background: saved ? "#1a3a1a" : "linear-gradient(135deg, #FF1D6C, #9C27B0)",
+        background: saved ? "#1a3a1a" : "linear-gradient(135deg, #FF2255, #CC00AA)",
         border: "none", color: "#fff", padding: "12px 32px",
         borderRadius: "8px", fontSize: "15px", fontWeight: 600, cursor: "pointer",
       }}>

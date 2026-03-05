@@ -20,7 +20,7 @@ const MOCK_CHAIN: MemoryEntry[] = [
   { hash: "980831ab", prev_hash: "32e7558c",  key: "security.hardened",  content: "CIS Level 1 applied to all Pi nodes",          type: "commitment",  truth_state: 1,  timestamp: "2026-02-10T16:55:12Z" },
 ];
 
-const TYPE_COLORS = { fact: "#2979FF", observation: "#F5A623", inference: "#9C27B0", commitment: "#FF1D6C" };
+const TYPE_COLORS = { fact: "#4488FF", observation: "#FF6B2B", inference: "#CC00AA", commitment: "#FF2255" };
 const TRUTH_ICONS = { 1: { icon: "✓", color: "#4CAF50" }, 0: { icon: "?", color: "#FF9800" }, "-1": { icon: "✗", color: "#F44336" } };
 
 export default function MemoryPage() {

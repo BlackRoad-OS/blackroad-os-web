@@ -11,12 +11,12 @@ interface Agent {
 }
 
 const AGENT_COLORS: Record<string, string> = {
-  LUCIDIA: "#2979FF",
-  ALICE:   "#FF1D6C",
-  OCTAVIA: "#F5A623",
-  PRISM:   "#9C27B0",
-  ECHO:    "#00BCD4",
-  CIPHER:  "#4CAF50",
+  LUCIDIA: "#4488FF",
+  ALICE:   "#FF2255",
+  OCTAVIA: "#FF6B2B",
+  PRISM:   "#CC00AA",
+  ECHO:    "#00D4FF",
+  CIPHER:  "#8844FF",
 };
 
 export default function AgentDashboard() {
@@ -42,14 +42,14 @@ export default function AgentDashboard() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
         <div>
           <h1 style={{ fontSize: "28px", fontWeight: 700, margin: 0 }}>
-            <span style={{ background: "linear-gradient(135deg, #F5A623 0%, #FF1D6C 38.2%, #9C27B0 61.8%, #2979FF 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            <span style={{ background: "linear-gradient(90deg, #FF6B2B, #FF2255, #CC00AA, #8844FF, #4488FF, #00D4FF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
               BlackRoad OS
             </span>
           </h1>
           <p style={{ margin: "4px 0 0", color: "#888", fontSize: "14px" }}>Agent Control Center</p>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: "32px", fontWeight: 700, color: "#FF1D6C" }}>{totalTasks.toLocaleString()}</div>
+          <div style={{ fontSize: "32px", fontWeight: 700, color: "#FF2255" }}>{totalTasks.toLocaleString()}</div>
           <div style={{ color: "#888", fontSize: "12px" }}>Tasks Today</div>
         </div>
       </div>
@@ -99,10 +99,10 @@ export default function AgentDashboard() {
       {/* Stats Bar */}
       <div style={{ marginTop: "32px", display: "flex", gap: "16px", flexWrap: "wrap" }}>
         {[
-          { label: "Total Agents", value: "30,000", color: "#FF1D6C" },
+          { label: "Total Agents", value: "30,000", color: "#FF2255" },
           { label: "Online", value: agents.filter(a => a.status !== "offline").length.toString(), color: "#4CAF50" },
-          { label: "Requests/s", value: "1,247", color: "#2979FF" },
-          { label: "Avg Latency", value: "42ms", color: "#F5A623" },
+          { label: "Requests/s", value: "1,247", color: "#4488FF" },
+          { label: "Avg Latency", value: "42ms", color: "#FF6B2B" },
         ].map(stat => (
           <div key={stat.label} style={{ background: "#111", border: "1px solid #222", borderRadius: "8px", padding: "12px 20px", flex: "1", minWidth: "120px" }}>
             <div style={{ fontSize: "24px", fontWeight: 700, color: stat.color }}>{stat.value}</div>

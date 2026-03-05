@@ -12,9 +12,9 @@ interface WorldArtifact {
 }
 
 const TYPE_COLOR: Record<string, string> = {
-  world: "#F5A623",
-  lore:  "#9C27B0",
-  code:  "#2979FF",
+  world: "#FF6B2B",
+  lore:  "#CC00AA",
+  code:  "#4488FF",
 };
 
 const TYPE_ICON: Record<string, string> = {
@@ -24,7 +24,7 @@ const TYPE_ICON: Record<string, string> = {
 };
 
 function ArtifactCard({ artifact }: { artifact: WorldArtifact }) {
-  const color = TYPE_COLOR[artifact.type] ?? "#FF1D6C";
+  const color = TYPE_COLOR[artifact.type] ?? "#FF2255";
   const icon  = TYPE_ICON[artifact.type]  ?? "✨";
   return (
     <div style={{
@@ -53,7 +53,7 @@ function ArtifactCard({ artifact }: { artifact: WorldArtifact }) {
         href={artifact.url}
         target="_blank"
         rel="noopener noreferrer"
-        style={{ color: "#2979FF", fontSize: 12, textDecoration: "none" }}
+        style={{ color: "#4488FF", fontSize: 12, textDecoration: "none" }}
       >
         View on GitHub →
       </a>
@@ -86,7 +86,7 @@ export default function WorldsPage() {
       <div style={{ marginBottom: "2rem" }}>
         <h1 style={{
           fontSize: 32, fontWeight: 700, margin: 0,
-          background: "linear-gradient(135deg, #F5A623, #FF1D6C, #9C27B0, #2979FF)",
+          background: "linear-gradient(135deg, #FF6B2B, #FF2255, #CC00AA, #4488FF)",
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
         }}>
@@ -102,7 +102,7 @@ export default function WorldsPage() {
         {["all", "world", "lore", "code"].map((t) => {
           const count = t === "all" ? artifacts.length
             : artifacts.filter((a) => a.type === t).length;
-          const color = t === "all" ? "#FF1D6C" : (TYPE_COLOR[t] ?? "#666");
+          const color = t === "all" ? "#FF2255" : (TYPE_COLOR[t] ?? "#666");
           return (
             <button
               key={t}
