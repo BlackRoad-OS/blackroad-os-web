@@ -164,7 +164,7 @@ export default function StatusPage() {
                   }}>
                     <div style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
                       <span style={{ fontSize: 10, color: "#404040", flexShrink: 0, width: 52 }}>{ev.time}</span>
-                      <span style={{ fontSize: 11, color: COLORS[AGENTS.findIndex((a) => a.name === ev.agent) % COLORS.length] || "#525252", flexShrink: 0 }}>
+                      <span style={{ fontSize: 11, color: (() => { const idx = AGENTS.findIndex((a) => a.name === ev.agent); return idx >= 0 ? COLORS[idx % COLORS.length] : "#525252"; })(), flexShrink: 0 }}>
                         {ev.agent}
                       </span>
                     </div>
