@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-const GRADIENT = 'linear-gradient(90deg, #FF6B2B, #FF2255, #CC00AA, #8844FF, #4488FF, #00D4FF)';
+const GRADIENT = 'linear-gradient(135deg, #F5A623, #FF1D6C, #9C27B0, #2979FF)';
 
 const AGENTS_STATIC = [
   { name: 'alice',    role: 'Gateway',      status: 'active', mem: '2.4TB',  uptime: '347d', load: 34 },
@@ -68,6 +68,7 @@ export default function StatusPage() {
   const [agents]   = useState<AgentRow[]>(AGENTS_STATIC);
   const [events]   = useState<EventRow[]>(EVENTS_STATIC);
   const [live, setLive] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     fetch('/api/status')
@@ -83,7 +84,7 @@ export default function StatusPage() {
           setLive(true);
         }
       })
-      .catch(() => {});
+      .catch(() => { setFetchError(true); });
   }, []);
 
   const allOperational = services.every(s => s.status === 'operational');
@@ -116,6 +117,11 @@ export default function StatusPage() {
       <main className="max-w-6xl mx-auto px-6 py-12 space-y-12">
 
         {/* overall status */}
+        {fetchError && (
+          <div className="text-xs text-yellow-500 bg-yellow-500/10 border border-yellow-500/20 px-4 py-3 rounded-xl">
+            Unable to reach live API — showing last known state
+          </div>
+        )}
         <div className="flex items-center gap-3">
           <span
             className="w-3 h-3 rounded-full"

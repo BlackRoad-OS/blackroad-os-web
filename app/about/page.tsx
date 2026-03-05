@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 
-const GRADIENT = 'linear-gradient(90deg, #FF6B2B, #FF2255, #CC00AA, #8844FF, #4488FF, #00D4FF)';
+const GRADIENT = 'linear-gradient(135deg, #F5A623, #FF1D6C, #9C27B0, #2979FF)';
 
-const ACCENT_COLORS = ['#FF6B2B', '#FF2255', '#CC00AA', '#8844FF', '#4488FF', '#00D4FF'];
+const ACCENT_COLORS = ['#F5A623', '#FF1D6C', '#9C27B0', '#2979FF', '#F5A623', '#FF1D6C'];
 
 const AGENTS = [
   {
@@ -82,7 +82,7 @@ const VALUES = [
   {
     num: '02',
     title: 'Contradictions are fuel',
-    body: 'K(t) = C(t) · e^(λ|δ_t|). We don\'t resolve contradictions — we harness them. Creative energy scales super-linearly with tension.',
+    body: "K(t) = C(t) · e^(λ|δ_t|). We don't resolve contradictions — we harness them. Creative energy scales super-linearly with tension.",
   },
   {
     num: '03',
@@ -102,7 +102,7 @@ const VALUES = [
   {
     num: '06',
     title: 'The math is real',
-    body: '317+ equations. Five novel frameworks. Peer-reviewable foundations. This isn\'t marketing — it\'s mathematics.',
+    body: "317+ equations. Five novel frameworks. Peer-reviewable foundations. This isn't marketing — it's mathematics.",
   },
 ];
 

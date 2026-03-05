@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-const GRADIENT = 'linear-gradient(90deg, #FF6B2B, #FF2255, #CC00AA, #8844FF, #4488FF, #00D4FF)';
+const GRADIENT = 'linear-gradient(135deg, #F5A623, #FF1D6C, #9C27B0, #2979FF)';
 
 const PORTALS = [
   { name: 'RoadWork',  desc: 'AI tutoring that adapts to how you actually learn. Not how a textbook thinks you should.',         tag: 'Education' },
