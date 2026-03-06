@@ -205,13 +205,22 @@ export default function HomePage() {
         <p style={{ color: "#737373", fontSize: 16, marginBottom: 32 }}>
           Free plan. No credit card. No dark patterns.
         </p>
-        <Link href="/pricing" style={{ textDecoration: "none" }}>
-          <button style={{
-            background: GRADIENT, color: "#fff", border: "none",
-            padding: "14px 36px", borderRadius: 8, fontSize: 15, fontWeight: 600, cursor: "pointer",
-          }}>
-            Start for free
-          </button>
+        <Link
+          href="/pricing"
+          style={{
+            textDecoration: "none",
+            display: "inline-block",
+            background: GRADIENT,
+            color: "#fff",
+            border: "none",
+            padding: "14px 36px",
+            borderRadius: 8,
+            fontSize: 15,
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          Start for free
         </Link>
       </div>
     </div>
