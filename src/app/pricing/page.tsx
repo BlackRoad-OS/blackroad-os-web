@@ -219,15 +219,35 @@ export default function PricingPage() {
         {FAQS.map((faq, i) => (
           <div
             key={i}
-            style={{ borderBottom: "1px solid #111", cursor: "pointer" }}
-            onClick={() => setOpenFaq(openFaq === i ? null : i)}
+            style={{ borderBottom: "1px solid #111" }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 0" }}>
+            <button
+              type="button"
+              onClick={() => setOpenFaq(openFaq === i ? null : i)}
+              aria-expanded={openFaq === i}
+              aria-controls={`faq-panel-${i}`}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "16px 0",
+                width: "100%",
+                background: "none",
+                border: "none",
+                textAlign: "left",
+                cursor: "pointer",
+              }}
+            >
               <span style={{ fontSize: 14, color: "#d4d4d4", fontWeight: 500 }}>{faq.q}</span>
               <span style={{ color: "#404040", fontSize: 18, lineHeight: 1 }}>{openFaq === i ? "−" : "+"}</span>
-            </div>
+            </button>
             {openFaq === i && (
-              <p style={{ fontSize: 13, color: "#737373", lineHeight: 1.7, paddingBottom: 16, margin: 0 }}>{faq.a}</p>
+              <p
+                id={`faq-panel-${i}`}
+                style={{ fontSize: 13, color: "#737373", lineHeight: 1.7, paddingBottom: 16, margin: 0 }}
+              >
+                {faq.a}
+              </p>
             )}
           </div>
         ))}
