@@ -1,44 +1,15 @@
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
+
 import Footer from '../../../components/Footer';
+import { blogPosts } from '../../../lib/blogPosts';
 
 export async function generateStaticParams() {
-  return [
-    { slug: 'hello-world' },
-    { slug: 'agent-orchestration' },
-    { slug: 'security-first' },
-  ];
+  return blogPosts.map((post) => ({ slug: post.slug }));
 }
 
 export default function BlogPostPage({ params }: { params: { slug: string } }) {
-  // TODO: Fetch actual blog post from contentlayer
-  const post = {
-    title: 'Introducing BlackRoad OS',
-    date: '2024-11-24',
-    author: 'BlackRoad Team',
-    category: 'Announcement',
-    readTime: '5 min read',
-    content: `
-# Welcome to BlackRoad OS
-
-BlackRoad OS is a revolutionary platform for orchestrating autonomous agents at scale.
-We're building the future of intelligent systems.
-
-## Key Features
-
-- **Composable Agents**: Wire services, signals, and humans together with event-driven flows
-- **Predictable Control**: Typed contracts, deterministic fallbacks, and audited traces by default
-- **Built for Operations**: Observability-ready primitives with live dashboards
-
-## Getting Started
-
-To get started with BlackRoad OS, check out our [documentation](/docs) and explore the
-[Prism Console](/dashboard).
-
-## What's Next
-
-We're constantly improving and adding new features. Stay tuned for updates!
-    `,
-  };
+  const post = blogPosts.find((entry) => entry.slug === params.slug) ?? notFound();
 
   return (
     <div className="relative overflow-hidden">

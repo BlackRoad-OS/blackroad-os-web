@@ -1,35 +1,6 @@
 import Link from 'next/link';
 import Footer from '../../components/Footer';
-
-const blogPosts = [
-  {
-    slug: 'hello-world',
-    title: 'Introducing BlackRoad OS',
-    excerpt: 'Welcome to BlackRoad OS, a revolutionary platform for orchestrating autonomous agents at scale.',
-    date: '2024-11-24',
-    author: 'BlackRoad Team',
-    category: 'Announcement',
-    readTime: '5 min read',
-  },
-  {
-    slug: 'agent-orchestration',
-    title: 'The Future of Agent Orchestration',
-    excerpt: 'Learn how BlackRoad OS enables seamless coordination between thousands of autonomous agents.',
-    date: '2024-11-20',
-    author: 'John Doe',
-    category: 'Technical',
-    readTime: '8 min read',
-  },
-  {
-    slug: 'security-first',
-    title: 'Security-First Architecture',
-    excerpt: 'Discover how we built BlackRoad OS with security at its core, ensuring your agents operate safely.',
-    date: '2024-11-15',
-    author: 'Jane Smith',
-    category: 'Security',
-    readTime: '6 min read',
-  },
-];
+import { blogPosts } from '../../lib/blogPosts';
 
 export default function BlogPage() {
   return (
