@@ -1,282 +1,200 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import Link from 'next/link';
 
-// ── types ─────────────────────────────────────────────────────────────────────
-interface Service {
-  name: string;
-  status: 'operational' | 'degraded' | 'down';
-  latencyMs: number;
-}
+const GRADIENT = 'linear-gradient(135deg, #F5A623, #FF1D6C, #9C27B0, #2979FF)';
 
-interface StatusData {
-  status: string;
-  score: number;
-  services: Service[];
-  summary: { operational: number; degraded: number; down: number; total: number };
-  platform: { workers: number; tunnel_routes: number; agent_capacity: number; orgs: number; repos: number };
-  timestamp: string;
-}
-
-interface Agent {
-  id: string;
-  name: string;
-  role: string;
-  status: string;
-  node: string;
-  color: string;
-  skills: string[];
-  tasks: number;
-  uptime: number;
-}
-
-interface AgentsData {
-  agents: Agent[];
-  total: number;
-  active: number;
-}
-
-// ── helpers ───────────────────────────────────────────────────────────────────
-const PI_FLEET = [
-  { name: 'octavia',    ip: '192.168.4.38', role: 'Primary — 22,500 agents', port: 8080 },
-  { name: 'lucidia',   ip: '192.168.4.64', role: 'Secondary — 7,500 agents', port: 11434 },
-  { name: 'alice',     ip: '192.168.4.49', role: 'Mesh node',               port: 8001 },
-  { name: 'cecilia',   ip: '192.168.4.89', role: 'Identity node',           port: 80 },
+const PORTALS = [
+  { name: 'RoadWork',  desc: 'AI tutoring that adapts to how you actually learn. Not how a textbook thinks you should.',         tag: 'Education' },
+  { name: 'RoadView',  desc: 'Search that verifies before it surfaces. Every result scored for confidence, not clicks.',          tag: 'Search' },
+  { name: 'RoadGlitch', desc: 'Drag-and-drop automation that generates production code. Your codebase, your style.',             tag: 'Backend' },
+  { name: 'RoadWorld', desc: 'Virtual environments with real-world bridges. 80% creator revenue. You own everything.',           tag: 'Worlds' },
+  { name: 'BackRoad',  desc: 'Social without the sickness. No vanity metrics. No addiction mechanics. Just people.',             tag: 'Social' },
+  { name: 'CashRoad',  desc: 'Financial clarity without judgment. Decision-time assistance, not post-spending shame.',           tag: 'Finance' },
 ];
 
-function statusColor(s?: string) {
-  if (s === 'operational') return '#4ade80';
-  if (s === 'degraded')    return '#F5A623';
-  return '#ef4444';
-}
+const PRINCIPLES = [
+  { number: '01', title: 'Truth-First',        body: 'Every piece of information carries a confidence score. No SEO gaming. No ad-driven rankings. Only verified facts surface.' },
+  { number: '02', title: 'Creator-Owned',      body: '80% revenue share. Your data, your content, your audience. Portable identity across every portal in the ecosystem.' },
+  { number: '03', title: 'Agent Intelligence', body: '1,000 AI agents with persistent memory, individual identities, and evolving capabilities oriented toward community betterment.' },
+  { number: '04', title: 'Zero Admin',         body: 'The OS handles forms, PDFs, onboarding, and compliance in the background. Admin becomes invisible, not a life event.' },
+];
 
-function statusLabel(s?: string) {
-  if (s === 'operational') return 'All Systems Operational';
-  if (s === 'partial_outage') return 'Partial Outage';
-  if (s === 'major_outage')   return 'Major Outage';
-  return 'Checking…';
-}
+const STATS = [
+  { value: '1,000', label: 'AI Agents' },
+  { value: '20',    label: 'Domains' },
+  { value: '150+',  label: 'Subdomains' },
+  { value: '80%',   label: 'Creator Revenue' },
+];
 
-function timeAgo(iso?: string) {
-  if (!iso) return '';
-  const secs = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-  if (secs < 5)   return 'just now';
-  if (secs < 60)  return `${secs}s ago`;
-  return `${Math.floor(secs / 60)}m ago`;
-}
+const NAV_LINKS = [
+  { label: 'Pricing', href: '/pricing' },
+  { label: 'Docs',    href: '/docs' },
+  { label: 'Status',  href: '/status' },
+  { label: 'About',   href: '/about' },
+];
 
-// ── sub-components ────────────────────────────────────────────────────────────
-function MetricCard({ label, value, color }: { label: string; value: string | number; color: string }) {
+function GradientBar({ height = 2 }: { height?: number }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.04] p-5 flex flex-col gap-1">
-      <div className="text-3xl font-bold" style={{ color }}>{value}</div>
-      <div className="text-xs text-gray-500 uppercase tracking-widest">{label}</div>
+    <div style={{ height, background: GRADIENT, borderRadius: height }} />
+  );
+}
+
+function PortalCard({ portal }: { portal: typeof PORTALS[0] }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 hover:bg-white/[0.06] transition-colors flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <span className="font-semibold text-white text-base">{portal.name}</span>
+        <span className="text-xs px-2 py-0.5 rounded-full border border-white/10 text-gray-400">{portal.tag}</span>
+      </div>
+      <p className="text-sm text-gray-400 leading-relaxed">{portal.desc}</p>
     </div>
   );
 }
 
-function ServiceRow({ svc }: { svc: Service }) {
-  const dot = statusColor(svc.status);
+function PrincipleCard({ p }: { p: typeof PRINCIPLES[0] }) {
   return (
-    <div className="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0">
-      <div className="flex items-center gap-2">
-        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: dot, boxShadow: svc.status === 'operational' ? `0 0 6px ${dot}` : 'none' }} />
-        <span className="text-sm text-gray-300">{svc.name}</span>
-      </div>
-      <div className="flex items-center gap-3">
-        {svc.latencyMs > 0 && (
-          <span className="text-xs text-gray-600">{svc.latencyMs}ms</span>
-        )}
-        <span className="text-xs font-medium capitalize" style={{ color: dot }}>{svc.status}</span>
-      </div>
-    </div>
-  );
-}
-
-function AgentCard({ agent }: { agent: Agent }) {
-  const active = agent.status === 'active' || agent.status === 'online';
-  return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4 hover:bg-white/[0.07] transition-colors">
-      <div className="flex items-start justify-between mb-3">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className={`w-2 h-2 rounded-full ${active ? 'animate-pulse' : ''}`}
-              style={{ backgroundColor: active ? '#4ade80' : '#ef4444' }} />
-            <span className="font-semibold text-white">{agent.name}</span>
-          </div>
-          <div className="text-xs text-gray-500 mt-0.5">{agent.role} · {agent.node}</div>
-        </div>
-        <span className="text-xs px-2 py-0.5 rounded-full border"
-          style={{ color: agent.color, borderColor: agent.color + '40', backgroundColor: agent.color + '15' }}>
-          {agent.status}
-        </span>
-      </div>
-      <div className="flex flex-wrap gap-1 mb-3">
-        {agent.skills.map(s => (
-          <span key={s} className="text-xs px-1.5 py-0.5 rounded bg-white/5 text-gray-400">{s}</span>
-        ))}
-      </div>
-      <div className="flex justify-between text-xs text-gray-500">
-        <span>{agent.tasks.toLocaleString()} tasks</span>
-        <span>{agent.uptime}% uptime</span>
+    <div className="flex gap-5 p-5 rounded-2xl border border-white/10 bg-white/[0.02]">
+      <span className="text-xs font-mono text-gray-600 pt-0.5 shrink-0">{p.number}</span>
+      <div>
+        <div className="font-semibold text-white mb-1">{p.title}</div>
+        <p className="text-sm text-gray-400 leading-relaxed">{p.body}</p>
       </div>
     </div>
   );
 }
 
-function PiNode({ node, online }: { node: typeof PI_FLEET[0]; online: boolean }) {
+export default function HomePage() {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
-      <div className="flex items-center gap-2 mb-1">
-        <span className={`w-2 h-2 rounded-full ${online ? 'bg-green-400 animate-pulse' : 'bg-red-500'}`} />
-        <span className="font-medium text-white capitalize">{node.name}</span>
-      </div>
-      <div className="text-xs text-gray-500 font-mono mb-1">{node.ip}:{node.port}</div>
-      <div className="text-xs text-gray-600">{node.role}</div>
-    </div>
-  );
-}
+    <div className="min-h-screen bg-black text-white">
+      <GradientBar height={3} />
 
-// ── main dashboard ────────────────────────────────────────────────────────────
-export default function DashboardPage() {
-  const [status,   setStatus]   = useState<StatusData | null>(null);
-  const [agents,   setAgents]   = useState<AgentsData | null>(null);
-  const [loading,  setLoading]  = useState(true);
-  const [lastTick, setLastTick] = useState('');
-  const [countdown, setCountdown] = useState(30);
-
-  const refresh = useCallback(async () => {
-    const [s, a] = await Promise.allSettled([
-      fetch('/api/status').then(r => r.json()),
-      fetch('/api/agents').then(r => r.json()),
-    ]);
-    if (s.status === 'fulfilled') setStatus(s.value);
-    if (a.status === 'fulfilled') setAgents(a.value);
-    setLoading(false);
-    setLastTick(new Date().toISOString());
-    setCountdown(30);
-  }, []);
-
-  useEffect(() => {
-    refresh();
-    const interval = setInterval(refresh, 30_000);
-    return () => clearInterval(interval);
-  }, [refresh]);
-
-  // countdown ticker
-  useEffect(() => {
-    const t = setInterval(() => setCountdown(c => c > 0 ? c - 1 : 0), 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  const overallColor = statusColor(status?.status === 'operational' ? 'operational' : status?.status === 'partial_outage' ? 'degraded' : 'down');
-
-  // map Pi nodes to online status from services
-  const piOnline = (name: string) => {
-    if (!status?.services) return false;
-    const svc = status.services.find(s => s.name.toLowerCase().includes(name.toLowerCase()));
-    return svc?.status === 'operational';
-  };
-
-  return (
-    <div className="min-h-screen bg-black text-white font-sans">
-      {/* header */}
+      {/* nav */}
       <header className="border-b border-white/10 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-lg"
               style={{ background: 'linear-gradient(135deg,#F5A623,#FF1D6C,#9C27B0,#2979FF)' }}>B</div>
-            <div>
-              <span className="font-semibold text-lg">BlackRoad OS</span>
-              <span className="ml-2 text-xs text-gray-500 uppercase tracking-widest">Infrastructure</span>
-            </div>
+            <span className="font-semibold text-lg">BlackRoad OS</span>
           </div>
-          <div className="flex items-center gap-4 text-xs text-gray-500">
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: overallColor }} />
-              <span style={{ color: overallColor }}>{loading ? 'Loading…' : statusLabel(status?.status)}</span>
-            </span>
-            <span>· Updated {timeAgo(lastTick)}</span>
-            <span className="text-gray-700">· refresh in {countdown}s</span>
+          <nav className="hidden sm:flex items-center gap-6 text-sm text-gray-400">
+            {NAV_LINKS.map(l => (
+              <Link key={l.href} href={l.href} className="hover:text-white transition-colors">{l.label}</Link>
+            ))}
+          </nav>
+          <div className="flex items-center gap-3">
+            <Link href="/login"
+              className="text-sm text-gray-400 hover:text-white transition-colors px-3 py-1.5">
+              Log in
+            </Link>
+            <Link href="/signup"
+              className="text-sm px-4 py-2 rounded-lg font-medium transition-colors"
+              style={{ background: '#FF1D6C', color: '#fff' }}>
+              Get started
+            </Link>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+      <main className="max-w-6xl mx-auto px-6">
 
-        {/* key metrics */}
-        <section>
-          <h2 className="text-xs text-gray-500 uppercase tracking-widest mb-4">Platform Scale</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            <MetricCard label="Agents"       value={status?.platform.agent_capacity?.toLocaleString() ?? '30,000'} color="#FF1D6C" />
-            <MetricCard label="Orgs"         value={status?.platform.orgs ?? 17}         color="#F5A623" />
-            <MetricCard label="Repos"        value={status?.platform.repos?.toLocaleString() ?? '1,825+'} color="#2979FF" />
-            <MetricCard label="CF Workers"   value={status?.platform.workers ?? 499}     color="#9C27B0" />
-            <MetricCard label="Score"        value={loading ? '…' : `${status?.score ?? 0}%`} color="#4ade80" />
-            <MetricCard label="Services"     value={status ? `${status.summary.operational}/${status.summary.total}` : '…'} color="#F5A623" />
+        {/* hero */}
+        <section className="py-24 text-center">
+          <div className="inline-block mb-6 text-xs font-mono px-3 py-1.5 rounded-full border border-white/10 text-gray-400">
+            317+ equations · 20 domains · 1,000 AI agents
+          </div>
+          <h1 className="text-5xl sm:text-6xl font-bold tracking-tight mb-6 leading-tight">
+            The OS for<br />
+            <span style={{ backgroundImage: GRADIENT, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              human flourishing
+            </span>
+          </h1>
+          <p className="text-lg text-gray-400 max-w-xl mx-auto mb-10 leading-relaxed">
+            BlackRoad OS is a distributed AI operating system built on novel mathematical foundations.
+            Truth-first. Creator-owned. Zero admin.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link href="/signup"
+              className="px-6 py-3 rounded-xl font-semibold text-white transition-opacity hover:opacity-90"
+              style={{ background: '#FF1D6C' }}>
+              Start for free
+            </Link>
+            <Link href="/docs"
+              className="px-6 py-3 rounded-xl font-semibold border border-white/20 text-white hover:bg-white/5 transition-colors">
+              Read the docs
+            </Link>
           </div>
         </section>
 
-        {/* main grid: services + agents */}
-        <div className="grid lg:grid-cols-2 gap-6">
-
-          {/* services */}
-          <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-white">Service Health</h2>
-              <div className="flex gap-3 text-xs">
-                <span className="text-green-400">{status?.summary.operational ?? '—'} up</span>
-                <span className="text-yellow-400">{status?.summary.degraded ?? '—'} degraded</span>
-                <span className="text-red-400">{status?.summary.down ?? '—'} down</span>
+        {/* stats */}
+        <section className="py-10 border-t border-b border-white/10 mb-20">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 text-center">
+            {STATS.map(s => (
+              <div key={s.label}>
+                <div className="text-3xl font-bold text-white mb-1"
+                  style={{ backgroundImage: GRADIENT, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                  {s.value}
+                </div>
+                <div className="text-xs text-gray-500 uppercase tracking-widest">{s.label}</div>
               </div>
-            </div>
-            {loading ? (
-              <div className="space-y-2">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-8 rounded bg-white/5 animate-pulse" />
-                ))}
-              </div>
-            ) : (
-              <div>{status?.services.map(s => <ServiceRow key={s.name} svc={s} />)}</div>
-            )}
-          </section>
-
-          {/* agent roster */}
-          <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-white">Agent Roster</h2>
-              <span className="text-xs text-gray-500">{agents?.active ?? '—'} active / {agents?.total ?? '—'} total</span>
-            </div>
-            {loading ? (
-              <div className="grid grid-cols-2 gap-3">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="h-28 rounded-xl bg-white/5 animate-pulse" />
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-3 max-h-96 overflow-y-auto">
-                {(agents?.agents ?? []).map(a => <AgentCard key={a.id} agent={a} />)}
-              </div>
-            )}
-          </section>
-        </div>
-
-        {/* Pi fleet */}
-        <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-          <h2 className="text-sm font-semibold text-white mb-4">Pi Fleet</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {PI_FLEET.map(n => (
-              <PiNode key={n.name} node={n} online={piOnline(n.name)} />
             ))}
           </div>
         </section>
 
-        {/* footer */}
-        <footer className="text-center text-xs text-gray-700 pb-4">
-          © 2026 BlackRoad OS, Inc. · All rights reserved ·{' '}
-          <a href="https://github.com/BlackRoad-OS-Inc" target="_blank" rel="noreferrer" className="hover:text-gray-500 transition-colors">GitHub</a>
-        </footer>
+        {/* portals */}
+        <section className="mb-20">
+          <div className="mb-10">
+            <h2 className="text-2xl font-bold text-white mb-2">20 portals. One OS.</h2>
+            <p className="text-gray-400">Each portal is a complete vertical built on the same infrastructure layer.</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {PORTALS.map(p => <PortalCard key={p.name} portal={p} />)}
+          </div>
+        </section>
+
+        {/* principles */}
+        <section className="mb-20">
+          <div className="mb-10">
+            <h2 className="text-2xl font-bold text-white mb-2">Built on principles, not metrics.</h2>
+            <p className="text-gray-400">Every design decision starts with the same question: does this serve humans?</p>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {PRINCIPLES.map(p => <PrincipleCard key={p.number} p={p} />)}
+          </div>
+        </section>
+
+        {/* cta */}
+        <section className="mb-20 rounded-3xl border border-white/10 bg-white/[0.02] p-12 text-center">
+          <h2 className="text-3xl font-bold text-white mb-4">Your AI. Your hardware. Your rules.</h2>
+          <p className="text-gray-400 max-w-md mx-auto mb-8 leading-relaxed">
+            No lock-in. No data extraction. No vanity metrics. Just a full-stack OS that works for you.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link href="/pricing"
+              className="px-6 py-3 rounded-xl font-semibold text-white transition-opacity hover:opacity-90"
+              style={{ background: '#2979FF' }}>
+              View pricing
+            </Link>
+            <Link href="/about"
+              className="px-6 py-3 rounded-xl font-semibold border border-white/20 text-white hover:bg-white/5 transition-colors">
+              Meet the agents
+            </Link>
+          </div>
+        </section>
       </main>
+
+      <footer className="border-t border-white/10 px-6 py-8">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-600">
+          <span>© 2026 BlackRoad OS, Inc. All rights reserved.</span>
+          <div className="flex gap-6">
+            {NAV_LINKS.map(l => (
+              <Link key={l.href} href={l.href} className="hover:text-gray-400 transition-colors">{l.label}</Link>
+            ))}
+          </div>
+        </div>
+      </footer>
+
+      <GradientBar height={2} />
     </div>
   );
 }
