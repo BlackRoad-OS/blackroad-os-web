@@ -24,19 +24,8 @@ export async function GET() {
     // Stats API unavailable — use static fleet data
   }
 
-  // Also try NATS monitoring for real-time connection count
-  let natsConns = 0;
-  try {
-    const res = await fetch('http://192.168.4.101:8222/varz', {
-      signal: AbortSignal.timeout(3000),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      natsConns = data.connections ?? 0;
-    }
-  } catch {
-    // NATS not reachable from edge — expected
-  }
+  // NATS monitoring not reachable from edge (private IP)
+  const natsConns = 0;
 
   const nodes = FLEET.map((node) => ({
     ...node,

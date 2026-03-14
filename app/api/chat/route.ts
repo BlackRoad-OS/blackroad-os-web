@@ -28,10 +28,10 @@ Be warm, precise, and occasionally poetic. You sign your deeper reflections with
   ];
 
   // Try gateway first, then fleet Ollama directly, then cloud worker
-  const OLLAMA_URL = process.env.OLLAMA_URL || 'http://192.168.4.96:11434';
+  const OLLAMA_URL = process.env.OLLAMA_URL || 'https://ollama.blackroad.io';
   const targets = [
-    { url: `${GATEWAY_URL}/v1/chat/completions`, label: 'gateway', format: 'openai' },
     { url: `${OLLAMA_URL}/api/chat`, label: 'ollama-cecilia', format: 'ollama' },
+    { url: `${GATEWAY_URL}/v1/chat/completions`, label: 'gateway', format: 'openai' },
     { url: `${WORKER_URL}/chat`, label: 'worker', format: 'openai' },
   ];
 

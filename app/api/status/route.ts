@@ -11,10 +11,10 @@ interface ServiceStatus {
 export async function GET() {
   // Check real services
   const checks = [
-    { name: 'Ollama (Cecilia)', url: 'http://192.168.4.96:11434/api/tags' },
-    { name: 'Qdrant (Alice)', url: 'http://192.168.4.49:6333/collections' },
-    { name: 'NATS (Octavia)', url: 'http://192.168.4.101:8222/varz' },
-    { name: 'Gitea (Octavia)', url: 'http://192.168.4.101:3100/api/v1/repos/search?limit=1' },
+    { name: 'Ollama (Cecilia)', url: 'https://ollama.blackroad.io/api/tags' },
+    { name: 'Agent Daemon (Alice)', url: 'https://agents.blackroad.io/health' },
+    { name: 'Gitea (Octavia)', url: 'https://git.blackroad.io/api/v1/repos/search?limit=1' },
+    { name: 'Chat Platform', url: 'https://chat.blackroad.io/' },
     { name: 'Stats API', url: 'https://stats-blackroad.amundsonalexa.workers.dev/health' },
   ];
 

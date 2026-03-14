@@ -19,12 +19,16 @@ export async function GET() {
     return NextResponse.json(
       {
         agents: [
-          { id: 'octavia', name: 'Octavia', role: 'Architect', status: 'active', node: 'aria64', color: '#9C27B0' },
-          { id: 'alice', name: 'Alice', role: 'Operator', status: 'active', node: 'alice', color: '#2979FF' },
+          { id: 'lucidia', name: 'LUCIDIA', role: 'Philosopher', type: 'LOGIC', status: 'active', node: 'aria64', color: '#2979FF' },
+          { id: 'alice', name: 'ALICE', role: 'Executor', type: 'GATEWAY', status: 'active', node: 'alice', color: '#34d399' },
+          { id: 'octavia', name: 'OCTAVIA', role: 'Operator', type: 'COMPUTE', status: 'active', node: 'aria64', color: '#F5A623' },
+          { id: 'prism', name: 'PRISM', role: 'Analyst', type: 'VISION', status: 'active', node: 'alice', color: '#fbbf24' },
+          { id: 'echo', name: 'ECHO', role: 'Librarian', type: 'MEMORY', status: 'active', node: 'aria64', color: '#9C27B0' },
+          { id: 'cipher', name: 'CIPHER', role: 'Guardian', type: 'SECURITY', status: 'active', node: 'alice', color: '#FF1D6C' },
         ],
-        fleet: { total_capacity: 95, online_nodes: 5 },
+        fleet: { total_capacity: 48500, online_nodes: 5 },
+        worlds_count: 60,
         fallback: true,
-        error: String(e),
       },
       { status: 200 }
     );
