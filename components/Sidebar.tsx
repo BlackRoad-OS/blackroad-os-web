@@ -10,7 +10,12 @@ import {
   Plus,
   LogOut,
   LayoutDashboard,
-  Activity
+  Activity,
+  Server,
+  GitBranch,
+  CheckCircle,
+  Book,
+  Clock,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 import { useWorkspaceStore } from '@/stores/workspace-store';
@@ -38,9 +43,34 @@ export default function Sidebar() {
       icon: Bot,
     },
     {
+      name: 'Fleet',
+      href: '/fleet',
+      icon: Server,
+    },
+    {
+      name: 'Repos',
+      href: '/repos',
+      icon: GitBranch,
+    },
+    {
+      name: 'Activity',
+      href: '/activity',
+      icon: Clock,
+    },
+    {
+      name: 'Status',
+      href: '/status',
+      icon: CheckCircle,
+    },
+    {
       name: 'Monitoring',
       href: '/monitoring',
       icon: Activity,
+    },
+    {
+      name: 'Docs',
+      href: '/docs',
+      icon: Book,
     },
     {
       name: 'Governance',

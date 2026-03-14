@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, MessageSquare, Zap, Shield, Activity, Brain, Archive, Cpu } from 'lucide-react';
 import Link from 'next/link';
@@ -77,7 +77,7 @@ const STARTERS = [
   'Brainstorm feature ideas',
 ];
 
-export default function NewConversationPage() {
+function NewConversationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selected, setSelected] = useState<string | null>(searchParams.get('agent'));
@@ -185,5 +185,13 @@ export default function NewConversationPage() {
         )}
       </button>
     </div>
+  );
+}
+
+export default function NewConversationPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-gray-400">Loading...</div>}>
+      <NewConversationContent />
+    </Suspense>
   );
 }
