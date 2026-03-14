@@ -2,74 +2,58 @@ import { NextResponse } from 'next/server';
 
 export const runtime = 'edge';
 
-async function check(name: string, url: string, timeout = 4000) {
-  const start = Date.now();
-  try {
-    const res = await fetch(url, {
-      method: 'HEAD', signal: AbortSignal.timeout(timeout),
-      headers: { 'User-Agent': 'blackroad-status/1.0' },
-    } as RequestInit);
-    return { name, status: res.ok ? 'operational' : 'degraded', latencyMs: Date.now() - start, code: res.status };
-  } catch {
-    return { name, status: 'down', latencyMs: -1, code: 0 };
-  }
-}
-
-async function fetchJson(url: string, fallback: unknown = null, timeout = 5000) {
-  try {
-    const res = await fetch(url, {
-      signal: AbortSignal.timeout(timeout),
-      headers: { 'User-Agent': 'blackroad-status/1.0', Accept: 'application/json' },
-    } as RequestInit);
-    if (!res.ok) return fallback;
-    return await res.json();
-  } catch {
-    return fallback;
-  }
+interface ServiceStatus {
+  name: string;
+  status: 'operational' | 'degraded' | 'down';
+  latency?: number;
 }
 
 export async function GET() {
-  const [checks, commandCenter, agentsApi] = await Promise.all([
-    Promise.allSettled([
-      check('command-center',          'https://command-center.blackroad.workers.dev/health'),
-      check('agents-api',              'https://agents-api.blackroad.workers.dev/health'),
-      check('blackroad-status worker', 'https://blackroad-status.amundsonalexa.workers.dev/api/ping'),
-      check('blackroad-auth worker',   'https://blackroad-auth.amundsonalexa.workers.dev/auth/status'),
-      check('agents-status worker',    'https://agents-status.blackroad.io/'),
-      check('blackroad.io',            'https://blackroad.io/'),
-      check('web app (Vercel)',         'https://blackroad-os-web.vercel.app/'),
-      check('aria64 agent node',       'http://192.168.4.38:8080/health', 2000),
-      check('blackroad-pi LLM node',   'http://192.168.4.64:11434/', 2000),
-      check('alice mesh node',         'http://192.168.4.49:8001/', 2000),
-      check('cecilia identity node',   'http://192.168.4.89:80/', 2000),
-    ]),
-    fetchJson('https://command-center.blackroad.workers.dev/status'),
-    fetchJson('https://agents-api.blackroad.workers.dev/agents'),
-  ]);
+  // Check real services
+  const checks = [
+    { name: 'Ollama (Cecilia)', url: 'http://192.168.4.96:11434/api/tags' },
+    { name: 'Qdrant (Alice)', url: 'http://192.168.4.49:6333/collections' },
+    { name: 'NATS (Octavia)', url: 'http://192.168.4.101:8222/varz' },
+    { name: 'Gitea (Octavia)', url: 'http://192.168.4.101:3100/api/v1/repos/search?limit=1' },
+    { name: 'Stats API', url: 'https://stats-blackroad.amundsonalexa.workers.dev/health' },
+  ];
 
-  const services = checks.map(r => r.status === 'fulfilled' ? r.value : { name: 'unknown', status: 'down', latencyMs: -1 });
-  const operational = services.filter(s => s.status === 'operational').length;
-  const degraded    = services.filter(s => s.status === 'degraded').length;
-  const down        = services.filter(s => s.status === 'down').length;
+  const services: ServiceStatus[] = await Promise.all(
+    checks.map(async (svc) => {
+      const start = Date.now();
+      try {
+        const res = await fetch(svc.url, { signal: AbortSignal.timeout(5000) });
+        return {
+          name: svc.name,
+          status: res.ok ? 'operational' as const : 'degraded' as const,
+          latency: Date.now() - start,
+        };
+      } catch {
+        return { name: svc.name, status: 'down' as const, latency: Date.now() - start };
+      }
+    })
+  );
 
-  const overallStatus = down > 3 ? 'major_outage' : down > 0 || degraded > 0 ? 'partial_outage' : 'operational';
+  const overallStatus = services.every((s) => s.status === 'operational')
+    ? 'operational'
+    : services.some((s) => s.status === 'down')
+    ? 'major_outage'
+    : 'partial_outage';
 
-  return NextResponse.json({
+  const response = {
     status: overallStatus,
-    score: Math.round((operational / services.length) * 100),
     services,
-    summary: { operational, degraded, down, total: services.length },
-    command_center: commandCenter,
-    agents_api: agentsApi,
-    platform: {
-      workers: 499,
-      tunnel_routes: 14,
-      agent_capacity: 30000,
-      orgs: 17,
-      repos: 1825,
-      git_branch: 'master',
-      repo: 'BlackRoad-OS-Inc/blackroad',
-    },
     timestamp: new Date().toISOString(),
-  }, { headers: { 'Cache-Control': 'no-store' } });
+    page: {
+      name: 'BlackRoad OS',
+      url: 'https://status.blackroad.io',
+    },
+  };
+
+  return NextResponse.json(response, {
+    status: 200,
+    headers: {
+      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
+    },
+  });
 }

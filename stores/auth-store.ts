@@ -13,7 +13,6 @@ interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
-  setUser: (user: User) => void;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   signup: (email: string, password: string, name: string) => Promise<void>;
@@ -25,10 +24,6 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       isAuthenticated: false,
-
-      setUser: (user: User) => {
-        set({ user, isAuthenticated: true });
-      },
 
       login: async (email: string, password: string) => {
         const res = await fetch('/api/auth', {

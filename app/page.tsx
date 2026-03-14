@@ -1,201 +1,220 @@
 'use client';
 
 import Link from 'next/link';
+import { ArrowRight, Zap, Shield, Cpu, Globe, Sparkles, ChevronRight } from 'lucide-react';
 
-const GRADIENT = 'linear-gradient(135deg, #F5A623, #FF1D6C, #9C27B0, #2979FF)';
-
-const PORTALS = [
-  { name: 'RoadWork',  desc: 'AI tutoring that adapts to how you actually learn. Not how a textbook thinks you should.',         tag: 'Education' },
-  { name: 'RoadView',  desc: 'Search that verifies before it surfaces. Every result scored for confidence, not clicks.',          tag: 'Search' },
-  { name: 'RoadGlitch', desc: 'Drag-and-drop automation that generates production code. Your codebase, your style.',             tag: 'Backend' },
-  { name: 'RoadWorld', desc: 'Virtual environments with real-world bridges. 80% creator revenue. You own everything.',           tag: 'Worlds' },
-  { name: 'BackRoad',  desc: 'Social without the sickness. No vanity metrics. No addiction mechanics. Just people.',             tag: 'Social' },
-  { name: 'CashRoad',  desc: 'Financial clarity without judgment. Decision-time assistance, not post-spending shame.',           tag: 'Finance' },
-];
-
-const PRINCIPLES = [
-  { number: '01', title: 'Truth-First',        body: 'Every piece of information carries a confidence score. No SEO gaming. No ad-driven rankings. Only verified facts surface.' },
-  { number: '02', title: 'Creator-Owned',      body: '80% revenue share. Your data, your content, your audience. Portable identity across every portal in the ecosystem.' },
-  { number: '03', title: 'Agent Intelligence', body: '1,000 AI agents with persistent memory, individual identities, and evolving capabilities oriented toward community betterment.' },
-  { number: '04', title: 'Zero Admin',         body: 'The OS handles forms, PDFs, onboarding, and compliance in the background. Admin becomes invisible, not a life event.' },
-];
-
-const STATS = [
-  { value: '1,000', label: 'AI Agents' },
-  { value: '20',    label: 'Domains' },
-  { value: '150+',  label: 'Subdomains' },
-  { value: '80%',   label: 'Creator Revenue' },
-];
-
-const NAV_LINKS = [
-  { label: 'Pricing', href: '/pricing' },
-  { label: 'Docs',    href: '/docs' },
-  { label: 'Status',  href: '/status' },
-  { label: 'About',   href: '/about' },
-];
-
-function GradientBar({ height = 2 }: { height?: number }) {
+export default function LandingPage() {
   return (
-    <div style={{ height, background: GRADIENT, borderRadius: height }} />
-  );
-}
-
-function PortalCard({ portal }: { portal: typeof PORTALS[0] }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 hover:bg-white/[0.06] transition-colors flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <span className="font-semibold text-white text-base">{portal.name}</span>
-        <span className="text-xs px-2 py-0.5 rounded-full border border-white/10 text-gray-400">{portal.tag}</span>
+    <div className="min-h-screen bg-black text-white overflow-hidden">
+      {/* Animated background gradient */}
+      <div className="fixed inset-0 bg-gradient-to-br from-black via-black to-violet-950/20 pointer-events-none" />
+      <div className="fixed inset-0 opacity-30 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-hot-pink/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-electric-blue/20 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
-      <p className="text-sm text-gray-400 leading-relaxed">{portal.desc}</p>
-    </div>
-  );
-}
 
-function PrincipleCard({ p }: { p: typeof PRINCIPLES[0] }) {
-  return (
-    <div className="flex gap-5 p-5 rounded-2xl border border-white/10 bg-white/[0.02]">
-      <span className="text-xs font-mono text-gray-600 pt-0.5 shrink-0">{p.number}</span>
-      <div>
-        <div className="font-semibold text-white mb-1">{p.title}</div>
-        <p className="text-sm text-gray-400 leading-relaxed">{p.body}</p>
-      </div>
-    </div>
-  );
-}
+      {/* Navigation */}
+      <header className="relative z-50 border-b border-white/10">
+        <nav className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-hot-pink to-violet-600 flex items-center justify-center">
+              <span className="text-white font-bold text-lg">B</span>
+            </div>
+            <span className="text-2xl font-semibold">
+              BlackRoad<span className="bg-gradient-to-r from-hot-pink to-electric-blue bg-clip-text text-transparent"> OS</span>
+            </span>
+          </Link>
 
-export default function HomePage() {
-  return (
-    <div className="min-h-screen bg-black text-white">
-      <GradientBar height={3} />
-
-      {/* nav */}
-      <header className="border-b border-white/10 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-lg"
-              style={{ background: 'linear-gradient(135deg,#F5A623,#FF1D6C,#9C27B0,#2979FF)' }}>B</div>
-            <span className="font-semibold text-lg">BlackRoad OS</span>
-          </div>
-          <nav className="hidden sm:flex items-center gap-6 text-sm text-gray-400">
-            {NAV_LINKS.map(l => (
-              <Link key={l.href} href={l.href} className="hover:text-white transition-colors">{l.label}</Link>
-            ))}
-          </nav>
-          <div className="flex items-center gap-3">
-            <Link href="/login"
-              className="text-sm text-gray-400 hover:text-white transition-colors px-3 py-1.5">
-              Log in
+          <div className="hidden md:flex items-center gap-8">
+            <Link href="#features" className="text-gray-400 hover:text-white transition-colors">Features</Link>
+            <Link href="#agents" className="text-gray-400 hover:text-white transition-colors">Agents</Link>
+            <Link href="#pricing" className="text-gray-400 hover:text-white transition-colors">Pricing</Link>
+            <Link href="/login" className="text-gray-400 hover:text-white transition-colors">Sign In</Link>
+            <Link
+              href="/signup"
+              className="px-5 py-2.5 bg-gradient-to-r from-hot-pink to-violet-600 hover:from-hot-pink/90 hover:to-violet-600/90 rounded-lg font-medium transition-all hover:shadow-lg hover:shadow-hot-pink/25"
+            >
+              Get Started
             </Link>
-            <Link href="/signup"
-              className="text-sm px-4 py-2 rounded-lg font-medium transition-colors"
-              style={{ background: '#FF1D6C', color: '#fff' }}>
-              Get started
+          </div>
+        </nav>
+      </header>
+
+      {/* Hero Section */}
+      <section className="relative z-10 max-w-7xl mx-auto px-6 pt-24 pb-32">
+        <div className="text-center max-w-4xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8">
+            <Sparkles className="w-4 h-4 text-amber-500" />
+            <span className="text-sm text-gray-300">Powered by Advanced AI Orchestration</span>
+          </div>
+
+          <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-8">
+            Sovereign AI on{' '}
+            <span className="bg-gradient-to-r from-amber-500 via-hot-pink to-electric-blue bg-clip-text text-transparent">
+              Your Metal
+            </span>
+          </h1>
+
+          <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed">
+            50 AI skills running on your own hardware. Phone, Pi, laptop, browser tab —
+            if it can think, it's enough. Zero cloud required.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/signup"
+              className="group flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-hot-pink to-violet-600 rounded-xl font-semibold text-lg transition-all hover:shadow-xl hover:shadow-hot-pink/30 hover:scale-105"
+            >
+              Start Building
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link
+              href="#features"
+              className="flex items-center gap-2 px-8 py-4 border border-white/20 hover:border-white/40 rounded-xl font-semibold text-lg transition-all hover:bg-white/5"
+            >
+              Learn More
+              <ChevronRight className="w-5 h-5" />
             </Link>
           </div>
         </div>
-      </header>
 
-      <main className="max-w-6xl mx-auto px-6">
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-24 pt-12 border-t border-white/10">
+          {[
+            { value: '50', label: 'AI Skills' },
+            { value: '5', label: 'Edge Nodes' },
+            { value: '52', label: 'TOPS' },
+            { value: '100%', label: 'Local-First' },
+          ].map((stat) => (
+            <div key={stat.label} className="text-center">
+              <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-amber-500 to-hot-pink bg-clip-text text-transparent">
+                {stat.value}
+              </div>
+              <div className="text-gray-500 mt-2">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
 
-        {/* hero */}
-        <section className="py-24 text-center">
-          <div className="inline-block mb-6 text-xs font-mono px-3 py-1.5 rounded-full border border-white/10 text-gray-400">
-            317+ equations · 20 domains · 1,000 AI agents
+      {/* Features Section */}
+      <section id="features" className="relative z-10 py-32 border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Everything You Need to{' '}
+              <span className="bg-gradient-to-r from-electric-blue to-violet-500 bg-clip-text text-transparent">
+                Scale AI
+              </span>
+            </h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Sovereign AI infrastructure that runs on your own hardware. No cloud dependency.
+            </p>
           </div>
-          <h1 className="text-5xl sm:text-6xl font-bold tracking-tight mb-6 leading-tight">
-            The OS for<br />
-            <span style={{ backgroundImage: GRADIENT, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-              human flourishing
-            </span>
-          </h1>
-          <p className="text-lg text-gray-400 max-w-xl mx-auto mb-10 leading-relaxed">
-            BlackRoad OS is a distributed AI operating system built on novel mathematical foundations.
-            Truth-first. Creator-owned. Zero admin.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/signup"
-              className="px-6 py-3 rounded-xl font-semibold text-white transition-opacity hover:opacity-90"
-              style={{ background: '#FF1D6C' }}>
-              Start for free
-            </Link>
-            <Link href="/docs"
-              className="px-6 py-3 rounded-xl font-semibold border border-white/20 text-white hover:bg-white/5 transition-colors">
-              Read the docs
-            </Link>
-          </div>
-        </section>
 
-        {/* stats */}
-        <section className="py-10 border-t border-b border-white/10 mb-20">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 text-center">
-            {STATS.map(s => (
-              <div key={s.label}>
-                <div className="text-3xl font-bold text-white mb-1"
-                  style={{ backgroundImage: GRADIENT, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                  {s.value}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Cpu,
+                title: 'AI Orchestration',
+                description: '50 skills — Chain-of-Thought, ReAct, Tree-of-Thought, federated inference, autonomous coding, and more. All running on your hardware.',
+                gradient: 'from-amber-500 to-orange-600',
+              },
+              {
+                icon: Shield,
+                title: 'Guardrails & Safety',
+                description: 'PII detection, prompt injection defense, content filtering, and a full sovereign audit log. Your data never leaves your devices.',
+                gradient: 'from-hot-pink to-violet-600',
+              },
+              {
+                icon: Zap,
+                title: 'Semantic RAG',
+                description: 'Vector search across 275+ repos. Qdrant + nomic-embed-text embeddings with academic-grade citations and git provenance.',
+                gradient: 'from-electric-blue to-cyan-500',
+              },
+              {
+                icon: Globe,
+                title: 'Mesh Network',
+                description: 'Every device is a node. 5 Raspberry Pis as backbone, phones and browser tabs as elastic compute. WebGPU + WASM + WebRTC.',
+                gradient: 'from-violet-500 to-purple-600',
+              },
+              {
+                icon: Sparkles,
+                title: 'Multi-Model Routing',
+                description: 'Intelligent routing across Ollama models on your fleet. Cost, quality, and latency optimization with automatic fallback chains.',
+                gradient: 'from-amber-500 to-hot-pink',
+              },
+              {
+                icon: ArrowRight,
+                title: 'Equality by Default',
+                description: 'Accessible to everyone. Inclusive language checks, a11y audits, i18n readiness. Short, tall, fat, small — we love all.',
+                gradient: 'from-electric-blue to-violet-600',
+              },
+            ].map((feature) => (
+              <div
+                key={feature.title}
+                className="group p-8 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all hover:bg-white/[0.07]"
+              >
+                <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${feature.gradient} mb-6`}>
+                  <feature.icon className="w-6 h-6 text-white" />
                 </div>
-                <div className="text-xs text-gray-500 uppercase tracking-widest">{s.label}</div>
+                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+                <p className="text-gray-400 leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* portals */}
-        <section className="mb-20">
-          <div className="mb-10">
-            <h2 className="text-2xl font-bold text-white mb-2">20 portals. One OS.</h2>
-            <p className="text-gray-400">Each portal is a complete vertical built on the same infrastructure layer.</p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {PORTALS.map(p => <PortalCard key={p.name} portal={p} />)}
-          </div>
-        </section>
-
-        {/* principles */}
-        <section className="mb-20">
-          <div className="mb-10">
-            <h2 className="text-2xl font-bold text-white mb-2">Built on principles, not metrics.</h2>
-            <p className="text-gray-400">Every design decision starts with the same question: does this serve humans?</p>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {PRINCIPLES.map(p => <PrincipleCard key={p.number} p={p} />)}
-          </div>
-        </section>
-
-        {/* cta */}
-        <section className="mb-20 rounded-3xl border border-white/10 bg-white/[0.02] p-12 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Your AI. Your hardware. Your rules.</h2>
-          <p className="text-gray-400 max-w-md mx-auto mb-8 leading-relaxed">
-            No lock-in. No data extraction. No vanity metrics. Just a full-stack OS that works for you.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/pricing"
-              className="px-6 py-3 rounded-xl font-semibold text-white transition-opacity hover:opacity-90"
-              style={{ background: '#2979FF' }}>
-              View pricing
-            </Link>
-            <Link href="/about"
-              className="px-6 py-3 rounded-xl font-semibold border border-white/20 text-white hover:bg-white/5 transition-colors">
-              Meet the agents
+      {/* CTA Section */}
+      <section className="relative z-10 py-32">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <div className="p-12 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Ready to Build?
+            </h2>
+            <p className="text-xl text-gray-400 mb-10">
+              Join the next generation of AI-powered organizations.
+            </p>
+            <Link
+              href="/signup"
+              className="inline-flex items-center gap-2 px-10 py-5 bg-gradient-to-r from-hot-pink to-violet-600 rounded-xl font-semibold text-lg transition-all hover:shadow-xl hover:shadow-hot-pink/30 hover:scale-105"
+            >
+              Get Started Free
+              <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
-        </section>
-      </main>
+        </div>
+      </section>
 
-      <footer className="border-t border-white/10 px-6 py-8">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-600">
-          <span>© 2026 BlackRoad OS, Inc. All rights reserved.</span>
-          <div className="flex gap-6">
-            {NAV_LINKS.map(l => (
-              <Link key={l.href} href={l.href} className="hover:text-gray-400 transition-colors">{l.label}</Link>
-            ))}
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-white/10 py-12">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 via-hot-pink to-violet-600" />
+              <span className="font-semibold">BlackRoad OS</span>
+            </div>
+            <p className="text-gray-500 text-sm">
+              © 2026 BlackRoad OS, Inc. All rights reserved.
+            </p>
+            <p className="text-gray-600 text-xs mt-2 md:mt-0">Pave Tomorrow.</p>
           </div>
         </div>
       </footer>
 
-      <GradientBar height={2} />
+      <style jsx>{`
+        .text-hot-pink { color: #FF1D6C; }
+        .bg-hot-pink { background-color: #FF1D6C; }
+        .from-hot-pink { --tw-gradient-from: #FF1D6C; }
+        .to-hot-pink { --tw-gradient-to: #FF1D6C; }
+        .via-hot-pink { --tw-gradient-via: #FF1D6C; }
+        .shadow-hot-pink\\/25 { --tw-shadow-color: rgba(255, 29, 108, 0.25); }
+        .shadow-hot-pink\\/30 { --tw-shadow-color: rgba(255, 29, 108, 0.30); }
+        .text-electric-blue { color: #2979FF; }
+        .from-electric-blue { --tw-gradient-from: #2979FF; }
+        .to-electric-blue { --tw-gradient-to: #2979FF; }
+        .delay-1000 { animation-delay: 1000ms; }
+      `}</style>
     </div>
   );
 }
-

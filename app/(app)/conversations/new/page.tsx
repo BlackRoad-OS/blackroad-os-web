@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, MessageSquare, Zap, Shield, Activity, Brain, Archive, Cpu, Loader2 } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Zap, Shield, Activity, Brain, Archive, Cpu } from 'lucide-react';
 import Link from 'next/link';
 
 const AGENTS = [
@@ -83,32 +83,11 @@ export default function NewConversationPage() {
   const [selected, setSelected] = useState<string | null>(searchParams.get('agent'));
   const [prompt, setPrompt] = useState('');
 
-  const [starting, setStarting] = useState(false);
-
-  const start = async () => {
+  const start = () => {
     const agentId = selected || 'lucidia';
-    setStarting(true);
-    try {
-      const res = await fetch('/api/conversations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          agent: agentId,
-          title: prompt || `Chat with ${agentId.toUpperCase()}`,
-        }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        router.push(`/conversations/${data.id}?agent=${agentId}`);
-      } else {
-        // Fallback: local ID
-        router.push(`/conversations/${agentId}-${Date.now()}?agent=${agentId}`);
-      }
-    } catch {
-      router.push(`/conversations/${agentId}-${Date.now()}?agent=${agentId}`);
-    } finally {
-      setStarting(false);
-    }
+    const id = `${agentId}-${Date.now()}`;
+    // In production: POST to API to create conversation, then redirect
+    router.push(`/conversations/${id}`);
   };
 
   return (
@@ -194,21 +173,15 @@ export default function NewConversationPage() {
       {/* Start Button */}
       <button
         onClick={start}
-        disabled={(!selected && !prompt) || starting}
+        disabled={!selected && !prompt}
         className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-[#FF1D6C] to-violet-600 text-white font-semibold rounded-xl hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        {starting ? (
-          <><Loader2 className="h-5 w-5 animate-spin" /> Starting...</>
-        ) : (
-          <>
-            <MessageSquare className="h-5 w-5" />
-            Start Conversation
-            {selected && (
-              <span className="text-white/60 text-sm font-normal">
-                with {AGENTS.find(a => a.id === selected)?.name}
-              </span>
-            )}
-          </>
+        <MessageSquare className="h-5 w-5" />
+        Start Conversation
+        {selected && (
+          <span className="text-white/60 text-sm font-normal">
+            with {AGENTS.find(a => a.id === selected)?.name}
+          </span>
         )}
       </button>
     </div>
