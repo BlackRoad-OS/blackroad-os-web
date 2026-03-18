@@ -1,220 +1,354 @@
-'use client';
+import Link from 'next/link'
 
-import Link from 'next/link';
-import { ArrowRight, Zap, Shield, Cpu, Globe, Sparkles, ChevronRight } from 'lucide-react';
+const marqueeItems = [
+  'Sovereign',
+  'Spatial',
+  'Sentient',
+  'Z:=yx-w',
+  'BlackRoad OS',
+  'Edge-first',
+  'Agent-native',
+  'Post-cloud',
+]
+
+const features = [
+  {
+    icon: '⬡',
+    title: 'Sovereign Infrastructure',
+    body: 'Own your stack. BlackRoad runs on your cluster, your devices, and your routing layer instead of someone else’s platform tax.',
+  },
+  {
+    icon: '◈',
+    title: 'Sentient Agents',
+    body: 'Lucidia, Aura, and the operator fleet stay online with persistent memory, role-aware routing, and recoverable state.',
+  },
+  {
+    icon: '◉',
+    title: 'Spatial Interfaces',
+    body: 'Interfaces adapt to context across browser, device, and node so the system feels like one operating surface instead of ten products.',
+  },
+  {
+    icon: '△',
+    title: 'Z Framework Core',
+    body: 'A single feedback primitive keeps infrastructure, agents, and UI composable enough to reason about under pressure.',
+  },
+  {
+    icon: '⊞',
+    title: 'Edge-first Compute',
+    body: 'Deploy on your Pis, cloud nodes, and edge workers together with clear routing and operational visibility.',
+  },
+  {
+    icon: '◐',
+    title: 'Unified Data Layer',
+    body: 'Repos, fleet telemetry, memory, and operators sit in one coherent stack instead of scattered dashboards and brittle scripts.',
+  },
+]
+
+const agents = [
+  {
+    name: 'Lucidia',
+    role: 'Memory & Cognition',
+    stat: '4.8K calls/day',
+    desc: 'Persistent memory, truth-state commits, and recursive self-modeling for the cognitive core.',
+  },
+  {
+    name: 'BlackBot',
+    role: 'Orchestration',
+    stat: '3.1K calls/day',
+    desc: 'Routes work across repos, fleet nodes, and agents so the operator surface stays coherent.',
+  },
+  {
+    name: 'Aura',
+    role: 'Intelligence',
+    stat: '2.7K calls/day',
+    desc: 'Research synthesis and live operational context for decisions that need more than a canned status page.',
+  },
+  {
+    name: 'Sentinel',
+    role: 'Security & Compliance',
+    stat: '930 calls/day',
+    desc: 'Auth, audit, anomaly detection, and review surfaces across the BlackRoad control plane.',
+  },
+]
+
+const plans = [
+  {
+    name: 'Operator',
+    price: '$0',
+    cadence: 'open source core',
+    items: ['Self-hosted cluster', 'Base agent runtime', 'RoadCode workflow', 'Community support'],
+    cta: 'Deploy Free',
+  },
+  {
+    name: 'Sovereign',
+    price: '$499',
+    cadence: '/ month',
+    items: ['Everything in Operator', 'Full agent fleet', 'Priority routing', 'Dedicated support lane'],
+    cta: 'Get Sovereign',
+    featured: true,
+  },
+  {
+    name: 'Enterprise',
+    price: 'Custom',
+    cadence: 'contact us',
+    items: ['Air-gapped or private cloud', 'Org-specific operator layer', 'White-label deployment', 'Hands-on rollout support'],
+    cta: 'Talk to Us',
+  },
+]
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-black text-white overflow-hidden">
-      {/* Animated background gradient */}
-      <div className="fixed inset-0 bg-gradient-to-br from-black via-black to-violet-950/20 pointer-events-none" />
-      <div className="fixed inset-0 opacity-30 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-hot-pink/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-electric-blue/20 rounded-full blur-3xl animate-pulse delay-1000" />
-      </div>
+    <main className="br-shell">
+      <div className="br-topbar" />
 
-      {/* Navigation */}
-      <header className="relative z-50 border-b border-white/10">
-        <nav className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-hot-pink to-violet-600 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">B</span>
-            </div>
-            <span className="text-2xl font-semibold">
-              BlackRoad<span className="bg-gradient-to-r from-hot-pink to-electric-blue bg-clip-text text-transparent"> OS</span>
+      <header className="br-nav-wrap">
+        <nav className="br-nav">
+          <Link href="/" className="br-logo">
+            <span className="br-logo-bars" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
             </span>
+            <span className="br-logo-text">BlackRoad</span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-8">
-            <Link href="#features" className="text-gray-400 hover:text-white transition-colors">Features</Link>
-            <Link href="#agents" className="text-gray-400 hover:text-white transition-colors">Agents</Link>
-            <Link href="#pricing" className="text-gray-400 hover:text-white transition-colors">Pricing</Link>
-            <Link href="/login" className="text-gray-400 hover:text-white transition-colors">Sign In</Link>
-            <Link
-              href="/workspace"
-              className="px-5 py-2.5 bg-gradient-to-r from-hot-pink to-violet-600 hover:from-hot-pink/90 hover:to-violet-600/90 rounded-lg font-medium transition-all hover:shadow-lg hover:shadow-hot-pink/25"
-            >
-              Get Started
-            </Link>
+          <div className="br-nav-links">
+            <a href="#product">Product</a>
+            <a href="#vision">Vision</a>
+            <a href="#agents">Agents</a>
+            <a href="#pricing">Pricing</a>
           </div>
+
+          <Link href="/workspace" className="br-btn br-btn-solid br-btn-small">
+            Request Access
+          </Link>
         </nav>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-6 pt-24 pb-32">
-        <div className="text-center max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8">
-            <Sparkles className="w-4 h-4 text-amber-500" />
-            <span className="text-sm text-gray-300">Powered by Advanced AI Orchestration</span>
-          </div>
+      <section className="br-hero">
+        <div className="br-hero-orb br-hero-orb-center" />
+        <div className="br-hero-orb br-hero-orb-left" />
+        <div className="br-hero-orb br-hero-orb-right" />
 
-          <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-8">
-            Sovereign AI on{' '}
-            <span className="bg-gradient-to-r from-amber-500 via-hot-pink to-electric-blue bg-clip-text text-transparent">
-              Your Metal
-            </span>
-          </h1>
-
-          <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed">
-            50 AI skills running on your own hardware. Phone, Pi, laptop, browser tab —
-            if it can think, it's enough. Zero cloud required.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/workspace"
-              className="group flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-hot-pink to-violet-600 rounded-xl font-semibold text-lg transition-all hover:shadow-xl hover:shadow-hot-pink/30 hover:scale-105"
-            >
-              Start Building
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <Link
-              href="#features"
-              className="flex items-center gap-2 px-8 py-4 border border-white/20 hover:border-white/40 rounded-xl font-semibold text-lg transition-all hover:bg-white/5"
-            >
-              Learn More
-              <ChevronRight className="w-5 h-5" />
-            </Link>
-          </div>
+        <div className="br-badge">
+          <span className="br-badge-dot" />
+          <span>Now in private beta</span>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-24 pt-12 border-t border-white/10">
-          {[
-            { value: '50', label: 'AI Skills' },
-            { value: '5', label: 'Edge Nodes' },
-            { value: '52', label: 'TOPS' },
-            { value: '100%', label: 'Local-First' },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-amber-500 to-hot-pink bg-clip-text text-transparent">
-                {stat.value}
-              </div>
-              <div className="text-gray-500 mt-2">{stat.label}</div>
-            </div>
+        <h1 className="br-display">Computing</h1>
+        <h1 className="br-display br-display-gradient">Sovereign.</h1>
+
+        <p className="br-hero-copy">
+          BlackRoad OS is the operating system for AI-native organizations: sovereign
+          infrastructure, spatial interfaces, and sentient agents under one roof.
+        </p>
+
+        <div className="br-hero-actions">
+          <Link href="/workspace" className="br-btn br-btn-solid">
+            Get Early Access
+          </Link>
+          <a href="#product" className="br-btn br-btn-outline">
+            Explore the Stack
+          </a>
+        </div>
+
+        <div className="br-stats">
+          <div>
+            <strong>12K+</strong>
+            <span>API calls/day</span>
+          </div>
+          <div>
+            <strong>5</strong>
+            <span>Active agents</span>
+          </div>
+          <div>
+            <strong>38ms</strong>
+            <span>Avg latency</span>
+          </div>
+          <div>
+            <strong>99.9%</strong>
+            <span>Uptime</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="br-marquee" aria-label="BlackRoad themes">
+        <div className="br-marquee-track">
+          {[...marqueeItems, ...marqueeItems].map((item, index) => (
+            <span key={`${item}-${index}`} className="br-marquee-item">
+              <span>{item}</span>
+              <i />
+            </span>
           ))}
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="relative z-10 py-32 border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Everything You Need to{' '}
-              <span className="bg-gradient-to-r from-electric-blue to-violet-500 bg-clip-text text-transparent">
-                Scale AI
-              </span>
-            </h2>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Sovereign AI infrastructure that runs on your own hardware. No cloud dependency.
+      <section className="br-section" id="product">
+        <div className="br-section-head">
+          <p className="br-kicker">01 — Product</p>
+          <h2 className="br-title">Everything. One OS.</h2>
+          <p className="br-copy">
+            Six primitives. One coherent stack. BlackRoad replaces a patchwork of tools
+            with a single operator layer you can actually own.
+          </p>
+        </div>
+
+        <div className="br-grid br-grid-three">
+          {features.map((feature) => (
+            <article key={feature.title} className="br-card">
+              <div className="br-card-icon">{feature.icon}</div>
+              <div className="br-card-line" />
+              <h3>{feature.title}</h3>
+              <p>{feature.body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="br-section br-section-vision" id="vision">
+        <div className="br-vision-grid">
+          <div>
+            <p className="br-kicker">02 — Vision</p>
+            <h2 className="br-title">The OS for what comes after the cloud.</h2>
+            <p className="br-copy">
+              The cloud optimized for scale. BlackRoad optimizes for sovereignty: your
+              compute, your data, your intelligence layer, and your operator surface.
             </p>
+            <p className="br-copy">
+              This is not another SaaS dashboard. It is an operating system for
+              AI-native organizations.
+            </p>
+            <a href="/docs" className="br-btn br-btn-solid">
+              Read the Docs
+            </a>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Cpu,
-                title: 'AI Orchestration',
-                description: '50 skills — Chain-of-Thought, ReAct, Tree-of-Thought, federated inference, autonomous coding, and more. All running on your hardware.',
-                gradient: 'from-amber-500 to-orange-600',
-              },
-              {
-                icon: Shield,
-                title: 'Guardrails & Safety',
-                description: 'PII detection, prompt injection defense, content filtering, and a full sovereign audit log. Your data never leaves your devices.',
-                gradient: 'from-hot-pink to-violet-600',
-              },
-              {
-                icon: Zap,
-                title: 'Semantic RAG',
-                description: 'Vector search across 275+ repos. Qdrant + nomic-embed-text embeddings with academic-grade citations and git provenance.',
-                gradient: 'from-electric-blue to-cyan-500',
-              },
-              {
-                icon: Globe,
-                title: 'Mesh Network',
-                description: 'Every device is a node. 5 Raspberry Pis as backbone, phones and browser tabs as elastic compute. WebGPU + WASM + WebRTC.',
-                gradient: 'from-violet-500 to-purple-600',
-              },
-              {
-                icon: Sparkles,
-                title: 'Multi-Model Routing',
-                description: 'Intelligent routing across Ollama models on your fleet. Cost, quality, and latency optimization with automatic fallback chains.',
-                gradient: 'from-amber-500 to-hot-pink',
-              },
-              {
-                icon: ArrowRight,
-                title: 'Equality by Default',
-                description: 'Accessible to everyone. Inclusive language checks, a11y audits, i18n readiness. Short, tall, fat, small — we love all.',
-                gradient: 'from-electric-blue to-violet-600',
-              },
-            ].map((feature) => (
-              <div
-                key={feature.title}
-                className="group p-8 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all hover:bg-white/[0.07]"
-              >
-                <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${feature.gradient} mb-6`}>
-                  <feature.icon className="w-6 h-6 text-white" />
+          <div className="br-vision-compare">
+            <article className="br-card br-compare-card">
+              <p className="br-card-tag">Traditional Cloud</p>
+              <ul>
+                <li>Vendor dependency</li>
+                <li>Shared infrastructure</li>
+                <li>Opaque data flows</li>
+                <li>Per-seat pricing treadmill</li>
+              </ul>
+            </article>
+            <article className="br-card br-compare-card br-compare-card-bright">
+              <p className="br-card-tag">BlackRoad OS</p>
+              <ul>
+                <li>Full sovereignty</li>
+                <li>Your own cluster</li>
+                <li>Z-framework coherence</li>
+                <li>One flat operator tier</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="br-section br-section-muted" id="agents">
+        <div className="br-section-head">
+          <p className="br-kicker">03 — Agents</p>
+          <h2 className="br-title">Your fleet. Always on.</h2>
+        </div>
+
+        <div className="br-grid br-grid-two">
+          {agents.map((agent) => (
+            <article key={agent.name} className="br-card br-agent-card">
+              <div className="br-agent-bar" />
+              <div className="br-agent-content">
+                <div className="br-agent-top">
+                  <div>
+                    <h3>{agent.name}</h3>
+                    <p className="br-card-tag">{agent.role}</p>
+                  </div>
+                  <span className="br-agent-stat">{agent.stat}</span>
                 </div>
-                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                <p className="text-gray-400 leading-relaxed">{feature.description}</p>
+                <p>{agent.desc}</p>
               </div>
-            ))}
-          </div>
+            </article>
+          ))}
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="relative z-10 py-32">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <div className="p-12 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Ready to Build?
-            </h2>
-            <p className="text-xl text-gray-400 mb-10">
-              Join the next generation of AI-powered organizations.
-            </p>
-            <Link
-              href="/workspace"
-              className="inline-flex items-center gap-2 px-10 py-5 bg-gradient-to-r from-hot-pink to-violet-600 rounded-xl font-semibold text-lg transition-all hover:shadow-xl hover:shadow-hot-pink/30 hover:scale-105"
+      <section className="br-section" id="pricing">
+        <div className="br-section-head">
+          <p className="br-kicker">04 — Pricing</p>
+          <h2 className="br-title">Simple. Sovereign. No surprises.</h2>
+        </div>
+
+        <div className="br-grid br-grid-three">
+          {plans.map((plan) => (
+            <article
+              key={plan.name}
+              className={`br-card br-pricing-card${plan.featured ? ' br-pricing-card-featured' : ''}`}
             >
-              Get Started Free
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-          </div>
+              <p className="br-card-tag">{plan.name}</p>
+              <div className="br-price-row">
+                <strong>{plan.price}</strong>
+                <span>{plan.cadence}</span>
+              </div>
+              <ul className="br-price-list">
+                {plan.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+              <a href="/signup" className={`br-btn ${plan.featured ? 'br-btn-solid' : 'br-btn-outline'}`}>
+                {plan.cta}
+              </a>
+            </article>
+          ))}
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-white/10 py-12">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 via-hot-pink to-violet-600" />
-              <span className="font-semibold">BlackRoad OS</span>
+      <section className="br-section br-cta">
+        <p className="br-kicker">Join the Beta</p>
+        <h2 className="br-title">Own your infrastructure.</h2>
+        <p className="br-copy">
+          Launch the BlackRoad operator surface, agent fleet, and sovereign deployment
+          model on infrastructure that is actually yours.
+        </p>
+        <div className="br-hero-actions">
+          <a href="/signup" className="br-btn br-btn-solid">
+            Request Early Access
+          </a>
+          <a href="/docs" className="br-btn br-btn-outline">
+            Read the Docs
+          </a>
+        </div>
+        <p className="br-footnote">Z:=yx-w · blackroad.io · All systems operational</p>
+      </section>
+
+      <footer className="br-footer">
+        <div className="br-footer-line" />
+        <div className="br-footer-body">
+          <div>
+            <div className="br-logo">
+              <span className="br-logo-bars" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+                <span />
+                <span />
+                <span />
+              </span>
+              <span className="br-logo-text">BlackRoad</span>
             </div>
-            <p className="text-gray-500 text-sm">
-              © 2026 BlackRoad OS, Inc. All rights reserved.
-            </p>
-            <p className="text-gray-600 text-xs mt-2 md:mt-0">Pave Tomorrow.</p>
+            <p className="br-footnote">The OS for AI-native organizations.</p>
+          </div>
+          <div className="br-footer-links">
+            <a href="/docs">Docs</a>
+            <a href="/agents">Agents</a>
+            <a href="/status">Status</a>
+            <a href="https://git.blackroad.io" target="_blank" rel="noreferrer">
+              RoadCode
+            </a>
           </div>
         </div>
       </footer>
-
-      <style jsx>{`
-        .text-hot-pink { color: #FF1D6C; }
-        .bg-hot-pink { background-color: #FF1D6C; }
-        .from-hot-pink { --tw-gradient-from: #FF1D6C; }
-        .to-hot-pink { --tw-gradient-to: #FF1D6C; }
-        .via-hot-pink { --tw-gradient-via: #FF1D6C; }
-        .shadow-hot-pink\\/25 { --tw-shadow-color: rgba(255, 29, 108, 0.25); }
-        .shadow-hot-pink\\/30 { --tw-shadow-color: rgba(255, 29, 108, 0.30); }
-        .text-electric-blue { color: #2979FF; }
-        .from-electric-blue { --tw-gradient-from: #2979FF; }
-        .to-electric-blue { --tw-gradient-to: #2979FF; }
-        .delay-1000 { animation-delay: 1000ms; }
-      `}</style>
-    </div>
-  );
+    </main>
+  )
 }
