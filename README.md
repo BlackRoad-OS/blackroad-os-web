@@ -199,3 +199,13 @@ See [LICENSE](./LICENSE) for details.
 ---
 
 **Built with ❤️ by BlackRoad OS Team** | [blackroad.io](https://blackroad.io) | Powering 5 quantum domains
+
+---
+
+**Proprietary Software — BlackRoad OS, Inc.**
+
+This software is proprietary to BlackRoad OS, Inc. Source code is publicly visible for transparency and collaboration. Commercial use, forking, and redistribution are prohibited without written authorization.
+
+**BlackRoad OS — Pave Tomorrow.**
+
+*Copyright 2024-2026 BlackRoad OS, Inc. All Rights Reserved.*
