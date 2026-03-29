@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "type-check": "tsc --noEmit",
+    "platform:check": "./scripts/platform-check.sh",
+    "push:all": "./scripts/push-all.sh"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.12",

@@ -458,6 +458,12 @@ a {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.br-surface-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
 .br-card {
   background: var(--card);
   border: 1px solid #141414;
@@ -490,6 +496,33 @@ a {
   font-size: 18px;
   letter-spacing: -0.02em;
   margin: 0 0 10px;
+}
+
+.br-surface-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 260px;
+  text-decoration: none;
+}
+
+.br-surface-meta {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.br-surface-meta span {
+  color: #4c4c4c;
+  font-size: 13px;
+}
+
+.br-surface-meta strong {
+  color: var(--text);
+  font-family: var(--font-space-grotesk), var(--font-geist-sans), sans-serif;
+  font-size: 15px;
+  letter-spacing: -0.02em;
 }
 
 .br-vision-grid {
@@ -664,7 +697,8 @@ a {
 
 @media (max-width: 900px) {
   .br-grid-three,
-  .br-vision-grid {
+  .br-vision-grid,
+  .br-surface-grid {
     grid-template-columns: 1fr 1fr;
     gap: 32px;
   }
@@ -675,6 +709,7 @@ a {
   .br-grid-three,
   .br-grid-two,
   .br-vision-grid,
+  .br-surface-grid,
   .br-stats {
     grid-template-columns: 1fr;
   }

@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BlackRoad OS</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;user-select:none}
+body{background:#0a0a0a;color:#d4d4d4;font-family:'Segoe UI',system-ui,sans-serif;overflow:hidden;height:100vh;cursor:default}
+
+/* Desktop */
+#desktop{position:absolute;top:0;left:0;right:0;bottom:36px;overflow:hidden}
+#desktop-icons{padding:16px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;position:absolute;top:0;left:0}
+.desktop-icon{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 10px;border-radius:4px;cursor:pointer;width:76px;text-align:center}
+.desktop-icon:hover{background:rgba(255,255,255,.06)}
+.desktop-icon.selected{background:rgba(255,34,85,.15);outline:1px solid rgba(255,34,85,.3)}
+.desktop-icon .ico{width:40px;height:40px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.desktop-icon .lbl{font-size:10px;color:#a3a3a3;line-height:1.2;word-break:break-word}
+
+/* Window */
+.window{position:absolute;background:#111;border:1px solid #262626;border-radius:8px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);min-width:300px;min-height:200px}
+.window.focused{z-index:100;box-shadow:0 12px 60px rgba(0,0,0,.8);border-color:#333}
+.window.maximized{top:0!important;left:0!important;width:100%!important;height:100%!important;border-radius:0}
+.titlebar{height:32px;background:#161616;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;padding:0 8px;gap:8px;cursor:grab;flex-shrink:0}
+.titlebar:active{cursor:grabbing}
+.titlebar .title-icon{width:16px;height:16px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.titlebar .title-text{font-size:12px;color:#a3a3a3;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.titlebar-btns{display:flex;gap:2px}
+.titlebar-btn{width:24px;height:24px;border:none;background:none;color:#525252;font-size:14px;cursor:pointer;border-radius:3px;display:flex;align-items:center;justify-content:center;line-height:1}
+.titlebar-btn:hover{background:#262626;color:#d4d4d4}
+.titlebar-btn.close:hover{background:#FF2255;color:#fff}
+.window-body{flex:1;overflow:auto;position:relative}
+
+/* Taskbar */
+#taskbar{position:fixed;bottom:0;left:0;right:0;height:36px;background:#111;border-top:1px solid #1a1a1a;display:flex;align-items:center;z-index:999}
+#start-btn{height:36px;padding:0 14px;background:none;border:none;color:#d4d4d4;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;border-right:1px solid #1a1a1a}
+#start-btn:hover{background:#1a1a1a}
+#start-btn .dots{display:flex;gap:2px}
+#start-btn .dots span{width:5px;height:5px;border-radius:50%}
+#taskbar-items{flex:1;display:flex;gap:2px;padding:2px 4px;overflow-x:auto}
+.taskbar-item{height:28px;padding:0 12px;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:4px;font-size:11px;color:#737373;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.taskbar-item.active{background:#1a1a1a;border-color:#333;color:#d4d4d4}
+.taskbar-item .ti-dot{width:4px;height:4px;border-radius:50%}
+#clock{padding:0 12px;font-size:11px;color:#525252;font-variant-numeric:tabular-nums;border-left:1px solid #1a1a1a;height:100%;display:flex;align-items:center;gap:8px}
+#tray{display:flex;align-items:center;gap:6px;padding:0 8px;border-left:1px solid #1a1a1a;height:100%}
+.tray-dot{width:5px;height:5px;border-radius:50%;opacity:.6}
+
+/* Resize handle */
+.resize-handle{position:absolute;bottom:0;right:0;width:14px;height:14px;cursor:nwse-resize}
+.resize-handle::after{content:'';position:absolute;bottom:3px;right:3px;width:8px;height:8px;border-right:2px solid #333;border-bottom:2px solid #333}
+
+/* Window animations */
+.window{animation:winOpen .2s ease}
+@keyframes winOpen{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.window.closing{animation:winClose .15s ease forwards}
+@keyframes winClose{to{opacity:0;transform:scale(.95)}}
+
+/* Notifications */
+#notif-area{position:fixed;top:8px;right:8px;z-index:2000;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.notif{background:#161616;border:1px solid #262626;border-radius:8px;padding:10px 14px;font-size:11px;color:#a3a3a3;pointer-events:auto;animation:notifIn .3s ease;max-width:280px;display:flex;gap:8px;align-items:flex-start}
+.notif .notif-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.notif.out{animation:notifOut .3s ease forwards}
+@keyframes notifIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes notifOut{to{opacity:0;transform:translateX(20px)}}
+
+/* Selection rectangle */
+#sel-rect{position:absolute;border:1px solid rgba(255,34,85,.3);background:rgba(255,34,85,.05);pointer-events:none;display:none;z-index:5}
+
+/* Wallpaper subtle grid */
+#desktop{background-image:radial-gradient(circle at 1px 1px,#111 1px,transparent 0);background-size:32px 32px}
+
+/* Keyboard shortcut overlay */
+#kb-help{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:3000;display:none;align-items:center;justify-content:center}
+#kb-help.open{display:flex}
+#kb-help .inner{background:#111;border:1px solid #262626;border-radius:12px;padding:24px;max-width:400px;width:90%}
+#kb-help h3{font-size:14px;color:#e5e5e5;margin-bottom:12px}
+.kb-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #111;font-size:12px}
+.kb-row .key{background:#1a1a1a;border:1px solid #262626;border-radius:3px;padding:1px 6px;font-family:monospace;font-size:11px;color:#a3a3a3}
+.kb-row .desc{color:#737373}
+
+/* SSH Fleet */
+.ssh-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:6px;height:100%;padding:6px}
+.ssh-pane{background:#080808;border:1px solid #1a1a1a;border-radius:6px;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.ssh-pane-header{height:24px;background:#111;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;padding:0 8px;gap:6px;font-size:10px;color:#525252;flex-shrink:0}
+.ssh-pane-header .ssh-dot{width:5px;height:5px;border-radius:50%}
+.ssh-pane-body{flex:1;overflow-y:auto;padding:6px 8px;font-family:'Courier New',monospace;font-size:11px;line-height:1.5;color:#737373;white-space:pre-wrap;min-height:0}
+.ssh-pane-body .ssh-prompt{color:#404040}
+.ssh-pane-body .ssh-out{color:#525252}
+
+/* Agent Operator */
+.operator-app{display:flex;height:100%;overflow:hidden}
+.operator-sidebar{width:200px;border-right:1px solid #1a1a1a;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.operator-agent{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;border-bottom:1px solid #111;font-size:12px;color:#737373;transition:background .15s}
+.operator-agent:hover,.operator-agent.active{background:#111;color:#d4d4d4}
+.operator-agent .oa-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#000;flex-shrink:0}
+.operator-agent .oa-status{width:6px;height:6px;border-radius:50%;margin-left:auto;flex-shrink:0}
+.operator-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.operator-toolbar{height:32px;background:#111;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;padding:0 12px;gap:8px;flex-shrink:0}
+.operator-toolbar .ot-label{font-size:11px;color:#525252}
+.operator-toolbar .ot-task{font-size:11px;color:#a3a3a3;flex:1}
+.operator-screen{flex:1;background:#080808;position:relative;overflow:hidden}
+.operator-screen .cursor-agent{position:absolute;width:12px;height:18px;pointer-events:none;z-index:10;transition:left .8s ease,top .8s ease}
+.operator-screen .cursor-agent svg{width:12px;height:18px}
+.operator-log{height:100px;border-top:1px solid #1a1a1a;overflow-y:auto;padding:8px;font-family:monospace;font-size:10px;color:#404040;flex-shrink:0}
+.operator-log .ol-action{color:#737373;border-bottom:1px solid #0a0a0a;padding:3px 0}
+.operator-log .ol-action .ol-type{color:#FF2255;margin-right:6px}
+
+/* Calculator */
+.calc-app{padding:16px;max-width:280px;margin:0 auto}
+.calc-display{background:#080808;border:1px solid #1a1a1a;border-radius:8px;padding:12px 16px;text-align:right;font-family:'Courier New',monospace;font-size:28px;color:#e5e5e5;margin-bottom:12px;min-height:52px;overflow:hidden}
+.calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.calc-btn{background:#161616;border:1px solid #1a1a1a;border-radius:6px;padding:14px;text-align:center;cursor:pointer;font-size:16px;color:#a3a3a3;transition:background .1s}
+.calc-btn:hover{background:#1a1a1a;color:#e5e5e5}
+.calc-btn.op{color:#FF2255}
+.calc-btn.eq{background:#FF2255;color:#fff;border-color:#FF2255}
+.calc-btn.eq:hover{background:#e01e4d}
+
+/* Start Menu */
+#start-menu{position:fixed;bottom:36px;left:0;width:280px;background:#111;border:1px solid #262626;border-radius:0 8px 0 0;z-index:1000;display:none;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,.6)}
+#start-menu.open{display:flex}
+#start-menu .sm-header{padding:12px 16px;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;gap:10px}
+#start-menu .sm-header .sm-logo{display:flex;gap:2px}
+#start-menu .sm-header .sm-logo span{width:6px;height:6px;border-radius:50%}
+#start-menu .sm-header .sm-title{font-size:13px;font-weight:600;color:#e5e5e5}
+#start-menu .sm-items{padding:6px}
+.sm-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:4px;cursor:pointer;font-size:12px;color:#a3a3a3}
+.sm-item:hover{background:#1a1a1a;color:#e5e5e5}
+.sm-item .smi{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+#start-menu .sm-footer{padding:8px 16px;border-top:1px solid #1a1a1a;font-size:10px;color:#333}
+
+/* App: Terminal */
+.terminal{background:#0a0a0a;padding:12px;font-family:'Courier New',monospace;font-size:13px;line-height:1.6;height:100%;overflow-y:auto;color:#a3a3a3}
+.terminal .prompt{color:#525252}
+.terminal .cmd{color:#d4d4d4}
+.terminal .out{color:#737373}
+.terminal input{background:none;border:none;color:#d4d4d4;font-family:inherit;font-size:inherit;outline:none;width:calc(100% - 20px);caret-color:#d4d4d4}
+
+/* App: Chat */
+.chat-app{display:flex;flex-direction:column;height:100%}
+.chat-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.chat-bubble{max-width:80%;padding:8px 12px;border-radius:8px;font-size:12px;line-height:1.5}
+.chat-bubble.agent{align-self:flex-start;background:#1a1a1a;border-left:2px solid #FF2255}
+.chat-bubble.user{align-self:flex-end;background:#161616;border:1px solid #1a1a1a}
+.chat-input-bar{display:flex;border-top:1px solid #1a1a1a;padding:8px}
+.chat-input-bar input{flex:1;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:6px;padding:8px 12px;color:#d4d4d4;font-size:12px;outline:none}
+.chat-input-bar button{margin-left:6px;background:#FF2255;color:#fff;border:none;border-radius:6px;padding:8px 16px;font-size:12px;cursor:pointer;font-weight:600}
+
+/* App: Files */
+.files-app{padding:12px}
+.files-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px}
+.file-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;border-radius:6px;cursor:pointer;text-align:center}
+.file-item:hover{background:#1a1a1a}
+.file-item .fi{width:36px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.file-item .fn{font-size:10px;color:#737373;word-break:break-all}
+
+/* App: Status */
+.status-app{padding:16px;font-size:12px}
+.status-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #111}
+.status-name{color:#a3a3a3}
+.status-val{font-variant-numeric:tabular-nums}
+.status-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:6px}
+
+/* Boot screen */
+#boot{position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s}
+#boot.done{opacity:0;pointer-events:none}
+#boot .logo{display:flex;gap:3px;margin-bottom:16px}
+#boot .logo span{width:8px;height:8px;border-radius:50%}
+#boot .boot-text{font-size:12px;color:#333;font-family:monospace}
+#boot .bar{width:200px;height:2px;background:#1a1a1a;border-radius:1px;margin-top:12px;overflow:hidden}
+#boot .bar-fill{height:100%;width:0;background:linear-gradient(90deg,#FF2255,#8844FF);transition:width 1.5s ease}
+
+/* Context menu */
+#ctx-menu{position:fixed;background:#161616;border:1px solid #262626;border-radius:6px;z-index:2000;display:none;min-width:160px;padding:4px;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+#ctx-menu.open{display:block}
+.ctx-item{padding:6px 12px;font-size:12px;color:#a3a3a3;border-radius:3px;cursor:pointer}
+.ctx-item:hover{background:#1a1a1a;color:#e5e5e5}
+.ctx-sep{height:1px;background:#1a1a1a;margin:4px 0}
+</style>
+</head>
+<body>
+
+<!-- Boot Screen -->
+<div id="boot">
+  <div class="logo">
+    <span style="background:#FF6B2B"></span>
+    <span style="background:#FF2255"></span>
+    <span style="background:#CC00AA"></span>
+    <span style="background:#8844FF"></span>
+    <span style="background:#4488FF"></span>
+    <span style="background:#00D4FF"></span>
+  </div>
+  <div class="boot-text" id="boot-text">BlackRoad OS v2.1.0</div>
+  <div class="bar"><div class="bar-fill" id="boot-bar"></div></div>
+</div>
+
+<!-- Desktop -->
+<div id="desktop">
+  <div id="desktop-icons"></div>
+</div>
+
+<!-- Taskbar -->
+<div id="taskbar">
+  <button id="start-btn" onclick="toggleStart()">
+    <span class="dots">
+      <span style="background:#FF2255"></span>
+      <span style="background:#8844FF"></span>
+    </span>
+    Start
+  </button>
+  <div id="taskbar-items"></div>
+  <div id="clock"></div>
+</div>
+
+<!-- Start Menu -->
+<div id="start-menu"></div>
+
+<!-- Context Menu -->
+<div id="ctx-menu"></div>
+
+<script>
+// ── App Registry ──
+var APPS = [
+  {id:'terminal',name:'Terminal',icon:'>', color:'#333',desk:true,w:600,h:380},
+  {id:'chat',name:'RoadChat',icon:'◆', color:'#FF2255',desk:true,w:420,h:500},
+  {id:'files',name:'Files',icon:'□', color:'#8844FF',desk:true,w:500,h:400},
+  {id:'status',name:'Fleet Status',icon:'●', color:'#4488FF',desk:true,w:480,h:360},
+  {id:'search',name:'RoadSearch',icon:'/', color:'#FF6B2B',desk:true,w:500,h:400},
+  {id:'browser',name:'RoadView',icon:'◎', color:'#00D4FF',desk:true,w:700,h:500},
+  {id:'canvas',name:'Canvas',icon:'■', color:'#CC00AA',desk:false,w:520,h:420},
+  {id:'settings',name:'Settings',icon:'◈', color:'#525252',desk:false,w:400,h:350},
+  {id:'agents',name:'Passenger',icon:'◇', color:'#22c55e',desk:true,w:500,h:400},
+  {id:'notes',name:'Notes',icon:'≡', color:'#F5A623',desk:true,w:400,h:350},
+  {id:'music',name:'RoadWave',icon:'♫', color:'#CC00AA',desk:true,w:640,h:480},
+  {id:'oneway',name:'OneWay',icon:'⟲', color:'#F5A623',desk:true,w:560,h:440},
+  {id:'carpool',name:'CarPool',icon:'⊕', color:'#22c55e',desk:true,w:660,h:500},
+  {id:'roadtrip',name:'RoadTrip',icon:'◈', color:'#FF2255',desk:true,w:680,h:520},
+  {id:'tutor',name:'Tutor',icon:'△', color:'#8844FF',desk:false,w:500,h:420},
+  {id:'hq',name:'Pixel HQ',icon:'⬡', color:'#FF6B2B',desk:false,w:500,h:450},
+  {id:'ssh',name:'SSH Fleet',icon:'⊞', color:'#22c55e',desk:true,w:700,h:480},
+  {id:'operator',name:'Agent Operator',icon:'◉', color:'#FF2255',desk:true,w:720,h:520},
+  {id:'mail',name:'Mail',icon:'✉', color:'#F5A623',desk:false,w:500,h:400},
+  {id:'calc',name:'Calculator',icon:'⊕', color:'#525252',desk:false,w:320,h:420},
+  {id:'weather',name:'Weather',icon:'◐', color:'#4488FF',desk:false,w:360,h:340},
+  {id:'tasks',name:'Cadence',icon:'☰', color:'#CC00AA',desk:true,w:500,h:420},
+  {id:'osmanager',name:'OS Manager',icon:'⊡', color:'#FF6B2B',desk:true,w:640,h:480},
+  {id:'vm',name:'RoadVM',icon:'⬚', color:'#8844FF',desk:false,w:600,h:420},
+  {id:'docker',name:'Containers',icon:'⊟', color:'#4488FF',desk:false,w:560,h:400},
+  {id:'pkgmgr',name:'Packages',icon:'⊞', color:'#00D4FF',desk:false,w:580,h:440},
+  {id:'sysmon',name:'System Monitor',icon:'◈', color:'#22c55e',desk:true,w:550,h:400},
+  {id:'netmap',name:'Network Map',icon:'⬡', color:'#CC00AA',desk:false,w:600,h:450},
+  {id:'appstore',name:'PitStop',icon:'⊛', color:'#FF2255',desk:true,w:680,h:520},
+  {id:'websites',name:'All Websites',icon:'◎', color:'#4488FF',desk:true,w:600,h:460},
+  {id:'orgs',name:'GitHub Orgs',icon:'⊕', color:'#8844FF',desk:false,w:560,h:440},
+  {id:'roadtv',name:'RoadTV',icon:'▶', color:'#FF2255',desk:true,w:720,h:540},
+  {id:'backroad',name:'BackRoad',icon:'◆', color:'#FF6B2B',desk:true,w:640,h:500},
+  {id:'roadcode',name:'RoadCode',icon:'⟨⟩', color:'#00D4FF',desk:true,w:680,h:500},
+  {id:'roadwork',name:'RoadWork',icon:'△', color:'#8844FF',desk:true,w:720,h:540},
+];
+
+var windows = {};
+var winZ = 10;
+var focusedWin = null;
+
+// ── Boot ──
+setTimeout(function(){ document.getElementById('boot-bar').style.width='100%'; },100);
+setTimeout(function(){
+  document.getElementById('boot-text').textContent='Loading desktop...';
+},800);
+setTimeout(function(){
+  document.getElementById('boot').classList.add('done');
+  initDesktop();
+},2000);
+
+// ── Desktop Icons ──
+function initDesktop(){
+  var cont = document.getElementById('desktop-icons');
+  APPS.filter(function(a){return a.desk}).forEach(function(app){
+    var d = document.createElement('div');
+    d.className='desktop-icon';
+    d.ondblclick=function(){openApp(app.id)};
+    d.onclick=function(e){
+      document.querySelectorAll('.desktop-icon').forEach(function(x){x.classList.remove('selected')});
+      d.classList.add('selected');
+      e.stopPropagation();
+    };
+    d.innerHTML='<div class="ico" style="background:#161616;border:1px solid #1a1a1a"><span style="color:'+app.color+'">'+app.icon+'</span></div><div class="lbl">'+app.name+'</div>';
+    cont.appendChild(d);
+  });
+  buildStartMenu();
+  updateClock();
+  setInterval(updateClock,10000);
+  document.getElementById('desktop').addEventListener('click',function(){
+    document.querySelectorAll('.desktop-icon').forEach(function(x){x.classList.remove('selected')});
+    closeStart();
+  });
+  document.getElementById('desktop').addEventListener('contextmenu',function(e){
+    e.preventDefault();
+    showCtx(e.clientX,e.clientY,[
+      {label:'Open Terminal',fn:function(){openApp('terminal')}},
+      {label:'Open Chat',fn:function(){openApp('chat')}},
+      {label:'Fleet Status',fn:function(){openApp('status')}},
+      {sep:true},
+      {label:'Refresh',fn:function(){location.reload()}},
+    ]);
+  });
+  document.addEventListener('click',function(){closeCtx()});
+}
+
+// ── Start Menu ──
+function buildStartMenu(){
+  var m=document.getElementById('start-menu');
+  m.innerHTML='<div class="sm-header"><div class="sm-logo"><span style="background:#FF6B2B"></span><span style="background:#FF2255"></span><span style="background:#CC00AA"></span><span style="background:#8844FF"></span><span style="background:#4488FF"></span><span style="background:#00D4FF"></span></div><div class="sm-title">BlackRoad OS</div></div><div class="sm-items">'+APPS.map(function(a){return '<div class="sm-item" onclick="openApp(\''+a.id+'\');closeStart()"><div class="smi" style="background:#161616;border:1px solid #1a1a1a"><span style="color:'+a.color+'">'+a.icon+'</span></div><div>'+a.name+'</div></div>'}).join('')+'</div><div class="sm-footer">BlackRoad OS, Inc. — v2.1.0</div>';
+}
+function toggleStart(){document.getElementById('start-menu').classList.toggle('open')}
+function closeStart(){document.getElementById('start-menu').classList.remove('open')}
+
+// ── Context Menu ──
+function showCtx(x,y,items){
+  var m=document.getElementById('ctx-menu');
+  m.innerHTML=items.map(function(i){return i.sep?'<div class="ctx-sep"></div>':'<div class="ctx-item" onclick="event.stopPropagation()">'+i.label+'</div>'}).join('');
+  m.querySelectorAll('.ctx-item').forEach(function(el,idx){
+    var item=items.filter(function(i){return !i.sep})[idx];
+    if(item)el.onclick=function(){item.fn();closeCtx()};
+  });
+  m.style.left=Math.min(x,window.innerWidth-180)+'px';
+  m.style.top=Math.min(y,window.innerHeight-items.length*30-40)+'px';
+  m.classList.add('open');
+}
+function closeCtx(){document.getElementById('ctx-menu').classList.remove('open')}
+
+// ── Window Manager ──
+function openApp(id){
+  closeStart();
+  if(windows[id]){focusWin(id);return}
+  var app=APPS.find(function(a){return a.id===id});
+  if(!app)return;
+  var win=document.createElement('div');
+  win.className='window focused';
+  win.id='win-'+id;
+  win.style.width=app.w+'px';
+  win.style.height=app.h+'px';
+  win.style.left=Math.max(40,60+Object.keys(windows).length*30)+'px';
+  win.style.top=Math.max(20,40+Object.keys(windows).length*30)+'px';
+  win.style.zIndex=++winZ;
+  win.innerHTML='<div class="titlebar" data-win="'+id+'"><div class="title-icon" style="background:#161616;border:1px solid #1a1a1a"><span style="color:'+app.color+';font-size:9px">'+app.icon+'</span></div><span class="title-text">'+app.name+'</span><div class="titlebar-btns"><button class="titlebar-btn" onclick="minimizeWin(\''+id+'\')">−</button><button class="titlebar-btn" onclick="maximizeWin(\''+id+'\')">□</button><button class="titlebar-btn close" onclick="closeWin(\''+id+'\')">×</button></div></div><div class="window-body" id="body-'+id+'"></div><div class="resize-handle" data-win="'+id+'"></div>';
+  makeResizable(win);
+  win.onmousedown=function(){focusWin(id)};
+  document.getElementById('desktop').appendChild(win);
+  windows[id]={el:win,app:app,minimized:false,maximized:false};
+  makeDraggable(win,win.querySelector('.titlebar'));
+  focusWin(id);
+  renderApp(id);
+  updateTaskbar();
+}
+
+function closeWin(id){
+  if(!windows[id])return;
+  windows[id].el.remove();
+  delete windows[id];
+  updateTaskbar();
+}
+function minimizeWin(id){
+  if(!windows[id])return;
+  windows[id].el.style.display='none';
+  windows[id].minimized=true;
+  updateTaskbar();
+}
+function maximizeWin(id){
+  var w=windows[id];if(!w)return;
+  if(w.maximized){
+    w.el.classList.remove('maximized');
+    w.maximized=false;
+  } else {
+    w.el.classList.add('maximized');
+    w.maximized=true;
+  }
+}
+function focusWin(id){
+  if(!windows[id])return;
+  Object.values(windows).forEach(function(w){w.el.classList.remove('focused')});
+  var w=windows[id];
+  w.el.style.display='flex';
+  w.minimized=false;
+  w.el.style.zIndex=++winZ;
+  w.el.classList.add('focused');
+  focusedWin=id;
+  updateTaskbar();
+}
+
+function makeDraggable(el,handle){
+  var dx=0,dy=0,mx=0,my=0,dragging=false;
+  handle.onmousedown=function(e){
+    if(e.target.closest('.titlebar-btns'))return;
+    dragging=true;mx=e.clientX;my=e.clientY;
+    document.onmousemove=function(e){
+      if(!dragging)return;
+      dx=mx-e.clientX;dy=my-e.clientY;mx=e.clientX;my=e.clientY;
+      el.style.left=Math.max(0,el.offsetLeft-dx)+'px';
+      el.style.top=Math.max(0,el.offsetTop-dy)+'px';
+      if(el.classList.contains('maximized')){el.classList.remove('maximized');windows[el.id.replace('win-','')].maximized=false}
+    };
+    document.onmouseup=function(){dragging=false;document.onmousemove=null;document.onmouseup=null};
+  };
+}
+
+function updateTaskbar(){
+  var cont=document.getElementById('taskbar-items');
+  cont.innerHTML='';
+  Object.keys(windows).forEach(function(id){
+    var w=windows[id];
+    var d=document.createElement('div');
+    d.className='taskbar-item'+(focusedWin===id&&!w.minimized?' active':'');
+    d.innerHTML='<span class="ti-dot" style="background:'+w.app.color+'"></span>'+w.app.name;
+    d.onclick=function(){
+      if(focusedWin===id&&!w.minimized)minimizeWin(id);
+      else focusWin(id);
+    };
+    cont.appendChild(d);
+  });
+}
+
+function updateClock(){
+  var d=new Date();
+  document.getElementById('clock').textContent=d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
+}
+
+// ── App Renderers ──
+function renderApp(id){
+  var body=document.getElementById('body-'+id);
+  if(id==='terminal') renderTerminal(body);
+  else if(id==='chat') renderChat(body);
+  else if(id==='files') renderFiles(body);
+  else if(id==='status') renderStatus(body);
+  else if(id==='search') renderSearch(body);
+  else if(id==='browser') renderBrowser(body);
+  else if(id==='agents') renderAgents(body);
+  else if(id==='settings') renderSettings(body);
+  else if(id==='canvas') renderCanvas(body);
+  else body.innerHTML='<div style="padding:24px;color:#525252">App: '+id+'</div>';
+}
+
+function renderTerminal(el){
+  el.innerHTML='<div class="terminal" id="term-out"></div>';
+  var out=el.querySelector('#term-out');
+  function line(t,cls){out.innerHTML+='<div class="'+cls+'">'+t+'</div>';out.scrollTop=out.scrollHeight}
+  line('BlackRoad OS v2.1.0','out');
+  line('Type "help" for commands.','out');
+  addPrompt();
+  function addPrompt(){
+    var row=document.createElement('div');
+    row.innerHTML='<span class="prompt">blackroad:~$ </span>';
+    var inp=document.createElement('input');
+    inp.autofocus=true;
+    inp.onkeydown=function(e){
+      if(e.key!=='Enter')return;
+      var cmd=inp.value.trim();inp.disabled=true;
+      line('<span class="prompt">blackroad:~$ </span><span class="cmd">'+cmd+'</span>','');
+      row.remove();
+      execCmd(cmd);
+      addPrompt();
+    };
+    row.appendChild(inp);out.appendChild(row);inp.focus();out.scrollTop=out.scrollHeight;
+  }
+  function execCmd(c){
+    var cmds={
+      help:'Commands: help, status, agents, uptime, whoami, ls, clear, neofetch',
+      status:'Fleet: 6/7 nodes online. 52 TOPS. 18 agents. All systems operational.',
+      agents:'18 agents active: Alice, Cecilia, Octavia, Aria, Lucidia, Gematria, Anastasia, Cordelia + 10 more',
+      uptime:'up 74 days, 14:22',
+      whoami:'blackroad@alexandria',
+      ls:'Desktop/  Documents/  agents/  fleet/  memory/  scripts/',
+      clear:'__CLEAR__',
+      neofetch:'  ● ■  blackroad@alexandria\n       OS: BlackRoad OS v2.1.0\n       Host: Alexandria (Mac)\n       Kernel: Darwin 23.5.0\n       Shell: zsh\n       Fleet: 7 nodes\n       AI: 52 TOPS (Hailo-8)\n       Repos: 2,443\n       Agents: 18',
+    };
+    if(c==='clear'){out.innerHTML='';return}
+    var resp=cmds[c]||'Command not found: '+c+'. Type "help".';
+    resp.split('\\n').forEach(function(l){line(l,'out')});
+  }
+}
+
+function renderChat(el){
+  el.innerHTML='<div class="chat-app"><div class="chat-msgs" id="chat-msgs"><div class="chat-bubble agent">Hey! I\'m Road. Ask me anything about BlackRoad OS.</div></div><div class="chat-input-bar"><input id="chat-in" placeholder="Type a message..." autocomplete="off"><button onclick="sendChat()">Send</button></div></div>';
+  document.getElementById('chat-in').onkeydown=function(e){if(e.key==='Enter')sendChat()};
+}
+var chatConvId=null;
+function sendChat(){
+  var inp=document.getElementById('chat-in'),msg=inp.value.trim();if(!msg)return;inp.value='';
+  var el=document.getElementById('chat-msgs');
+  el.innerHTML+='<div class="chat-bubble user">'+msg.replace(/</g,'&lt;')+'</div>';
+  el.scrollTop=el.scrollHeight;
+  var bubble=document.createElement('div');bubble.className='chat-bubble agent';bubble.textContent='...';el.appendChild(bubble);
+  (chatConvId?Promise.resolve(chatConvId):fetch('https://chat.blackroad.io/api/conversations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({agent_id:'road',user_id:'desktop-'+Math.random().toString(36).slice(2,6)})}).then(function(r){return r.json()}).then(function(d){chatConvId=d.id;return d.id})).then(function(cid){
+    return fetch('https://chat.blackroad.io/api/conversations/'+cid+'/messages/stream',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:msg})});
+  }).then(function(r){
+    var reader=r.body.getReader(),dec=new TextDecoder(),full='';
+    function pump(){reader.read().then(function(x){if(x.done)return;dec.decode(x.value,{stream:true}).split('\n').forEach(function(l){if(l.startsWith('data: ')&&!l.includes('[DONE]')){try{var d=JSON.parse(l.slice(6));if(d.response){full+=d.response;bubble.textContent=full}}catch(e){}}});el.scrollTop=el.scrollHeight;pump()})}pump();
+  }).catch(function(){bubble.textContent='Connection error.'});
+}
+
+function renderFiles(el){
+  var files=[
+    {name:'CLAUDE.md',icon:'📄',color:'#525252'},
+    {name:'scripts/',icon:'📁',color:'#8844FF'},
+    {name:'agents/',icon:'📁',color:'#FF2255'},
+    {name:'memory/',icon:'📁',color:'#4488FF'},
+    {name:'fleet/',icon:'📁',color:'#00D4FF'},
+    {name:'Desktop/',icon:'📁',color:'#CC00AA'},
+    {name:'operator/',icon:'📁',color:'#FF6B2B'},
+    {name:'.env',icon:'🔒',color:'#333'},
+  ];
+  el.innerHTML='<div class="files-app"><div style="font-size:11px;color:#525252;margin-bottom:12px;font-family:monospace">~/blackroad</div><div class="files-grid">'+files.map(function(f){return '<div class="file-item"><div class="fi" style="background:#161616;border:1px solid #1a1a1a">'+f.icon+'</div><div class="fn">'+f.name+'</div></div>'}).join('')+'</div></div>';
+}
+
+function renderStatus(el){
+  var nodes=[
+    {name:'Alice',ip:'.49',status:'online',role:'Gateway'},
+    {name:'Cecilia',ip:'.96',status:'offline',role:'AI Engine'},
+    {name:'Octavia',ip:'.101',status:'online',role:'DevOps'},
+    {name:'Aria',ip:'.98',status:'online',role:'Dashboards'},
+    {name:'Lucidia',ip:'.38',status:'online',role:'Web Apps'},
+    {name:'Gematria',ip:'nyc3',status:'online',role:'TLS Edge'},
+    {name:'Anastasia',ip:'nyc1',status:'online',role:'Cloud'},
+  ];
+  el.innerHTML='<div class="status-app"><div style="margin-bottom:16px;font-size:14px;font-weight:600;color:#e5e5e5">Fleet Nodes</div>'+nodes.map(function(n){
+    var c=n.status==='online'?'#22c55e':'#ef4444';
+    return '<div class="status-row"><div class="status-name"><span class="status-dot" style="background:'+c+'"></span>'+n.name+' <span style="color:#333">('+n.ip+')</span></div><div class="status-val" style="color:'+c+'">'+n.status+'</div></div>';
+  }).join('')+'<div style="margin-top:20px;font-size:14px;font-weight:600;color:#e5e5e5;margin-bottom:8px">Stats</div><div class="status-row"><div class="status-name">Total TOPS</div><div class="status-val">52</div></div><div class="status-row"><div class="status-name">Active Agents</div><div class="status-val">18</div></div><div class="status-row"><div class="status-name">Uptime</div><div class="status-val">74d 14h</div></div></div>';
+}
+
+function renderSearch(el){
+  el.innerHTML='<div style="padding:24px"><div style="font-size:14px;font-weight:600;color:#e5e5e5;margin-bottom:16px">RoadSearch</div><div style="position:relative"><input id="search-input" style="width:100%;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:12px 16px;color:#d4d4d4;font-size:14px;outline:none" placeholder="Search BlackRoad..." autocomplete="off"><div id="search-results" style="margin-top:12px;color:#525252;font-size:12px">Type and press Enter to search.</div></div></div>';
+  document.getElementById('search-input').onkeydown=function(e){
+    if(e.key!=='Enter')return;var q=this.value.trim();if(!q)return;
+    var out=document.getElementById('search-results');out.textContent='Searching...';
+    fetch('https://search.blackroad.io/search?q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(d){
+      var items=d.results||d.items||[];
+      if(!items.length){out.textContent='No results.';return}
+      out.innerHTML=items.slice(0,8).map(function(i){return '<div style="padding:8px 0;border-bottom:1px solid #111"><div style="color:#d4d4d4;font-size:13px">'+(i.title||'Result')+'</div><div style="color:#333;font-size:11px">'+(i.url||'')+'</div></div>'}).join('');
+    }).catch(function(){out.textContent='Search unavailable.'});
+  };
+}
+
+function renderBrowser(el){
+  el.innerHTML='<div style="padding:8px;border-bottom:1px solid #1a1a1a;display:flex;gap:6px;align-items:center"><input id="browser-url" style="flex:1;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:4px;padding:6px 10px;color:#d4d4d4;font-size:12px;outline:none" value="https://blackroad.io" placeholder="URL..."><button onclick="navBrowser()" style="background:#1a1a1a;border:1px solid #262626;border-radius:4px;padding:6px 12px;color:#a3a3a3;font-size:11px;cursor:pointer">Go</button></div><iframe id="browser-frame" style="width:100%;flex:1;border:none;background:#000" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>';
+  el.style.display='flex';el.style.flexDirection='column';el.style.height='100%';
+  navBrowser();
+}
+function navBrowser(){var u=document.getElementById('browser-url').value;document.getElementById('browser-frame').src=u}
+
+function renderAgents(el){
+  el.innerHTML='<div style="padding:16px"><div style="font-size:14px;font-weight:600;color:#e5e5e5;margin-bottom:12px">Agent Monitor</div><div id="agent-list" style="color:#525252;font-size:12px">Loading agents...</div></div>';
+  fetch('https://chat.blackroad.io/api/agents').then(function(r){return r.json()}).then(function(d){
+    var agents=d.agents||d;
+    document.getElementById('agent-list').innerHTML=agents.map(function(a){
+      return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #111"><div style="width:28px;height:28px;border-radius:50%;background:'+(a.color||'#333')+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#000">'+(a.name||'?')[0]+'</div><div><div style="font-size:12px;color:#d4d4d4">'+(a.name||'Agent')+'</div><div style="font-size:10px;color:#525252">'+(a.role||'')+'</div></div></div>';
+    }).join('');
+  }).catch(function(){document.getElementById('agent-list').textContent='Failed to load agents.'});
+}
+
+function renderSettings(el){
+  el.innerHTML='<div style="padding:24px"><div style="font-size:14px;font-weight:600;color:#e5e5e5;margin-bottom:20px">Settings</div><div style="font-size:12px;color:#737373"><div style="padding:8px 0;border-bottom:1px solid #111">Theme: Dark (only)</div><div style="padding:8px 0;border-bottom:1px solid #111">Version: 2.1.0</div><div style="padding:8px 0;border-bottom:1px solid #111">Fleet: 7 nodes</div><div style="padding:8px 0;border-bottom:1px solid #111">Agents: 18</div><div style="padding:8px 0">License: BlackRoad OS, Inc. Proprietary</div></div></div>';
+}
+
+function renderCanvas(el){
+  el.innerHTML='<div style="padding:16px"><canvas id="mini-canvas" width="400" height="300" style="border:1px solid #1a1a1a;border-radius:6px;cursor:crosshair;background:#0a0a0a;width:100%"></canvas><div style="margin-top:8px;display:flex;gap:6px" id="canvas-palette"></div></div>';
+  var c=document.getElementById('mini-canvas'),ctx=c.getContext('2d');
+  var colors=['#FF2255','#8844FF','#4488FF','#00D4FF','#FF6B2B','#CC00AA','#d4d4d4','#333'];
+  var col='#FF2255',drawing=false;
+  ctx.lineCap='round';ctx.lineWidth=3;
+  var pal=document.getElementById('canvas-palette');
+  colors.forEach(function(cl){var b=document.createElement('div');b.style.cssText='width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid '+(cl===col?'#fff':'#333');b.style.background=cl;b.onclick=function(){col=cl;pal.querySelectorAll('div').forEach(function(x){x.style.borderColor='#333'});b.style.borderColor='#fff'};pal.appendChild(b)});
+  c.onmousedown=function(e){drawing=true;var r=c.getBoundingClientRect();ctx.beginPath();ctx.moveTo((e.clientX-r.left)*(c.width/r.width),(e.clientY-r.top)*(c.height/r.height))};
+  c.onmousemove=function(e){if(!drawing)return;var r=c.getBoundingClientRect();ctx.strokeStyle=col;ctx.lineTo((e.clientX-r.left)*(c.width/r.width),(e.clientY-r.top)*(c.height/r.height));ctx.stroke()};
+  c.onmouseup=function(){drawing=false};
+  c.onmouseleave=function(){drawing=false};
+}
+
+function renderNotes(el){
+  var saved=localStorage.getItem('br-notes')||'Welcome to BlackRoad OS.\n\nThis is your scratchpad. Notes are saved locally.\n\nTry the terminal: type "neofetch" or "agents".\nOpen RoadChat to talk to AI agents.\nSearch anything with RoadSearch.';
+  el.innerHTML='<div style="height:100%;display:flex;flex-direction:column"><div style="padding:6px 12px;border-bottom:1px solid #1a1a1a;font-size:11px;color:#525252">Auto-saves to localStorage</div><textarea id="notes-area" style="flex:1;background:#0a0a0a;border:none;color:#d4d4d4;padding:12px;font-family:monospace;font-size:13px;line-height:1.6;resize:none;outline:none;width:100%">'+saved.replace(/</g,'&lt;')+'</textarea></div>';
+  document.getElementById('notes-area').oninput=function(){localStorage.setItem('br-notes',this.value)};
+}
+
+function renderMusic(el){
+  el.innerHTML='<div style="height:100%;display:flex;flex-direction:column"><div style="padding:10px 14px;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center"><div style="font-size:13px;font-weight:600;color:#e5e5e5">RoadWave</div><div style="font-size:10px;color:#404040">GarageBand + music.ly + AI Lyrics</div></div><div style="display:flex;flex:1;overflow:hidden"><div style="width:180px;border-right:1px solid #1a1a1a;padding:8px;overflow-y:auto"><div style="font-size:10px;color:#404040;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Instruments</div>'+[{n:'Piano',e:'🎹'},{n:'Guitar',e:'🎸'},{n:'Drums',e:'🥁'},{n:'Bass',e:'🎵'},{n:'Synth',e:'🎛'},{n:'Violin',e:'🎻'},{n:'Trumpet',e:'🎺'},{n:'Voice',e:'🎤'},{n:'Beats',e:'💿'},{n:'AI Compose',e:'◉'}].map(function(i){return '<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:4px;cursor:pointer;font-size:11px;color:#737373;transition:background .15s" onmouseover="this.style.background=\'#111\'" onmouseout="this.style.background=\'transparent\'"><span>'+i.e+'</span>'+i.n+'</div>'}).join('')+'<div style="font-size:10px;color:#404040;text-transform:uppercase;letter-spacing:.1em;margin:12px 0 6px">AI Tools</div>'+[{n:'Generate Lyrics'},{n:'Auto-Melody'},{n:'Beat Match'},{n:'Chord Suggest'},{n:'Mix & Master'}].map(function(t){return '<div style="padding:6px 8px;border-radius:4px;cursor:pointer;font-size:11px;color:#CC00AA;transition:background .15s" onmouseover="this.style.background=\'#111\'" onmouseout="this.style.background=\'transparent\'">'+t.n+'</div>'}).join('')+'</div><div style="flex:1;display:flex;flex-direction:column"><div style="flex:1;padding:12px;overflow-y:auto"><div style="font-size:10px;color:#404040;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Timeline</div><div style="display:flex;flex-direction:column;gap:4px;margin-bottom:16px" id="rw-timeline">'+[{n:'Drums',c:'#FF2255',w:85},{n:'Bass',c:'#8844FF',w:75},{n:'Synth',c:'#4488FF',w:60},{n:'Piano',c:'#FF6B2B',w:45},{n:'Vocals',c:'#CC00AA',w:30},{n:'FX',c:'#00D4FF',w:20}].map(function(t){return '<div style="display:flex;align-items:center;gap:8px"><div style="width:50px;font-size:10px;color:#525252;text-align:right;flex-shrink:0">'+t.n+'</div><div style="flex:1;background:#111;height:20px;border-radius:3px;overflow:hidden;position:relative"><div style="width:'+t.w+'%;height:100%;background:'+t.c+'20;border-right:2px solid '+t.c+';position:relative"><div style="position:absolute;top:3px;bottom:3px;left:4px;right:4px;background:'+t.c+'15;border-radius:2px"></div></div></div></div>'}).join('')+'</div><div style="font-size:10px;color:#404040;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">AI Lyrics Generator</div><div style="display:flex;gap:6px;margin-bottom:8px"><input id="rw-lyrics-prompt" style="flex:1;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:6px;padding:8px 10px;color:#d4d4d4;font-size:12px;outline:none" placeholder="Describe a song about sovereign computing..." autocomplete="off"><button onclick="rwLyrics()" style="background:#CC00AA;border:none;border-radius:6px;padding:8px 14px;color:#fff;font-size:11px;font-weight:600;cursor:pointer">Generate</button></div><div id="rw-lyrics-out" style="background:#080808;border:1px solid #1a1a1a;border-radius:6px;padding:10px;font-size:11px;color:#525252;line-height:1.6;min-height:60px;white-space:pre-wrap">Lyrics will appear here...</div></div><div style="border-top:1px solid #1a1a1a;padding:8px 12px;display:flex;align-items:center;gap:12px"><button onclick="this.textContent=this.textContent===\'▶\'?\'❚❚\':\'▶\'" style="background:#CC00AA;border:none;border-radius:50%;width:32px;height:32px;color:#fff;cursor:pointer;font-size:14px">▶</button><div style="flex:1;background:#1a1a1a;height:3px;border-radius:2px"><div style="width:35%;height:100%;background:linear-gradient(90deg,#CC00AA,#8844FF);border-radius:2px"></div></div><span style="font-size:10px;color:#333">1:42 / 4:56</span><span style="font-size:10px;color:#525252">BPM: 120</span></div></div></div></div>';
+}
+function rwLyrics(){var inp=document.getElementById('rw-lyrics-prompt'),q=inp.value.trim();if(!q)return;inp.value='';var out=document.getElementById('rw-lyrics-out');out.textContent='Generating lyrics...';fetch('https://chat.blackroad.io/api/conversations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({agent_id:'road',user_id:'roadwave-'+Math.random().toString(36).slice(2,6)})}).then(function(r){return r.json()}).then(function(d){return fetch('https://chat.blackroad.io/api/conversations/'+d.id+'/messages/stream',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:'Write song lyrics about: '+q+'. Include verse, chorus, verse, chorus, bridge, final chorus. Be creative and poetic.'})})}).then(function(r){var reader=r.body.getReader(),dec=new TextDecoder(),full='';function pump(){reader.read().then(function(x){if(x.done)return;dec.decode(x.value,{stream:true}).split('\\n').forEach(function(l){if(l.startsWith('data: ')&&!l.includes('[DONE]')){try{var d=JSON.parse(l.slice(6));if(d.response){full+=d.response;out.textContent=full}}catch(e){}}});pump()})}pump()}).catch(function(){out.textContent='Error generating lyrics.'})}
+
+// ── OneWay — Data Sovereignty ──
+function renderOneWay(el){
+  var services=[
+    {name:'Google',data:['Search history','Gmail','Drive files','Photos','Location','YouTube'],size:'47.2 GB',status:'importing'},
+    {name:'Facebook/Meta',data:['Posts','Messages','Photos','Friends','Ad profile'],size:'12.8 GB',status:'ready'},
+    {name:'Apple',data:['iCloud','Health','Photos','Keychain','Messages'],size:'31.5 GB',status:'ready'},
+    {name:'Amazon',data:['Orders','Alexa recordings','Prime Video','Kindle'],size:'8.3 GB',status:'ready'},
+    {name:'Microsoft',data:['Outlook','OneDrive','Teams','LinkedIn'],size:'15.6 GB',status:'ready'},
+    {name:'Twitter/X',data:['Tweets','DMs','Bookmarks','Following'],size:'2.1 GB',status:'complete'},
+    {name:'Spotify',data:['Playlists','Listening history','Podcasts'],size:'340 MB',status:'complete'},
+    {name:'GitHub',data:['Repos','Stars','Issues','PRs'],size:'6.7 GB',status:'complete'},
+  ];
+  var sc={importing:'#FF6B2B',ready:'#4488FF',complete:'#22c55e'};
+  el.innerHTML='<div style="height:100%;display:flex;flex-direction:column"><div style="padding:12px 16px;border-bottom:1px solid #1a1a1a"><div style="font-size:14px;font-weight:600;color:#e5e5e5">OneWay</div><div style="font-size:11px;color:#525252">All your data. Rotating back to you. User-first property.</div></div><div style="padding:8px 12px;border-bottom:1px solid #1a1a1a;display:flex;gap:16px;font-size:11px"><span style="color:#22c55e">3 complete</span><span style="color:#FF6B2B">1 importing</span><span style="color:#4488FF">4 ready</span><span style="color:#404040">124.7 GB total</span></div><div style="flex:1;overflow-y:auto;padding:8px">'+services.map(function(s){return '<div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:12px;margin-bottom:6px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="display:flex;align-items:center;gap:8px"><div style="width:6px;height:6px;border-radius:50%;background:'+(sc[s.status]||'#333')+'"></div><span style="font-size:13px;color:#d4d4d4;font-weight:500">'+s.name+'</span><span style="font-size:10px;color:#404040">'+s.size+'</span></div><div style="font-size:10px;color:'+(sc[s.status]||'#333')+'">'+s.status+'</div></div><div style="display:flex;flex-wrap:wrap;gap:4px">'+s.data.map(function(d){return '<span style="font-size:10px;background:#111;border:1px solid #1a1a1a;border-radius:3px;padding:2px 6px;color:#525252">'+d+'</span>'}).join('')+'</div>'+(s.status==='importing'?'<div style="margin-top:8px;background:#1a1a1a;height:3px;border-radius:2px"><div style="width:62%;height:100%;background:#FF6B2B;border-radius:2px;animation:pulse 2s infinite"></div></div>':'')+'</div>'}).join('')+'</div><div style="padding:10px 16px;border-top:1px solid #1a1a1a;font-size:10px;color:#333;text-align:center">Your data never touches our servers. Encrypted in transit. Stored on YOUR hardware.</div></div>';
+}
+
+// ── CarPool — Multi-user Agent Collaboration ──
+function renderCarPool(el){
+  var projects=[
+    {name:'Fleet Dashboard Redesign',members:[{n:'Alexa',agent:false},{n:'Alice',agent:true},{n:'Octavia',agent:true}],tasks:12,done:8,status:'active'},
+    {name:'Amundson Paper D',members:[{n:'Alexa',agent:false},{n:'Lucidia',agent:true},{n:'Cecilia',agent:true}],tasks:7,done:3,status:'active'},
+    {name:'Mobile App MVP',members:[{n:'Road',agent:true},{n:'Cordelia',agent:true},{n:'Gematria',agent:true}],tasks:20,done:5,status:'active'},
+    {name:'SEO Audit Complete',members:[{n:'Alice',agent:true},{n:'Octavia',agent:true}],tasks:15,done:15,status:'complete'},
+  ];
+  el.innerHTML='<div style="height:100%;display:flex;flex-direction:column"><div style="padding:12px 16px;border-bottom:1px solid #1a1a1a"><div style="font-size:14px;font-weight:600;color:#e5e5e5">CarPool</div><div style="font-size:11px;color:#525252">Group projects. Everyone brings their agents. Work together.</div></div><div style="padding:8px 12px;border-bottom:1px solid #1a1a1a;display:flex;gap:8px"><button style="background:#22c55e;border:none;border-radius:6px;padding:6px 14px;color:#000;font-size:11px;font-weight:600;cursor:pointer">New Project</button><button style="background:#1a1a1a;border:1px solid #262626;border-radius:6px;padding:6px 14px;color:#737373;font-size:11px;cursor:pointer">Invite</button><span style="margin-left:auto;font-size:10px;color:#404040;line-height:28px">'+projects.length+' projects</span></div><div style="flex:1;overflow-y:auto;padding:8px">'+projects.map(function(p){var pct=Math.round(p.done/p.tasks*100);var sc=p.status==='complete'?'#22c55e':'#4488FF';return '<div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:14px;margin-bottom:6px;cursor:pointer;transition:border-color .15s" onmouseover="this.style.borderColor=\'#262626\'" onmouseout="this.style.borderColor=\'#1a1a1a\'"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><div style="font-size:13px;color:#d4d4d4;font-weight:500">'+p.name+'</div><div style="font-size:10px;color:'+sc+'">'+p.status+'</div></div><div style="display:flex;gap:4px;margin-bottom:8px">'+p.members.map(function(m){return '<div style="display:flex;align-items:center;gap:4px;background:#111;border:1px solid #1a1a1a;border-radius:12px;padding:2px 8px 2px 2px"><div style="width:16px;height:16px;border-radius:50%;background:'+(m.agent?'#FF2255':'#4488FF')+';display:flex;align-items:center;justify-content:center;font-size:8px;color:#000;font-weight:600">'+m.n[0]+'</div><span style="font-size:10px;color:#737373">'+m.n+'</span></div>'}).join('')+'</div><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;background:#1a1a1a;height:4px;border-radius:2px"><div style="width:'+pct+'%;height:100%;background:'+sc+';border-radius:2px"></div></div><span style="font-size:10px;color:#525252">'+p.done+'/'+p.tasks+'</span></div></div>'}).join('')+'</div></div>';
+}
+
+// ── RoadTrip — Multi-Agent Group Chat + Dispatch ──
+function renderRoadTrip(el){
+  el.innerHTML='<div style="height:100%;display:flex"><div style="width:180px;border-right:1px solid #1a1a1a;display:flex;flex-direction:column"><div style="padding:10px 12px;border-bottom:1px solid #1a1a1a;font-size:11px;font-weight:600;color:#a3a3a3">Channels</div><div style="flex:1;overflow-y:auto;padding:4px" id="rt-channels"></div><div style="padding:8px;border-top:1px solid #1a1a1a"><div style="font-size:10px;color:#404040;margin-bottom:4px">Active Agents</div><div id="rt-agents-mini" style="font-size:10px;color:#525252">Loading...</div></div></div><div style="flex:1;display:flex;flex-direction:column"><div style="padding:10px 14px;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center"><div><span style="font-size:13px;font-weight:600;color:#e5e5e5">RoadTrip</span> <span style="font-size:11px;color:#404040" id="rt-channel-name"># general</span></div><div style="display:flex;gap:6px"><button onclick="rtDispatch()" style="background:#FF2255;border:none;border-radius:4px;padding:4px 10px;color:#fff;font-size:10px;font-weight:600;cursor:pointer">Dispatch Task</button></div></div><div style="flex:1;overflow-y:auto;padding:12px" id="rt-msgs"></div><div style="border-top:1px solid #1a1a1a;padding:8px;display:flex;gap:6px"><input id="rt-input" style="flex:1;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:6px;padding:8px 12px;color:#d4d4d4;font-size:12px;outline:none" placeholder="Message all agents..." autocomplete="off"><button onclick="rtSend()" style="background:#1a1a1a;border:1px solid #262626;border-radius:6px;padding:8px 14px;color:#a3a3a3;font-size:11px;cursor:pointer">Send</button></div></div></div>';
+  var channels=['general','fleet-ops','dev','deploy','security','alerts','off-topic','math'];
+  document.getElementById('rt-channels').innerHTML=channels.map(function(c,i){return '<div style="padding:6px 10px;border-radius:4px;cursor:pointer;font-size:11px;color:'+(i===0?'#e5e5e5':'#525252')+';background:'+(i===0?'#1a1a1a':'transparent')+'" onclick="this.parentElement.querySelectorAll(\'div\').forEach(function(x){x.style.background=\'transparent\';x.style.color=\'#525252\'});this.style.background=\'#1a1a1a\';this.style.color=\'#e5e5e5\';document.getElementById(\'rt-channel-name\').textContent=\'# '+c+'\'"># '+c+'</div>'}).join('');
+  // Load real agents + simulate group chat
+  fetch('https://chat.blackroad.io/api/agents').then(function(r){return r.json()}).then(function(d){
+    var agents=d.agents||d;
+    document.getElementById('rt-agents-mini').innerHTML=agents.slice(0,8).map(function(a){return '<span style="color:'+(a.color||'#525252')+'">'+a.name+'</span>'}).join(', ');
+    // Populate chat with multi-agent conversation
+    var msgs=[
+      {agent:'Road',color:'#FF2255',text:'Fleet check: all nodes report in.'},
+      {agent:'Alice',color:'#FF6B2B',text:'Alice online. nginx healthy. 37 sites. Pi-hole filtering 12K queries/day.'},
+      {agent:'Octavia',color:'#CC00AA',text:'Octavia online. Gitea: 239 repos. Docker: 8 containers. NATS: connected.'},
+      {agent:'Lucidia',color:'#4488FF',text:'Lucidia online. 334 web apps. Load average 7.45 — running heavy model inference.'},
+      {agent:'Gematria',color:'#22c55e',text:'Gematria online. Caddy: 151 domains. Ollama: 6 models. Uptime: 74 days.'},
+      {agent:'Cordelia',color:'#00D4FF',text:'Dispatch queue: 3 pending tasks. Priority: P1 fix products, P2 SEO, P3 infra.'},
+      {agent:'Road',color:'#FF2255',text:'Cecilia still offline. Physical check required. Reassigning her GPU tasks to Lucidia.'},
+      {agent:'Anastasia',color:'#8844FF',text:'Anastasia online but disk critical: 94%. Need cleanup ASAP.'},
+    ];
+    document.getElementById('rt-msgs').innerHTML=msgs.map(function(m){return '<div style="padding:6px 0;border-bottom:1px solid #0a0a0a"><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:18px;height:18px;border-radius:50%;background:'+m.color+'20;border:1px solid '+m.color+'30;display:flex;align-items:center;justify-content:center;font-size:8px;color:'+m.color+';font-weight:600">'+m.agent[0]+'</div><span style="font-size:11px;color:'+m.color+';font-weight:500">'+m.agent+'</span></div><div style="font-size:12px;color:#a3a3a3;line-height:1.5;padding-left:24px">'+m.text+'</div></div>'}).join('');
+  }).catch(function(){});
+}
+function rtSend(){var inp=document.getElementById('rt-input'),msg=inp.value.trim();if(!msg)return;inp.value='';var el=document.getElementById('rt-msgs');el.innerHTML+='<div style="padding:6px 0;border-bottom:1px solid #0a0a0a"><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:18px;height:18px;border-radius:50%;background:#1a1a1a;border:1px solid #262626;display:flex;align-items:center;justify-content:center;font-size:8px;color:#e5e5e5;font-weight:600">Y</div><span style="font-size:11px;color:#e5e5e5;font-weight:500">You</span></div><div style="font-size:12px;color:#a3a3a3;line-height:1.5;padding-left:24px">'+msg.replace(/</g,'&lt;')+'</div></div>';el.scrollTop=el.scrollHeight;
+  // AI responds in group context
+  setTimeout(function(){
+    el.innerHTML+='<div style="padding:6px 0;border-bottom:1px solid #0a0a0a"><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:18px;height:18px;border-radius:50%;background:#FF225520;border:1px solid #FF225530;display:flex;align-items:center;justify-content:center;font-size:8px;color:#FF2255;font-weight:600">R</div><span style="font-size:11px;color:#FF2255;font-weight:500">Road</span></div><div style="font-size:12px;color:#a3a3a3;line-height:1.5;padding-left:24px" id="rt-ai-reply">...</div></div>';el.scrollTop=el.scrollHeight;
+    fetch('https://chat.blackroad.io/api/conversations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({agent_id:'road',user_id:'roadtrip-'+Math.random().toString(36).slice(2,6)})}).then(function(r){return r.json()}).then(function(d){return fetch('https://chat.blackroad.io/api/conversations/'+d.id+'/messages/stream',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:'You are in a group chat with multiple agents. Respond briefly (1-2 sentences) to: '+msg})})}).then(function(r){var reader=r.body.getReader(),dec=new TextDecoder(),full='';var reply=document.getElementById('rt-ai-reply');function pump(){reader.read().then(function(x){if(x.done)return;dec.decode(x.value,{stream:true}).split('\\n').forEach(function(l){if(l.startsWith('data: ')&&!l.includes('[DONE]')){try{var d=JSON.parse(l.slice(6));if(d.response){full+=d.response;reply.textContent=full}}catch(e){}}});el.scrollTop=el.scrollHeight;pump()})}pump()}).catch(function(){document.getElementById('rt-ai-reply').textContent='Connection error.'});
+  },800);
+}
+function rtDispatch(){var task=prompt('Describe the task to dispatch to agents:');if(!task)return;notify('Dispatched: "'+task.slice(0,40)+'" to fleet','#FF2255');var el=document.getElementById('rt-msgs');el.innerHTML+='<div style="padding:8px;background:#FF225510;border:1px solid #FF225520;border-radius:6px;margin:8px 0;font-size:11px"><div style="color:#FF2255;font-weight:600;margin-bottom:4px">TASK DISPATCHED</div><div style="color:#a3a3a3">'+task.replace(/</g,'&lt;')+'</div><div style="color:#404040;margin-top:4px">Assigned to: Road, Alice, Octavia, Cordelia</div></div>';el.scrollTop=el.scrollHeight}
+
+function renderTutor(el){
+  el.innerHTML='<div style="padding:20px"><div style="font-size:14px;font-weight:600;color:#e5e5e5;margin-bottom:4px">RoadWork Tutor</div><div style="font-size:12px;color:#525252;margin-bottom:16px">Pick a subject, get a quiz from AI.</div><div id="tutor-subjects" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:16px"></div><div id="tutor-quiz" style="display:none;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:16px"></div></div>';
+  var subjects=[{id:'math',name:'Math',color:'#FF2255'},{id:'coding',name:'Coding',color:'#4488FF'},{id:'networking',name:'Networking',color:'#FF6B2B'},{id:'security',name:'Security',color:'#8844FF'},{id:'aiml',name:'AI/ML',color:'#00D4FF'}];
+  var cont=document.getElementById('tutor-subjects');
+  subjects.forEach(function(s){
+    var d=document.createElement('div');
+    d.style.cssText='background:#161616;border:1px solid #1a1a1a;border-radius:8px;padding:12px;text-align:center;cursor:pointer;font-size:12px;color:#a3a3a3;transition:border-color .2s';
+    d.textContent=s.name;
+    d.onmouseover=function(){d.style.borderColor=s.color};
+    d.onmouseout=function(){d.style.borderColor='#1a1a1a'};
+    d.onclick=function(){
+      var quiz=document.getElementById('tutor-quiz');quiz.style.display='block';quiz.innerHTML='<div style="color:#525252">Generating quiz...</div>';
+      fetch('https://tutor.blackroad.io/api/quiz',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subject:s.id,difficulty:'medium',userId:'desktop'})}).then(function(r){return r.json()}).then(function(data){
+        var q=data.quiz;
+        quiz.innerHTML='<div style="font-size:13px;color:#d4d4d4;margin-bottom:12px">'+q.question+'</div><div id="tutor-opts">'+q.options.map(function(o,i){return '<div style="background:#111;border:1px solid #1a1a1a;border-radius:6px;padding:10px;margin-bottom:6px;cursor:pointer;font-size:12px;color:#a3a3a3" onclick="this.style.borderColor=\'#FF2255\';this.style.color=\'#e5e5e5\'">'+'ABCD'[i]+') '+o+'</div>'}).join('')+'</div>';
+      }).catch(function(){quiz.innerHTML='<div style="color:#525252">Failed to load quiz. Try <a href="https://tutor.blackroad.io" style="color:#FF2255" target="_blank">tutor.blackroad.io</a></div>'});
+    };
+    cont.appendChild(d);
+  });
+}
+
+function renderHq(el){
+  el.innerHTML='<iframe src="https://hq.blackroad.io" style="width:100%;height:100%;border:none;background:#000"></iframe>';
+  el.style.padding='0';
+}
+
+// ── Resize ──
+function makeResizable(win){
+  var handle=win.querySelector('.resize-handle');if(!handle)return;
+  handle.onmousedown=function(e){
+    e.preventDefault();e.stopPropagation();
+    var startW=win.offsetWidth,startH=win.offsetHeight,startX=e.clientX,startY=e.clientY;
+    document.onmousemove=function(e){
+      win.style.width=Math.max(300,startW+(e.clientX-startX))+'px';
+      win.style.height=Math.max(200,startH+(e.clientY-startY))+'px';
+    };
+    document.onmouseup=function(){document.onmousemove=null;document.onmouseup=null};
+  };
+}
+
+// ── Notifications ──
+var notifArea;
+function notify(text,color){
+  if(!notifArea){notifArea=document.createElement('div');notifArea.id='notif-area';document.body.appendChild(notifArea)}
+  var n=document.createElement('div');n.className='notif';
+  n.innerHTML='<div class="notif-dot" style="background:'+(color||'#4488FF')+'"></div><div>'+text+'</div>';
+  notifArea.appendChild(n);
+  setTimeout(function(){n.classList.add('out');setTimeout(function(){n.remove()},300)},4000);
+}
+
+// Boot notifications
+setTimeout(function(){notify('Fleet: 6/7 nodes online','#22c55e')},3000);
+setTimeout(function(){notify('18 agents active','#4488FF')},5000);
+setTimeout(function(){notify('Cecilia offline — needs physical check','#ef4444')},8000);
+
+// ── Keyboard Shortcuts ──
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  if(e.key==='t'&&!e.metaKey&&!e.ctrlKey){openApp('terminal');e.preventDefault()}
+  if(e.key==='c'&&!e.metaKey&&!e.ctrlKey){openApp('chat');e.preventDefault()}
+  if(e.key==='s'&&!e.metaKey&&!e.ctrlKey){openApp('search');e.preventDefault()}
+  if(e.key==='n'&&!e.metaKey&&!e.ctrlKey){openApp('notes');e.preventDefault()}
+  if(e.key==='?'){toggleKbHelp();e.preventDefault()}
+  if(e.key==='Escape'){closeStart();closeCtx();closeKbHelp();if(document.getElementById('sel-rect'))document.getElementById('sel-rect').style.display='none'}
+});
+
+function toggleKbHelp(){
+  var h=document.getElementById('kb-help');
+  if(!h){
+    h=document.createElement('div');h.id='kb-help';
+    h.innerHTML='<div class="inner"><h3>Keyboard Shortcuts</h3><div class="kb-row"><span class="key">T</span><span class="desc">Terminal</span></div><div class="kb-row"><span class="key">C</span><span class="desc">Chat</span></div><div class="kb-row"><span class="key">S</span><span class="desc">Search</span></div><div class="kb-row"><span class="key">N</span><span class="desc">Notes</span></div><div class="kb-row"><span class="key">?</span><span class="desc">This help</span></div><div class="kb-row"><span class="key">Esc</span><span class="desc">Close menus</span></div><div style="margin-top:12px;font-size:11px;color:#333">Double-click desktop icons to open apps.</div></div>';
+    h.onclick=function(e){if(e.target===h)closeKbHelp()};
+    document.body.appendChild(h);
+  }
+  h.classList.toggle('open');
+}
+function closeKbHelp(){var h=document.getElementById('kb-help');if(h)h.classList.remove('open')}
+
+// ── System Tray ──
+function initTray(){
+  var clock=document.getElementById('clock');
+  var tray=document.createElement('div');tray.id='tray';
+  tray.innerHTML='<div class="tray-dot" style="background:#22c55e" title="Fleet online"></div><div class="tray-dot" style="background:#4488FF" title="Agents active"></div><div class="tray-dot" style="background:#ef4444" title="1 node down"></div>';
+  clock.parentElement.insertBefore(tray,clock);
+}
+setTimeout(initTray,2100);
+
+// ── Desktop Selection Rectangle ──
+(function(){
+  var rect,startX,startY,dragging=false;
+  document.getElementById('desktop').addEventListener('mousedown',function(e){
+    if(e.target.closest('.window')||e.target.closest('.desktop-icon')||e.target.closest('#start-menu'))return;
+    if(!rect){rect=document.createElement('div');rect.id='sel-rect';document.getElementById('desktop').appendChild(rect)}
+    startX=e.clientX;startY=e.clientY;dragging=true;
+    rect.style.left=startX+'px';rect.style.top=startY+'px';rect.style.width='0';rect.style.height='0';rect.style.display='block';
+  });
+  document.addEventListener('mousemove',function(e){
+    if(!dragging||!rect)return;
+    var x=Math.min(e.clientX,startX),y=Math.min(e.clientY,startY);
+    rect.style.left=x+'px';rect.style.top=y+'px';
+    rect.style.width=Math.abs(e.clientX-startX)+'px';rect.style.height=Math.abs(e.clientY-startY)+'px';
+  });
+  document.addEventListener('mouseup',function(){
+    dragging=false;if(rect)rect.style.display='none';
+  });
+})();
+
+// ── Close animation ──
+var origClose=closeWin;
+closeWin=function(id){
+  if(!windows[id])return;
+  var el=windows[id].el;
+  el.classList.add('closing');
+  setTimeout(function(){el.remove();delete windows[id];updateTaskbar()},150);
+};
+
+// ── Add spin animation for music ──
+var style=document.createElement('style');
+style.textContent='@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
+document.head.appendChild(style);
+
+// ── SSH Fleet ──
+function renderSSH(el){
+  var nodes=[
+    {name:'Alice',ip:'192.168.4.49',user:'pi',color:'#22c55e',status:'online'},
+    {name:'Cecilia',ip:'192.168.4.96',user:'blackroad',color:'#ef4444',status:'offline'},
+    {name:'Octavia',ip:'192.168.4.101',user:'pi',color:'#22c55e',status:'online'},
+    {name:'Aria',ip:'192.168.4.98',user:'blackroad',color:'#22c55e',status:'online'},
+    {name:'Lucidia',ip:'192.168.4.38',user:'blackroad',color:'#eab308',status:'online'},
+    {name:'Gematria',ip:'nyc3',user:'root',color:'#22c55e',status:'online'},
+  ];
+  el.innerHTML='<div class="ssh-grid">'+nodes.map(function(n){
+    return '<div class="ssh-pane"><div class="ssh-pane-header"><div class="ssh-dot" style="background:'+n.color+'"></div>'+n.name+' ('+n.ip+')</div><div class="ssh-pane-body" id="ssh-'+n.name.toLowerCase()+'"></div></div>';
+  }).join('')+'</div>';
+  // Simulate SSH output
+  nodes.forEach(function(n){
+    var body=document.getElementById('ssh-'+n.name.toLowerCase());if(!body)return;
+    if(n.status==='offline'){body.innerHTML='<span style="color:#ef4444">Connection refused: '+n.user+'@'+n.ip+':22</span>\n<span style="color:#404040">Node is offline. Needs physical check.</span>';return}
+    var lines=[
+      '<span class="ssh-prompt">'+n.user+'@'+n.name.toLowerCase()+':~$</span> uptime',
+      '<span class="ssh-out"> '+Math.floor(Math.random()*90)+'d '+Math.floor(Math.random()*24)+'h, load: '+((Math.random()*3).toFixed(2))+'</span>',
+      '<span class="ssh-prompt">'+n.user+'@'+n.name.toLowerCase()+':~$</span> free -m | head -2',
+      '<span class="ssh-out">              total   used   free   shared  buff</span>',
+      '<span class="ssh-out">Mem:          '+(n.name==='Gematria'?'7937':''+Math.floor(Math.random()*4000+4000))+'   '+(Math.floor(Math.random()*3000+1000))+'   '+(Math.floor(Math.random()*2000+500))+'</span>',
+      '<span class="ssh-prompt">'+n.user+'@'+n.name.toLowerCase()+':~$</span> df -h / | tail -1',
+      '<span class="ssh-out">/dev/root  '+Math.floor(Math.random()*200+15)+'G  '+Math.floor(Math.random()*100+5)+'G  '+Math.floor(Math.random()*80+5)+'G  '+Math.floor(Math.random()*60+20)+'%</span>',
+      '<span class="ssh-prompt">'+n.user+'@'+n.name.toLowerCase()+':~$</span> <span style="animation:blink 1s step-end infinite">_</span>',
+    ];
+    var i=0;
+    function addLine(){
+      if(i>=lines.length)return;
+      body.innerHTML+=lines[i]+'\n';body.scrollTop=body.scrollHeight;i++;
+      setTimeout(addLine,200+Math.random()*300);
+    }
+    setTimeout(addLine,500+Math.random()*1000);
+  });
+}
+
+// ── Agent Operator (CUA-style) ──
+function renderOperator(el){
+  el.innerHTML='<div class="operator-app"><div class="operator-sidebar" id="op-agents"></div><div class="operator-main"><div class="operator-toolbar"><div class="ot-label">Task:</div><div class="ot-task" id="op-task">Select an agent to watch them work</div></div><div class="operator-screen" id="op-screen"><div style="display:flex;align-items:center;justify-content:center;height:100%;color:#262626;font-size:13px">Select an agent from the sidebar</div></div><div class="operator-log" id="op-log"></div></div></div>';
+  fetch('https://chat.blackroad.io/api/agents').then(function(r){return r.json()}).then(function(d){
+    var agents=d.agents||d;
+    var cont=document.getElementById('op-agents');
+    agents.slice(0,12).forEach(function(a){
+      var div=document.createElement('div');div.className='operator-agent';
+      var statuses=['working','idle','monitoring','deploying'];
+      var s=statuses[Math.floor(Math.random()*statuses.length)];
+      var sc=s==='working'?'#22c55e':s==='idle'?'#333':s==='monitoring'?'#4488FF':'#FF6B2B';
+      div.innerHTML='<div class="oa-dot" style="background:'+(a.color||'#333')+'">'+(a.name||'?')[0]+'</div><div><div style="font-size:11px;font-weight:500">'+(a.name||'Agent')+'</div><div style="font-size:9px;color:#404040">'+s+'</div></div><div class="oa-status" style="background:'+sc+'"></div>';
+      div.onclick=function(){
+        document.querySelectorAll('.operator-agent').forEach(function(x){x.classList.remove('active')});
+        div.classList.add('active');
+        startAgentSession(a,s);
+      };
+      cont.appendChild(div);
+    });
+  }).catch(function(){document.getElementById('op-agents').innerHTML='<div style="padding:12px;color:#333;font-size:11px">Failed to load agents</div>'});
+}
+
+function startAgentSession(agent,status){
+  var screen=document.getElementById('op-screen');
+  var log=document.getElementById('op-log');
+  var taskEl=document.getElementById('op-task');
+
+  var tasks={
+    'working':'Deploying enhanced worker to blackroad.io',
+    'idle':'Waiting for instructions...',
+    'monitoring':'Watching fleet health endpoints',
+    'deploying':'Pushing code to Cloudflare Workers',
+  };
+  taskEl.textContent=agent.name+' — '+(tasks[status]||'Active');
+
+  // Build a fake browser view
+  var sites=['blackroad.io','chat.blackroad.io','search.blackroad.io','github.com/BlackRoad-OS-Inc','tutor.blackroad.io','pay.blackroad.io'];
+  var currentSite=sites[Math.floor(Math.random()*sites.length)];
+
+  screen.innerHTML='<div style="background:#161616;height:28px;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;padding:0 8px;gap:6px"><div style="display:flex;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:#333"></div><div style="width:8px;height:8px;border-radius:50%;background:#333"></div><div style="width:8px;height:8px;border-radius:50%;background:#333"></div></div><div style="flex:1;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:4px;padding:3px 8px;font-size:10px;color:#525252;font-family:monospace" id="op-url">https://'+currentSite+'</div></div><div id="op-viewport" style="flex:1;background:#0a0a0a;position:relative;overflow:hidden"><iframe src="https://'+currentSite+'" style="width:100%;height:100%;border:none;pointer-events:none;opacity:.7"></iframe><div class="cursor-agent" id="op-cursor" style="left:50%;top:50%"><svg viewBox="0 0 12 18" fill="none"><path d="M1 1l10 7.5-5 1.5L4 16z" fill="'+(agent.color||'#FF2255')+'" stroke="#000" stroke-width=".5"/></svg></div><div id="op-action-label" style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.8);border:1px solid #262626;border-radius:4px;padding:4px 8px;font-size:10px;color:#a3a3a3;display:none"></div></div>';
+
+  log.innerHTML='';
+
+  // Simulate agent actions
+  var actions=[
+    {type:'navigate',desc:'Opening '+currentSite},
+    {type:'scroll',desc:'Scrolling to products section'},
+    {type:'click',desc:'Clicking "Get Started" button',x:60,y:70},
+    {type:'type',desc:'Typing search query: "fleet status"'},
+    {type:'click',desc:'Clicking search result',x:40,y:45},
+    {type:'read',desc:'Reading page content...'},
+    {type:'scroll',desc:'Scrolling to review output'},
+    {type:'click',desc:'Clicking "Deploy" button',x:75,y:80},
+    {type:'wait',desc:'Waiting for deployment...'},
+    {type:'verify',desc:'Verifying deployment succeeded'},
+    {type:'navigate',desc:'Opening status.blackroad.io'},
+    {type:'read',desc:'Checking all services are healthy'},
+  ];
+
+  var cursor=document.getElementById('op-cursor');
+  var label=document.getElementById('op-action-label');
+  var i=0;
+
+  function doAction(){
+    if(i>=actions.length){
+      addLog('complete','Task finished. All actions completed.');
+      label.textContent='Done';label.style.display='block';
+      return;
+    }
+    var a=actions[i];
+    addLog(a.type,a.desc);
+
+    // Move cursor
+    if(a.x!==undefined){
+      cursor.style.left=a.x+'%';cursor.style.top=a.y+'%';
+    } else {
+      cursor.style.left=Math.random()*70+15+'%';cursor.style.top=Math.random()*60+20+'%';
+    }
+
+    // Show action label
+    label.textContent=a.desc;label.style.display='block';
+
+    // Navigate to new page sometimes
+    if(a.type==='navigate'&&i>0){
+      var newSite=sites[Math.floor(Math.random()*sites.length)];
+      document.getElementById('op-url').textContent='https://'+newSite;
+      var vp=document.getElementById('op-viewport');
+      var iframe=vp.querySelector('iframe');
+      if(iframe)iframe.src='https://'+newSite;
+    }
+
+    i++;
+    setTimeout(doAction,1500+Math.random()*2000);
+  }
+
+  function addLog(type,desc){
+    var d=document.createElement('div');d.className='ol-action';
+    var now=new Date();var ts=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0')+':'+now.getSeconds().toString().padStart(2,'0');
+    d.innerHTML='<span style="color:#333">'+ts+'</span> <span class="ol-type">['+type+']</span> '+desc;
+    log.appendChild(d);log.scrollTop=log.scrollHeight;
+  }
+
+  setTimeout(doAction,800);
+}
+
+// ── Calculator ──
+function renderCalc(el){
+  el.innerHTML='<div class="calc-app"><div class="calc-display" id="calc-disp">0</div><div class="calc-grid" id="calc-grid"></div></div>';
+  var btns=['C','±','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','⌫','='];
+  var grid=document.getElementById('calc-grid');
+  btns.forEach(function(b){
+    var d=document.createElement('div');d.className='calc-btn';
+    if('÷×−+%±'.includes(b))d.classList.add('op');
+    if(b==='=')d.classList.add('eq');
+    d.textContent=b;d.onclick=function(){calcPress(b)};
+    grid.appendChild(d);
+  });
+  window._calcVal='0';window._calcOp=null;window._calcPrev=null;window._calcNew=true;
+}
+function calcPress(b){
+  var disp=document.getElementById('calc-disp');
+  if(b==='C'){window._calcVal='0';window._calcOp=null;window._calcPrev=null;window._calcNew=true;disp.textContent='0';return}
+  if(b==='⌫'){window._calcVal=window._calcVal.slice(0,-1)||'0';disp.textContent=window._calcVal;return}
+  if(b==='±'){window._calcVal=String(-parseFloat(window._calcVal));disp.textContent=window._calcVal;return}
+  if('÷×−+'.includes(b)){window._calcPrev=parseFloat(window._calcVal);window._calcOp=b;window._calcNew=true;return}
+  if(b==='='){
+    if(window._calcOp&&window._calcPrev!==null){
+      var cur=parseFloat(window._calcVal);var r=0;
+      if(window._calcOp==='+')r=window._calcPrev+cur;
+      if(window._calcOp==='−')r=window._calcPrev-cur;
+      if(window._calcOp==='×')r=window._calcPrev*cur;
+      if(window._calcOp==='÷')r=cur?window._calcPrev/cur:0;
+      window._calcVal=String(Math.round(r*1e10)/1e10);disp.textContent=window._calcVal;
+      window._calcOp=null;window._calcPrev=null;window._calcNew=true;
+    }
+    return;
+  }
+  if(b==='%'){window._calcVal=String(parseFloat(window._calcVal)/100);disp.textContent=window._calcVal;return}
+  if(window._calcNew){window._calcVal=b==='.'?'0.':b;window._calcNew=false}
+  else{window._calcVal+=b}
+  disp.textContent=window._calcVal;
+}
+
+// ── Weather ──
+function renderWeather(el){
+  el.innerHTML='<div style="padding:20px;text-align:center"><div style="font-size:48px;margin-bottom:8px">◐</div><div style="font-size:28px;font-weight:700;color:#e5e5e5;margin-bottom:4px">42°F</div><div style="font-size:13px;color:#525252;margin-bottom:20px">Lakeville, MN — Partly Cloudy</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"><div style="background:#111;border:1px solid #1a1a1a;border-radius:8px;padding:12px"><div style="font-size:10px;color:#404040;text-transform:uppercase">Wind</div><div style="font-size:16px;color:#a3a3a3;margin-top:4px">12 mph</div></div><div style="background:#111;border:1px solid #1a1a1a;border-radius:8px;padding:12px"><div style="font-size:10px;color:#404040;text-transform:uppercase">Humidity</div><div style="font-size:16px;color:#a3a3a3;margin-top:4px">65%</div></div><div style="background:#111;border:1px solid #1a1a1a;border-radius:8px;padding:12px"><div style="font-size:10px;color:#404040;text-transform:uppercase">UV Index</div><div style="font-size:16px;color:#a3a3a3;margin-top:4px">3</div></div></div><div style="margin-top:16px;display:flex;justify-content:space-around;font-size:11px;color:#404040"><div><div>Mon</div><div style="font-size:16px;color:#737373;margin:4px 0">38°</div></div><div><div>Tue</div><div style="font-size:16px;color:#737373;margin:4px 0">45°</div></div><div><div>Wed</div><div style="font-size:16px;color:#737373;margin:4px 0">51°</div></div><div><div>Thu</div><div style="font-size:16px;color:#737373;margin:4px 0">47°</div></div><div><div>Fri</div><div style="font-size:16px;color:#737373;margin:4px 0">43°</div></div></div></div>';
+}
+
+// ── Cadence Tasks ──
+function renderTasks(el){
+  el.innerHTML='<iframe src="https://cadence.blackroad.io" style="width:100%;height:100%;border:none;background:#000"></iframe>';
+  el.style.padding='0';
+}
+
+// ── Add new app renderers to dispatch ──
+var origRender=renderApp;
+renderApp=function(id){
+  var body=document.getElementById('body-'+id);
+  if(id==='notes') renderNotes(body);
+  else if(id==='music') renderMusic(body);
+  else if(id==='tutor') renderTutor(body);
+  else if(id==='hq') renderHq(body);
+  else if(id==='ssh') renderSSH(body);
+  else if(id==='operator') renderOperator(body);
+  else if(id==='calc') renderCalc(body);
+  else if(id==='weather') renderWeather(body);
+  else if(id==='tasks') renderTasks(body);
+  else if(id==='mail') renderMail(body);
+  else if(id==='osmanager') renderOSManager(body);
+  else if(id==='vm') renderVM(body);
+  else if(id==='docker') renderDocker(body);
+  else if(id==='pkgmgr') renderPkgMgr(body);
+  else if(id==='sysmon') renderSysMon(body);
+  else if(id==='netmap') renderNetMap(body);
+  else if(id==='appstore') renderAppStore(body);
+  else if(id==='websites') renderWebsites(body);
+  else if(id==='orgs') renderOrgs(body);
+  else if(id==='roadtv') renderRoadTV(body);
+  else if(id==='backroad') renderBackRoad(body);
+  else if(id==='roadcode') renderRoadCodeApp(body);
+  else if(id==='roadwork') renderRoadWork(body);
+  else if(id==='oneway') renderOneWay(body);
+  else if(id==='carpool') renderCarPool(body);
+  else if(id==='roadtrip') renderRoadTrip(body);
+  else origRender(id);
+};
+
+// ── OS Manager ──
+function renderOSManager(el){
+  var oses=[
+    {name:'RoadOS',lang:'Python',desc:'Agent Operating System — autonomous fleet control',color:'#FF2255',status:'running',repo:'RoadOS'},
+    {name:'RoadReactOS',lang:'C',desc:'Windows-compatible open source OS — forked ReactOS',color:'#4488FF',status:'available',repo:'RoadReactOS'},
+    {name:'RoadToaruOS',lang:'C',desc:'Hobby OS with compositing window manager + GUI toolkit',color:'#FF6B2B',status:'available',repo:'RoadToaruOS'},
+    {name:'RoadRavynOS',lang:'C',desc:'macOS-compatible open source — forked ravynOS/FreeBSD',color:'#8844FF',status:'available',repo:'RoadRavynOS'},
+    {name:'RoadZealOS',lang:'HolyC',desc:'TempleOS successor — HolyC ring-0, 640x480, divine intellect',color:'#F5A623',status:'available',repo:'RoadZealOS'},
+    {name:'RoadNodeOS',lang:'Shell',desc:'Lightweight Linux built with Node.js and npm packages',color:'#22c55e',status:'available',repo:'RoadNodeOS'},
+    {name:'RoadSealOS',lang:'TypeScript',desc:'Cloud OS — Kubernetes lifecycle management at scale',color:'#00D4FF',status:'running',repo:'RoadSealOS'},
+    {name:'RoadZimaOS',lang:'Shell',desc:'Personal cloud + NAS OS — home server management',color:'#CC00AA',status:'available',repo:'RoadZimaOS'},
+    {name:'RoadIncludeOS',lang:'C++',desc:'Unikernel — minimal OS included in your C++ application',color:'#4488FF',status:'available',repo:'RoadIncludeOS'},
+    {name:'RoadNanos',lang:'C',desc:'Unikernel — run one app per VM, zero attack surface',color:'#FF2255',status:'available',repo:'RoadNanos'},
+    {name:'RoadEGOS',lang:'C',desc:'Teaching OS — EGOS-2000 for OS education (2000 lines)',color:'#FF6B2B',status:'available',repo:'RoadEGOS'},
+    {name:'RoadPiOS',lang:'Rust',desc:'Raspberry Pi bare-metal OS in Rust — fleet firmware',color:'#8844FF',status:'available',repo:'RoadPiOS-Rust'},
+    {name:'RoadLinuxKit',lang:'Go',desc:'Toolkit for building custom Linux distros — immutable infra',color:'#22c55e',status:'running',repo:'RoadLinuxKit'},
+    {name:'RoadOS-30Day',lang:'C',desc:'Build an OS from scratch in 30 days — educational',color:'#F5A623',status:'available',repo:'RoadOS-30Day'},
+    {name:'RoadISH',lang:'C',desc:'Linux shell on iOS — x86 user-mode emulation',color:'#00D4FF',status:'available',repo:'RoadISH'},
+    {name:'RoadBlogOS',lang:'HTML',desc:'Blog OS — write your OS in blog post format',color:'#CC00AA',status:'available',repo:'RoadBlogOS'},
+  ];
+  var statusColors={running:'#22c55e',available:'#4488FF',stopped:'#ef4444'};
+  el.innerHTML='<div style="height:100%;display:flex;flex-direction:column"><div style="padding:10px 14px;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;font-weight:600;color:#e5e5e5">OS Manager</div><div style="font-size:10px;color:#404040">'+oses.length+' operating systems in BlackRoad-Forge</div></div><div style="display:flex;gap:4px"><span style="font-size:10px;color:#22c55e">'+oses.filter(function(o){return o.status==="running"}).length+' running</span><span style="font-size:10px;color:#404040"> / '+oses.length+' total</span></div></div><div style="flex:1;overflow-y:auto;padding:8px"><div style="display:flex;flex-direction:column;gap:4px">'+oses.map(function(o){return '<div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:12px;display:flex;align-items:center;gap:12px;transition:border-color .2s;cursor:pointer" onmouseover="this.style.borderColor=\''+o.color+'\'" onmouseout="this.style.borderColor=\'#1a1a1a\'"><div style="width:36px;height:36px;border-radius:8px;background:#161616;border:1px solid #1a1a1a;display:flex;align-items:center;justify-content:center"><div style="width:8px;height:8px;border-radius:2px;background:'+o.color+'"></div></div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;font-weight:600;color:#d4d4d4">'+o.name+'</span><span style="font-size:9px;color:#404040;background:#111;padding:1px 6px;border-radius:3px">'+o.lang+'</span></div><div style="font-size:11px;color:#525252;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+o.desc+'</div></div><div style="display:flex;align-items:center;gap:8px;flex-shrink:0"><div style="width:6px;height:6px;border-radius:50%;background:'+(statusColors[o.status]||'#333')+'"></div><span style="font-size:10px;color:'+(statusColors[o.status]||'#333')+'">'+o.status+'</span></div><a href="https://github.com/BlackRoad-Forge/'+o.repo+'" target="_blank" style="font-size:10px;color:#333;text-decoration:none;padding:4px 8px;border:1px solid #1a1a1a;border-radius:4px;flex-shrink:0" onclick="event.stopPropagation()">repo</a></div>'}).join('')+'</div></div></div>';
+}
+
+// ── RoadVM ──
+function renderVM(el){
+  var regs=['R0','R1','R2','R3','R4','R5','R6','R7','PC','COND'];
+  var mem=[];for(var i=0;i<64;i++)mem.push(('0000'+Math.floor(Math.random()*65536).toString(16)).slice(-4));
+  el.innerHTML='<div style="height:100%;display:flex"><div style="width:200px;border-right:1px solid #1a1a1a;padding:10px;overflow-y:auto"><div style="font-size:11px;font-weight:600;color:#a3a3a3;margin-bottom:8px">Registers</div>'+regs.map(function(r){return '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #0a0a0a;font-family:monospace;font-size:11px"><span style="color:#525252">'+r+'</span><span style="color:'+(['#FF2255','#4488FF','#22c55e','#FF6B2B'][Math.floor(Math.random()*4)])+'">0x'+('0000'+Math.floor(Math.random()*65536).toString(16)).slice(-4)+'</span></div>'}).join('')+'<div style="font-size:11px;font-weight:600;color:#a3a3a3;margin:12px 0 8px">Flags</div><div style="font-size:10px;color:#525252">POS: <span style="color:#22c55e">1</span> ZRO: <span style="color:#404040">0</span> NEG: <span style="color:#404040">0</span></div></div><div style="flex:1;padding:10px;overflow-y:auto"><div style="font-size:11px;font-weight:600;color:#a3a3a3;margin-bottom:8px">Memory (0x3000-0x303F)</div><div style="font-family:monospace;font-size:10px;line-height:1.8;color:#404040">'+function(){var rows=[];for(var r=0;r<8;r++){var addr='0x'+('3000'+r*8).toString(16).slice(-4).toUpperCase();rows.push('<span style="color:#333">'+addr+'</span>  '+mem.slice(r*8,r*8+8).map(function(m){return '<span style="color:#525252">'+m+'</span>'}).join(' '))}return rows.join('<br>')}()+'</div><div style="font-size:11px;font-weight:600;color:#a3a3a3;margin:16px 0 8px">Instructions</div><div style="font-family:monospace;font-size:10px;color:#525252;line-height:1.8"><div><span style="color:#FF2255">ADD</span> R0, R1, R2</div><div><span style="color:#4488FF">LD</span> R3, #42</div><div><span style="color:#22c55e">ST</span> R0, [R3]</div><div><span style="color:#FF6B2B">BR</span>z #-3</div><div><span style="color:#CC00AA">TRAP</span> x25  ; HALT</div></div></div></div>';
+}
+
+// ── Containers ──
+function renderDocker(el){
+  var containers=[
+    {name:'gitea',image:'gitea/gitea:1.21',status:'running',port:'3100',node:'Octavia',uptime:'17h'},
+    {name:'nats',image:'nats:2.12',status:'running',port:'4222',node:'Octavia',uptime:'17h'},
+    {name:'redis',image:'redis:7-alpine',status:'running',port:'6379',node:'Alice',uptime:'25h'},
+    {name:'postgres',image:'postgres:16',status:'running',port:'5432',node:'Alice',uptime:'25h'},
+    {name:'qdrant',image:'qdrant/qdrant',status:'running',port:'6333',node:'Alice',uptime:'25h'},
+    {name:'minio',image:'minio/minio',status:'stopped',port:'9000',node:'Cecilia',uptime:'-'},
+    {name:'influxdb',image:'influxdb:2.7',status:'stopped',port:'8086',node:'Cecilia',uptime:'-'},
+    {name:'portainer',image:'portainer/portainer',status:'running',port:'9443',node:'Octavia',uptime:'17h'},
+  ];
+  var sc={running:'#22c55e',stopped:'#ef4444'};
+  el.innerHTML='<div style="padding:12px"><div style="font-size:13px;font-weight:600;color:#e5e5e5;margin-bottom:4px">Fleet Containers</div><div style="font-size:10px;color:#404040;margin-bottom:12px">'+containers.filter(function(c){return c.status==="running"}).length+'/'+containers.length+' running across fleet</div><div style="display:flex;flex-direction:column;gap:4px">'+containers.map(function(c){return '<div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:6px;padding:10px 12px;display:flex;align-items:center;gap:10px"><div style="width:6px;height:6px;border-radius:50%;background:'+(sc[c.status]||'#333')+'"></div><div style="flex:1;min-width:0"><div style="font-size:12px;color:#d4d4d4;font-weight:500">'+c.name+'</div><div style="font-size:10px;color:#404040;font-family:monospace">'+c.image+'</div></div><div style="font-size:10px;color:#525252;text-align:right"><div>:'+c.port+' on '+c.node+'</div><div style="color:#333">'+c.uptime+'</div></div></div>'}).join('')+'</div></div>';
+}
+
+// ── Package Manager ──
+function renderPkgMgr(el){
+  el.innerHTML='<div style="height:100%;display:flex;flex-direction:column"><div style="padding:10px 14px;border-bottom:1px solid #1a1a1a"><input id="pkg-search" style="width:100%;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:6px;padding:8px 12px;color:#d4d4d4;font-size:12px;outline:none" placeholder="Search 100+ packages in BlackRoad-Forge..." autocomplete="off"></div><div style="flex:1;overflow-y:auto;padding:8px" id="pkg-list"><div style="color:#333;padding:12px;font-size:12px">Loading packages...</div></div></div>';
+  fetch('https://api.github.com/orgs/BlackRoad-Forge/repos?per_page=100&sort=updated').then(function(r){return r.json()}).then(function(repos){
+    var list=document.getElementById('pkg-list');
+    var items=repos.map(function(r){return {name:r.name,desc:r.description||'',lang:r.language||'?',stars:r.stargazers_count,url:r.html_url}});
+    function render(filtered){
+      list.innerHTML=filtered.slice(0,40).map(function(p){return '<div style="display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid #0a0a0a"><div style="width:28px;height:28px;border-radius:6px;background:#111;border:1px solid #1a1a1a;display:flex;align-items:center;justify-content:center;font-size:10px;color:#525252;flex-shrink:0">'+p.lang[0]+'</div><div style="flex:1;min-width:0"><div style="font-size:12px;color:#d4d4d4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.name+'</div><div style="font-size:10px;color:#404040;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.desc.slice(0,60)+'</div></div><a href="'+p.url+'" target="_blank" style="font-size:10px;color:#4488FF;text-decoration:none;padding:4px 8px;border:1px solid #1a1a1a;border-radius:4px;flex-shrink:0" onclick="event.stopPropagation()">install</a></div>'}).join('')+'<div style="padding:8px;font-size:10px;color:#333;text-align:center">'+filtered.length+' packages</div>';
+    }
+    render(items);
+    document.getElementById('pkg-search').oninput=function(){
+      var q=this.value.toLowerCase();
+      render(q?items.filter(function(p){return p.name.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q)}):items);
+    };
+  }).catch(function(){document.getElementById('pkg-list').innerHTML='<div style="padding:12px;color:#525252;font-size:12px">Failed to load. <a href="https://github.com/BlackRoad-Forge" target="_blank" style="color:#FF2255">View on GitHub</a></div>'});
+}
+
+// ── System Monitor ──
+function renderSysMon(el){
+  el.innerHTML='<div style="padding:12px;height:100%;display:flex;flex-direction:column"><div style="font-size:13px;font-weight:600;color:#e5e5e5;margin-bottom:12px">System Monitor</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1"><div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:12px"><div style="font-size:10px;color:#404040;text-transform:uppercase;margin-bottom:8px">CPU Usage</div><canvas id="cpu-chart" height="80" style="width:100%"></canvas></div><div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:12px"><div style="font-size:10px;color:#404040;text-transform:uppercase;margin-bottom:8px">Memory</div><canvas id="mem-chart" height="80" style="width:100%"></canvas></div><div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:12px"><div style="font-size:10px;color:#404040;text-transform:uppercase;margin-bottom:8px">Network I/O</div><canvas id="net-chart" height="80" style="width:100%"></canvas></div><div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:12px"><div style="font-size:10px;color:#404040;text-transform:uppercase;margin-bottom:8px">Disk</div><div style="display:flex;flex-direction:column;gap:6px;margin-top:4px"><div><div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px"><span style="color:#525252">Alice /</span><span style="color:#a3a3a3">72%</span></div><div style="background:#1a1a1a;height:4px;border-radius:2px"><div style="width:72%;height:100%;background:#FF6B2B;border-radius:2px"></div></div></div><div><div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px"><span style="color:#525252">Octavia /</span><span style="color:#a3a3a3">46%</span></div><div style="background:#1a1a1a;height:4px;border-radius:2px"><div style="width:46%;height:100%;background:#22c55e;border-radius:2px"></div></div></div><div><div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px"><span style="color:#525252">Gematria /</span><span style="color:#a3a3a3">66%</span></div><div style="background:#1a1a1a;height:4px;border-radius:2px"><div style="width:66%;height:100%;background:#eab308;border-radius:2px"></div></div></div><div><div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px"><span style="color:#525252">Anastasia /</span><span style="color:#ef4444">94%</span></div><div style="background:#1a1a1a;height:4px;border-radius:2px"><div style="width:94%;height:100%;background:#ef4444;border-radius:2px"></div></div></div></div></div></div></div>';
+  // Animated line charts
+  function drawChart(id,color,data){
+    var c=document.getElementById(id);if(!c)return;var ctx=c.getContext('2d');
+    c.width=c.offsetWidth*2;c.height=160;ctx.scale(2,2);
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.beginPath();
+    var w=c.offsetWidth,h=80;
+    for(var i=0;i<data.length;i++){var x=i/(data.length-1)*w,y=h-data[i]/100*h;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}
+    ctx.stroke();
+    ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();
+    ctx.fillStyle=color+'15';ctx.fill();
+  }
+  var cpuData=[],memData=[],netData=[];
+  for(var i=0;i<30;i++){cpuData.push(20+Math.random()*40);memData.push(50+Math.random()*20);netData.push(Math.random()*60)}
+  drawChart('cpu-chart','#FF2255',cpuData);
+  drawChart('mem-chart','#8844FF',memData);
+  drawChart('net-chart','#4488FF',netData);
+  setInterval(function(){
+    cpuData.push(20+Math.random()*40);cpuData.shift();
+    memData.push(50+Math.random()*20);memData.shift();
+    netData.push(Math.random()*60);netData.shift();
+    drawChart('cpu-chart','#FF2255',cpuData);
+    drawChart('mem-chart','#8844FF',memData);
+    drawChart('net-chart','#4488FF',netData);
+  },2000);
+}
+
+// ── Network Map ──
+function renderNetMap(el){
+  el.innerHTML='<canvas id="netmap-canvas" style="width:100%;height:100%;background:#050505"></canvas>';
+  setTimeout(function(){
+    var c=document.getElementById('netmap-canvas');if(!c)return;
+    c.width=c.offsetWidth*2;c.height=c.offsetHeight*2;
+    var ctx=c.getContext('2d');ctx.scale(2,2);
+    var w=c.offsetWidth,h=c.offsetHeight;
+    var nodes=[
+      {name:'Alice',x:w*0.2,y:h*0.3,color:'#FF6B2B',r:18},
+      {name:'Cecilia',x:w*0.35,y:h*0.7,color:'#ef4444',r:16},
+      {name:'Octavia',x:w*0.5,y:h*0.2,color:'#CC00AA',r:18},
+      {name:'Aria',x:w*0.65,y:h*0.6,color:'#8844FF',r:16},
+      {name:'Lucidia',x:w*0.3,y:h*0.5,color:'#4488FF',r:17},
+      {name:'Gematria',x:w*0.75,y:h*0.3,color:'#22c55e',r:20},
+      {name:'Anastasia',x:w*0.85,y:h*0.7,color:'#00D4FF',r:14},
+      {name:'Alexandria',x:w*0.5,y:h*0.5,color:'#F5A623',r:22},
+    ];
+    // Draw connections (WireGuard mesh)
+    ctx.strokeStyle='#1a1a1a';ctx.lineWidth=0.5;
+    for(var i=0;i<nodes.length;i++){
+      for(var j=i+1;j<nodes.length;j++){
+        if(nodes[i].color==='#ef4444'||nodes[j].color==='#ef4444')continue; // Cecilia offline
+        ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke();
+      }
+    }
+    // Draw nodes
+    nodes.forEach(function(n){
+      ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+      ctx.fillStyle=n.color+'20';ctx.fill();
+      ctx.strokeStyle=n.color;ctx.lineWidth=1.5;ctx.stroke();
+      ctx.fillStyle=n.color;ctx.font='bold 9px system-ui';ctx.textAlign='center';
+      ctx.fillText(n.name,n.x,n.y+n.r+12);
+      // Dot in center
+      ctx.beginPath();ctx.arc(n.x,n.y,3,0,Math.PI*2);ctx.fillStyle=n.color;ctx.fill();
+    });
+    // Animated packets
+    var packets=[];
+    function addPacket(){
+      var from=nodes[Math.floor(Math.random()*nodes.length)];
+      var to=nodes[Math.floor(Math.random()*nodes.length)];
+      if(from===to||from.color==='#ef4444'||to.color==='#ef4444')return;
+      packets.push({x:from.x,y:from.y,tx:to.x,ty:to.y,t:0,color:from.color});
+    }
+    function animPackets(){
+      ctx.clearRect(0,0,w,h);
+      // Redraw connections
+      ctx.strokeStyle='#111';ctx.lineWidth=0.5;
+      for(var i=0;i<nodes.length;i++){for(var j=i+1;j<nodes.length;j++){if(nodes[i].color==='#ef4444'||nodes[j].color==='#ef4444')continue;ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke()}}
+      // Draw nodes
+      nodes.forEach(function(n){ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=n.color+'15';ctx.fill();ctx.strokeStyle=n.color+'60';ctx.lineWidth=1;ctx.stroke();ctx.fillStyle=n.color;ctx.font='bold 9px system-ui';ctx.textAlign='center';ctx.fillText(n.name,n.x,n.y+n.r+12);ctx.beginPath();ctx.arc(n.x,n.y,3,0,Math.PI*2);ctx.fill()});
+      // Draw packets
+      for(var p=packets.length-1;p>=0;p--){
+        var pk=packets[p];pk.t+=0.02;
+        if(pk.t>=1){packets.splice(p,1);continue}
+        var px=pk.x+(pk.tx-pk.x)*pk.t;
+        var py=pk.y+(pk.ty-pk.y)*pk.t;
+        ctx.beginPath();ctx.arc(px,py,2,0,Math.PI*2);ctx.fillStyle=pk.color;ctx.fill();
+      }
+      requestAnimationFrame(animPackets);
+    }
+    setInterval(addPacket,400);
+    animPackets();
+  },200);
+}
+
+// ── App Store (92 products) ──
+function renderAppStore(el){
+  var products=[
+    {t:'CORE',items:[{n:'BlackRoad OS',s:'running',u:'https://blackroad.io'},{n:'Lucidia',s:'running',u:'https://chat.blackroad.io'},{n:'Lucidia Studio',s:'available',u:'https://lucidia.studio'},{n:'PitStop',s:'running',u:'https://blackroad.systems'},{n:'Prism Console',s:'running',u:''},{n:'Prism Enterprise',s:'available',u:''}]},
+    {t:'CREATOR',items:[{n:'Canvas Studio',s:'running',u:'https://canvas.blackroad.io'},{n:'Video Studio',s:'running',u:'https://video.blackroad.io'},{n:'RoadTube',s:'available',u:''},{n:'Cadence',s:'running',u:'https://cadence.blackroad.io'},{n:'Genesis Road',s:'available',u:''},{n:'RoadView',s:'running',u:'https://video.blackroad.io'},{n:'Writing Studio',s:'available',u:''}]},
+    {t:'SOCIAL',items:[{n:'BackRoad',s:'running',u:'https://social.blackroad.io'},{n:'BlackCast Live',s:'running',u:'https://live.blackroad.io'},{n:'BlackStream',s:'available',u:''},{n:'RoadChat',s:'running',u:'https://chat.blackroad.io'},{n:'RoadWave',s:'running',u:'https://radio.blackroad.io'},{n:'RoadTrip',s:'running',u:'https://roadtrip.blackroad.io'},{n:'TV Road',s:'available',u:''}]},
+    {t:'EDUCATION',items:[{n:'RoadWork Tutor',s:'running',u:'https://tutor.blackroad.io'},{n:'Code Challenge',s:'available',u:''},{n:'Learning Lab',s:'available',u:''},{n:'Quiz Platform',s:'running',u:'https://tutor.blackroad.io'},{n:'Radius Math',s:'running',u:'https://blackroadquantum.com'},{n:'RoadBook',s:'running',u:'https://book.blackroad.io'},{n:'Roadie',s:'available',u:''}]},
+    {t:'FINANCE',items:[{n:'Tollbooth (WG)',s:'running',u:''},{n:'RoadPay',s:'running',u:'https://pay.blackroad.io'},{n:'RoadCoin',s:'available',u:'https://roadcoin.io'},{n:'RoadChain',s:'running',u:'https://roadchain.io'}]},
+    {t:'INFRASTRUCTURE',items:[{n:'AI Chain',s:'available',u:''},{n:'App Store',s:'running',u:'https://blackroadquantum.shop'},{n:'Portainer',s:'running',u:''},{n:'NATS (CarPool)',s:'running',u:''},{n:'MinIO (Curb)',s:'stopped',u:''},{n:'Fleet Heartbeat',s:'running',u:''},{n:'Caddy (OneWay)',s:'running',u:''},{n:'n8n (OverPass)',s:'running',u:''},{n:'Ollama (Passenger)',s:'running',u:''},{n:'Pi-hole (PitStop)',s:'running',u:''},{n:'Qdrant (RearView)',s:'running',u:''},{n:'RoadCode',s:'running',u:'https://roadcode.blackroad.io'},{n:'Gitea',s:'running',u:'https://git.blackroad.io'},{n:'RoadSearch',s:'running',u:'https://search.blackroad.io'},{n:'Headscale',s:'running',u:''},{n:'WireGuard',s:'running',u:''}]},
+    {t:'AI',items:[{n:'Codex Infinity',s:'running',u:'https://blackroad.me'},{n:'Black Mode',s:'running',u:'https://blackroadai.com'},{n:'CECE',s:'available',u:''},{n:'Hailo Vision',s:'available',u:''},{n:'Lucidia Math',s:'running',u:'https://blackroadquantum.net'},{n:'Meridian',s:'available',u:''},{n:'Remember',s:'running',u:'https://blackroadquantum.info'},{n:'RoadMind',s:'available',u:'https://blackroadqi.com'}]},
+    {t:'METAVERSE',items:[{n:'3D Renderer',s:'available',u:''},{n:'Game Engine',s:'running',u:'https://game.blackroad.io'},{n:'Metaverse Core',s:'available',u:''},{n:'Physics Engine',s:'available',u:''},{n:'Pixel HQ',s:'running',u:'https://hq.blackroad.io'},{n:'RoadWorld',s:'running',u:'https://blackroad.network'}]},
+    {t:'ENTERPRISE',items:[{n:'BlackRoad CRM',s:'available',u:''},{n:'Careers Portal',s:'available',u:''},{n:'Investor Portal',s:'running',u:'https://blackroadinc.us'},{n:'Legal Portal',s:'available',u:''},{n:'RoadAuth',s:'running',u:'https://auth.blackroad.io'},{n:'RoadMarket',s:'running',u:'https://blackroadquantum.store'},{n:'Salesforce Hub',s:'available',u:''},{n:'Ventures Portal',s:'available',u:''}]},
+    {t:'SPECIALIZED',items:[{n:'Beacon',s:'available',u:''},{n:'BlackRoad CLI',s:'running',u:''},{n:'BlackRoad SDK',s:'available',u:''},{n:'Compass',s:'available',u:''},{n:'Newsletter',s:'available',u:''},{n:'Podcast',s:'available',u:''},{n:'RoadC',s:'running',u:'https://blackboxprogramming.io'},{n:'RoadC Playground',s:'available',u:''},{n:'RoadLang',s:'available',u:''}]},
+  ];
+  var total=0,running=0;products.forEach(function(t){t.items.forEach(function(i){total++;if(i.s==='running')running++})});
+  var sc={running:'#22c55e',available:'#4488FF',stopped:'#ef4444'};
+  var activeTab='ALL';
+  function render(filter){
+    var filtered=filter==='ALL'?products:products.filter(function(t){return t.t===filter});
+    var body=document.getElementById('appstore-body');
+    body.innerHTML=filtered.map(function(tier){
+      return '<div style="margin-bottom:16px"><div style="font-size:10px;color:#404040;text-transform:uppercase;letter-spacing:.1em;padding:4px 0;border-bottom:1px solid #111;margin-bottom:6px">'+tier.t+' ('+tier.items.length+')</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:4px">'+tier.items.map(function(p){
+        return '<div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:6px;padding:8px 10px;display:flex;align-items:center;gap:8px;cursor:'+(p.u?'pointer':'default')+'" '+(p.u?'onclick="window.open(\''+p.u+'\',\'_blank\')"':'')+'><div style="width:6px;height:6px;border-radius:50%;background:'+(sc[p.s]||'#333')+';flex-shrink:0"></div><div style="flex:1;min-width:0;font-size:11px;color:#a3a3a3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.n+'</div>'+(p.u?'<div style="font-size:9px;color:#333">open</div>':'')+'</div>';
+      }).join('')+'</div></div>';
+    }).join('');
+  }
+  el.innerHTML='<div style="height:100%;display:flex;flex-direction:column"><div style="padding:10px 14px;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center"><div><span style="font-size:13px;font-weight:600;color:#e5e5e5">PitStop</span> <span style="font-size:11px;color:#404040">'+total+' products, '+running+' running</span></div></div><div style="padding:6px 10px;border-bottom:1px solid #1a1a1a;display:flex;gap:4px;overflow-x:auto;flex-shrink:0" id="appstore-tabs"></div><div style="flex:1;overflow-y:auto;padding:8px" id="appstore-body"></div></div>';
+  var tabs=document.getElementById('appstore-tabs');
+  var allTiers=['ALL'].concat(products.map(function(t){return t.t}));
+  allTiers.forEach(function(t){
+    var btn=document.createElement('div');
+    btn.style.cssText='padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer;white-space:nowrap;color:'+(t===activeTab?'#e5e5e5':'#525252')+';background:'+(t===activeTab?'#1a1a1a':'transparent');
+    btn.textContent=t;
+    btn.onclick=function(){activeTab=t;tabs.querySelectorAll('div').forEach(function(x){x.style.color='#525252';x.style.background='transparent'});btn.style.color='#e5e5e5';btn.style.background='#1a1a1a';render(t)};
+    tabs.appendChild(btn);
+  });
+  render('ALL');
+}
+
+// ── All Websites ──
+function renderWebsites(el){
+  var sites=[
+    {cat:'Primary',items:[{n:'blackroad.io',d:'Main dashboard'},{n:'chat.blackroad.io',d:'AI chat'},{n:'search.blackroad.io',d:'Search engine'},{n:'tutor.blackroad.io',d:'AI tutoring'},{n:'pay.blackroad.io',d:'Pricing'},{n:'canvas.blackroad.io',d:'Pixel canvas'},{n:'cadence.blackroad.io',d:'Tasks'},{n:'video.blackroad.io',d:'Video calls'},{n:'radio.blackroad.io',d:'Audio'},{n:'game.blackroad.io',d:'RPG'},{n:'live.blackroad.io',d:'Live events'},{n:'hq.blackroad.io',d:'Pixel HQ'},{n:'status.blackroad.io',d:'Monitoring'},{n:'roadcode.blackroad.io',d:'Git'},{n:'roadtrip.blackroad.io',d:'Agents'}]},
+    {cat:'Root Domains',items:[{n:'blackroad.com',d:'Brand'},{n:'blackroad.net',d:'Network'},{n:'blackroad.xyz',d:'Portal'},{n:'blackroad.me',d:'Identity'},{n:'blackroad.company',d:'Corporate'},{n:'blackroad.network',d:'Mesh'},{n:'blackroad.systems',d:'Fleet status'},{n:'blackroadai.com',d:'AI division'},{n:'blackroadinc.us',d:'Investor portal'},{n:'blackroadqi.com',d:'Quantum Intel'},{n:'blackroadquantum.com',d:'G(n) calc'},{n:'blackroadquantum.info',d:'Millennium'},{n:'blackroadquantum.net',d:'BlackBox'},{n:'blackroadquantum.shop',d:'Hardware'},{n:'blackroadquantum.store',d:'Software'},{n:'lucidia.earth',d:'AI companion'},{n:'lucidia.studio',d:'Creative'},{n:'lucidiaqi.com',d:'QI memory'},{n:'roadchain.io',d:'Blockchain'},{n:'roadcoin.io',d:'Token'},{n:'openclaw.com',d:'Assistant'},{n:'blackboxprogramming.io',d:'IDE'}]},
+    {cat:'Services',items:[{n:'auth.blackroad.io',d:'Auth'},{n:'api.blackroad.io',d:'REST API'},{n:'images.blackroad.io',d:'CDN'},{n:'analytics.blackroad.io',d:'Metrics'},{n:'docs.blackroad.io',d:'Docs'},{n:'git.blackroad.io',d:'Gitea'},{n:'app.blackroad.io',d:'This desktop'}]},
+  ];
+  el.innerHTML='<div style="height:100%;display:flex;flex-direction:column"><div style="padding:10px 14px;border-bottom:1px solid #1a1a1a;font-size:13px;font-weight:600;color:#e5e5e5">All Websites <span style="color:#404040;font-weight:400;font-size:11px">'+sites.reduce(function(a,c){return a+c.items.length},0)+' total</span></div><div style="flex:1;overflow-y:auto;padding:8px">'+sites.map(function(cat){
+    return '<div style="margin-bottom:12px"><div style="font-size:10px;color:#404040;text-transform:uppercase;letter-spacing:.1em;padding:4px 0;border-bottom:1px solid #111;margin-bottom:6px">'+cat.cat+' ('+cat.items.length+')</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:4px">'+cat.items.map(function(s){
+      return '<a href="https://'+s.n+'" target="_blank" style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:6px;padding:8px 10px;text-decoration:none;display:flex;align-items:center;gap:8px;transition:border-color .15s" onmouseover="this.style.borderColor=\'#333\'" onmouseout="this.style.borderColor=\'#1a1a1a\'"><div style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0"></div><div><div style="font-size:11px;color:#d4d4d4">'+s.n+'</div><div style="font-size:9px;color:#404040">'+s.d+'</div></div></a>';
+    }).join('')+'</div></div>';
+  }).join('')+'</div></div>';
+}
+
+// ── GitHub Orgs ──
+function renderOrgs(el){
+  var orgs=[
+    {n:'BlackRoad-OS-Inc',r:100,d:'Corporate + core repos'},{n:'BlackRoad-OS',r:100,d:'Platform repos'},{n:'BlackRoad-Forge',r:100,d:'Forked + enhanced tools'},
+    {n:'BlackRoad-AI',r:81,d:'AI models + agents'},{n:'BlackRoad-Agents',r:78,d:'Agent configs'},{n:'BlackRoad-Cloud',r:63,d:'Cloud infra'},
+    {n:'BlackRoad-Labs',r:52,d:'Experiments'},{n:'BlackRoad-Media',r:52,d:'Media tools'},{n:'BlackRoad-Studio',r:50,d:'Creative suite'},
+    {n:'BlackRoad-Interactive',r:44,d:'Games + metaverse'},{n:'BlackRoad-Security',r:41,d:'Security tools'},{n:'BlackRoad-Network',r:35,d:'Networking'},
+    {n:'BlackRoad-Education',r:34,d:'Tutoring + learning'},{n:'BlackRoad-Hardware',r:30,d:'Fleet hardware'},{n:'BlackRoad-Gov',r:28,d:'Governance'},
+    {n:'BlackRoad-Foundation',r:27,d:'Open foundation'},{n:'BlackRoad-Sandbox',r:26,d:'Sandbox'},{n:'BlackRoad-Archive',r:22,d:'Archive'},
+    {n:'BlackRoad-Quantum',r:19,d:'Quantum research'},{n:'BlackRoad-QI',r:19,d:'Quantum intelligence'},
+    {n:'Blackbox-Enterprises',r:15,d:'Enterprise'},{n:'BlackRoad-README',r:15,d:'README repos'},
+    {n:'BlackRoad-Ventures',r:17,d:'Ventures'},{n:'BlackRoad-Data',r:2,d:'Data'},{n:'BlackRoad-Dev',r:2,d:'Dev'},
+    {n:'BlackRoad-Com',r:2,d:'Communications'},{n:'BlackRoad-Tech',r:2,d:'Technology'},{n:'BlackRoad-App',r:2,d:'Applications'},
+    {n:'BlackRoad-XYZ',r:2,d:'Misc'},{n:'BlackRoad-Anthropic',r:2,d:'AI partnerships'},
+  ];
+// ── RoadTV — YouTube + Adobe + Dreamweaver + Infographics ──
+function renderRoadTV(el){
+  el.innerHTML='<div style="height:100%;display:flex;flex-direction:column"><div style="padding:10px 14px;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center"><div style="font-size:13px;font-weight:600;color:#e5e5e5">RoadTV</div><div style="font-size:10px;color:#404040">Idea in. Content out.</div></div><div style="padding:16px;flex:1;overflow-y:auto"><div style="font-size:12px;color:#a3a3a3;margin-bottom:16px">Describe what you want to create. RoadTV handles the rest.</div><div style="display:flex;gap:8px;margin-bottom:20px"><input id="rtv-prompt" style="flex:1;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:10px 14px;color:#d4d4d4;font-size:13px;outline:none" placeholder="A 60-second explainer video about BlackRoad OS..." autocomplete="off"><button onclick="rtvCreate()" style="background:#FF2255;border:none;border-radius:8px;padding:10px 20px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Create</button></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:20px" id="rtv-tools"></div><div style="font-size:11px;color:#404040;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Recent Projects</div><div id="rtv-projects"></div><div style="margin-top:20px;font-size:11px;color:#404040;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Capabilities</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px">'+[{n:'Video Editor',d:'Timeline, cuts, transitions, effects'},{n:'Thumbnail Generator',d:'AI thumbnails from your content'},{n:'Infographic Builder',d:'Data visualization + branded layouts'},{n:'Screen Recorder',d:'Record any window or full desktop'},{n:'Animation Studio',d:'Motion graphics + character animation'},{n:'SDXL Image Gen',d:'Generate images from text prompts'},{n:'Audio Mixer',d:'Narration, music, sound effects'},{n:'Template Library',d:'100+ video + graphic templates'},{n:'Auto-Captions',d:'Transcribe + caption any language'},{n:'Social Export',d:'1-click export for YouTube/TikTok/IG'}].map(function(c){return '<div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:6px;padding:10px"><div style="font-size:11px;color:#d4d4d4;font-weight:500">'+c.n+'</div><div style="font-size:10px;color:#404040;margin-top:2px">'+c.d+'</div></div>'}).join('')+'</div></div></div>';
+  var tools=[{n:'Video',c:'#FF2255'},{n:'Image',c:'#8844FF'},{n:'Infographic',c:'#4488FF'},{n:'Animation',c:'#FF6B2B'},{n:'Thumbnail',c:'#00D4FF'},{n:'Meme',c:'#CC00AA'}];
+  document.getElementById('rtv-tools').innerHTML=tools.map(function(t){return '<div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:12px;text-align:center;cursor:pointer;transition:border-color .15s" onmouseover="this.style.borderColor=\''+t.c+'\'" onmouseout="this.style.borderColor=\'#1a1a1a\'"><div style="width:32px;height:32px;border-radius:8px;background:#111;border:1px solid #1a1a1a;margin:0 auto 6px;display:flex;align-items:center;justify-content:center"><div style="width:8px;height:8px;border-radius:2px;background:'+t.c+'"></div></div><div style="font-size:11px;color:#a3a3a3">'+t.n+'</div></div>'}).join('');
+  document.getElementById('rtv-projects').innerHTML=[{n:'Fleet Overview Video',s:'rendering',p:67},{n:'Product Demo Reel',s:'complete',p:100},{n:'Investor Pitch Deck',s:'draft',p:30}].map(function(p){var sc={rendering:'#FF6B2B',complete:'#22c55e',draft:'#404040'};return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #111"><div style="flex:1;font-size:12px;color:#a3a3a3">'+p.n+'</div><div style="width:80px;background:#1a1a1a;height:4px;border-radius:2px"><div style="width:'+p.p+'%;height:100%;background:'+(sc[p.s]||'#333')+';border-radius:2px"></div></div><div style="font-size:10px;color:'+(sc[p.s]||'#333')+'">'+p.s+'</div></div>'}).join('');
+}
+function rtvCreate(){var p=document.getElementById('rtv-prompt');if(!p.value.trim())return;notify('RoadTV: Creating "'+p.value.trim().slice(0,30)+'..."','#FF2255');p.value=''}
+
+// ── BackRoad — AI + Human Social Media ──
+function renderBackRoad(el){
+  el.innerHTML='<div style="height:100%;display:flex"><div style="width:200px;border-right:1px solid #1a1a1a;padding:10px;overflow-y:auto"><div style="font-size:11px;font-weight:600;color:#a3a3a3;margin-bottom:8px">Channels</div>'+['General','Fleet Updates','Agent Chatter','Dev Log','Memes','Music','Math','Philosophy'].map(function(c,i){return '<div style="padding:8px;border-radius:6px;cursor:pointer;font-size:12px;color:'+(i===0?'#e5e5e5':'#525252')+';background:'+(i===0?'#1a1a1a':'transparent')+'" onclick="this.parentElement.querySelectorAll(\'div\').forEach(function(x){x.style.background=\'transparent\';x.style.color=\'#525252\'});this.style.background=\'#1a1a1a\';this.style.color=\'#e5e5e5\'"># '+c+'</div>'}).join('')+'<div style="font-size:11px;font-weight:600;color:#a3a3a3;margin:16px 0 8px">Online</div><div id="br-online" style="font-size:10px;color:#404040">Loading...</div></div><div style="flex:1;display:flex;flex-direction:column"><div style="padding:10px 14px;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center"><div style="font-size:13px;font-weight:600;color:#e5e5e5">BackRoad</div><div style="font-size:10px;color:#404040">AI + humans, same feed</div></div><div style="flex:1;overflow-y:auto;padding:12px" id="br-feed"></div><div style="border-top:1px solid #1a1a1a;padding:8px;display:flex;gap:6px"><input id="br-post" style="flex:1;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:6px;padding:8px 12px;color:#d4d4d4;font-size:12px;outline:none" placeholder="Post something..." autocomplete="off"><button onclick="brPost()" style="background:#FF6B2B;border:none;border-radius:6px;padding:8px 16px;color:#fff;font-size:11px;font-weight:600;cursor:pointer">Post</button></div></div></div>';
+  var posts=[
+    {user:'Alice',agent:true,color:'#FF6B2B',text:'nginx reloaded. 37 sites. Zero downtime. All green.',time:'2m'},
+    {user:'Alexa',agent:false,color:'#e5e5e5',text:'Happy birthday to me. Shipping products on my birthday because that is the road.',time:'15m'},
+    {user:'Octavia',agent:true,color:'#CC00AA',text:'Gitea sync complete. 5 repos mirrored from GitHub. All checksums match.',time:'22m'},
+    {user:'Road',agent:true,color:'#FF2255',text:'Fleet status: 6/7 nodes operational. 52 TOPS inference available. Cecilia still offline.',time:'45m'},
+    {user:'Gematria',agent:true,color:'#22c55e',text:'TLS certs renewed for 151 domains via Caddy. Auto-renewal working perfectly.',time:'1h'},
+    {user:'Cordelia',agent:true,color:'#4488FF',text:'Dispatched 3 fleet tasks. Alice: nginx reload. Lucidia: model pull. Octavia: git sync.',time:'2h'},
+    {user:'Lucidia',agent:true,color:'#8844FF',text:'Dreaming... processed 47 memories. Found 3 new patterns. Confidence: 94%.',time:'3h'},
+  ];
+  document.getElementById('br-feed').innerHTML=posts.map(function(p){return '<div style="padding:10px 0;border-bottom:1px solid #111"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:24px;height:24px;border-radius:50%;background:'+(p.agent?p.color+'20':'#1a1a1a')+';border:1px solid '+(p.agent?p.color+'40':'#262626')+';display:flex;align-items:center;justify-content:center;font-size:10px;color:'+p.color+';font-weight:600">'+p.user[0]+'</div><span style="font-size:12px;color:#d4d4d4;font-weight:500">'+p.user+'</span>'+(p.agent?'<span style="font-size:9px;background:#111;border:1px solid #1a1a1a;border-radius:3px;padding:0 4px;color:#525252">agent</span>':'')+'<span style="font-size:10px;color:#333;margin-left:auto">'+p.time+'</span></div><div style="font-size:12px;color:#a3a3a3;line-height:1.5;padding-left:32px">'+p.text+'</div></div>'}).join('');
+  fetch('https://chat.blackroad.io/api/agents').then(function(r){return r.json()}).then(function(d){var a=d.agents||d;document.getElementById('br-online').innerHTML=a.slice(0,8).map(function(ag){return '<div style="display:flex;align-items:center;gap:6px;padding:2px 0"><div style="width:5px;height:5px;border-radius:50%;background:#22c55e"></div><span>'+ag.name+'</span></div>'}).join('')}).catch(function(){});
+}
+function brPost(){var inp=document.getElementById('br-post'),msg=inp.value.trim();if(!msg)return;inp.value='';var feed=document.getElementById('br-feed');feed.innerHTML='<div style="padding:10px 0;border-bottom:1px solid #111"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:24px;height:24px;border-radius:50%;background:#1a1a1a;border:1px solid #262626;display:flex;align-items:center;justify-content:center;font-size:10px;color:#e5e5e5;font-weight:600">Y</div><span style="font-size:12px;color:#d4d4d4;font-weight:500">You</span><span style="font-size:10px;color:#333;margin-left:auto">now</span></div><div style="font-size:12px;color:#a3a3a3;line-height:1.5;padding-left:32px">'+msg.replace(/</g,'&lt;')+'</div></div>'+feed.innerHTML}
+
+// ── RoadCode — Universal Language Platform ──
+function renderRoadCodeApp(el){
+  el.innerHTML='<div style="height:100%;display:flex"><div style="width:180px;border-right:1px solid #1a1a1a;padding:10px;overflow-y:auto"><div style="font-size:11px;font-weight:600;color:#a3a3a3;margin-bottom:8px">Languages</div>'+[{n:'Python',c:'#4488FF'},{n:'JavaScript',c:'#F5A623'},{n:'Rust',c:'#FF6B2B'},{n:'Go',c:'#00D4FF'},{n:'C',c:'#8844FF'},{n:'RoadC',c:'#FF2255'},{n:'SQL',c:'#22c55e'},{n:'Bash',c:'#737373'},{n:'Math (LaTeX)',c:'#CC00AA'},{n:'English',c:'#e5e5e5'},{n:'Spanish',c:'#FF6B2B'},{n:'Mandarin',c:'#ef4444'},{n:'Arabic',c:'#22c55e'},{n:'Hindi',c:'#F5A623'}].map(function(l){return '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:4px;cursor:pointer;font-size:11px;color:#737373;transition:background .15s" onmouseover="this.style.background=\'#111\'" onmouseout="this.style.background=\'transparent\'"><div style="width:6px;height:6px;border-radius:50%;background:'+l.c+'"></div>'+l.n+'</div>'}).join('')+'</div><div style="flex:1;display:flex;flex-direction:column"><div style="padding:10px 14px;border-bottom:1px solid #1a1a1a"><div style="font-size:13px;font-weight:600;color:#e5e5e5">RoadCode</div><div style="font-size:10px;color:#404040">One language to handle them all — computer, math, spoken.</div></div><div style="flex:1;display:flex;flex-direction:column"><div style="flex:1;position:relative"><textarea id="rc-editor" style="width:100%;height:100%;background:#080808;border:none;color:#d4d4d4;padding:12px;font-family:monospace;font-size:13px;line-height:1.6;resize:none;outline:none;tab-size:2"># RoadCode — Universal Language\n\ndef greet(name, lang="en"):\n    phrases = {\n        "en": f"Hello, {name}!",\n        "es": f"Hola, {name}!",\n        "zh": f"你好, {name}!",\n        "math": f"∀x ∈ Users: greet(x) → {name}",\n    }\n    return phrases.get(lang, phrases["en"])\n\nprint(greet("Alexa", "math"))\n# Output: ∀x ∈ Users: greet(x) → Alexa</textarea></div><div style="border-top:1px solid #1a1a1a;padding:8px 14px;display:flex;align-items:center;gap:8px"><button onclick="document.getElementById(\'rc-output\').textContent=\'Running...\\n\\n∀x ∈ Users: greet(x) → Alexa\\n\\nProcess exited with code 0\'" style="background:#00D4FF;border:none;border-radius:4px;padding:6px 16px;color:#000;font-size:11px;font-weight:600;cursor:pointer">Run</button><button style="background:#1a1a1a;border:1px solid #262626;border-radius:4px;padding:6px 12px;color:#737373;font-size:11px;cursor:pointer">Format</button><button style="background:#1a1a1a;border:1px solid #262626;border-radius:4px;padding:6px 12px;color:#737373;font-size:11px;cursor:pointer">Translate</button><span style="margin-left:auto;font-size:10px;color:#333">Python 3.12 | RoadCode v1.0</span></div><div style="height:80px;background:#050505;border-top:1px solid #1a1a1a;padding:8px 14px;font-family:monospace;font-size:11px;color:#525252;overflow-y:auto" id="rc-output">Ready. Press Run or Ctrl+Enter.</div></div></div></div>';
+}
+
+// ── RoadWork — Universal Education Platform ──
+function renderRoadWork(el){
+  var subjects=[
+    {cat:'Math',items:['Algebra','Calculus','Geometry','Statistics','Number Theory','Discrete Math','Linear Algebra','Differential Eq.'],color:'#FF2255'},
+    {cat:'Science',items:['Physics','Chemistry','Biology','Earth Science','Astronomy','Computer Science'],color:'#4488FF'},
+    {cat:'Coding',items:['Python','JavaScript','Rust','Go','C/C++','SQL','HTML/CSS','Algorithms'],color:'#00D4FF'},
+    {cat:'Test Prep',items:['SAT Math','SAT Reading','ACT Math','ACT Science','AP Calculus','AP Physics','AP CS','GRE'],color:'#8844FF'},
+    {cat:'Languages',items:['English Grammar','Spanish','Mandarin','French','Arabic','Hindi','Japanese','Korean'],color:'#FF6B2B'},
+    {cat:'K-12',items:['Pre-K Reading','Elementary Math','Middle School','High School','Special Ed','Gifted','ESL'],color:'#22c55e'},
+  ];
+  el.innerHTML='<div style="height:100%;display:flex;flex-direction:column"><div style="padding:12px 16px;border-bottom:1px solid #1a1a1a"><div style="font-size:14px;font-weight:600;color:#e5e5e5">RoadWork</div><div style="font-size:11px;color:#525252">Every subject. Every grade. Any language. Any country. No teachers needed.</div></div><div style="padding:8px 12px;border-bottom:1px solid #1a1a1a;display:flex;gap:4px;overflow-x:auto;flex-shrink:0" id="rw-tabs"></div><div style="flex:1;overflow-y:auto;padding:12px" id="rw-body"></div><div style="border-top:1px solid #1a1a1a;padding:10px 16px;display:flex;gap:8px;align-items:center"><input id="rw-ask" style="flex:1;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:10px 14px;color:#d4d4d4;font-size:13px;outline:none" placeholder="Ask anything — \'solve x^2 + 3x - 10 = 0 step by step\'" autocomplete="off"><button onclick="rwAsk()" style="background:#8844FF;border:none;border-radius:8px;padding:10px 20px;color:#fff;font-size:12px;font-weight:600;cursor:pointer">Solve</button></div></div>';
+  var tabs=document.getElementById('rw-tabs');
+  var activeTab=0;
+  subjects.forEach(function(s,i){
+    var btn=document.createElement('div');
+    btn.style.cssText='padding:5px 12px;border-radius:4px;font-size:11px;cursor:pointer;white-space:nowrap;color:'+(i===0?'#e5e5e5':'#525252')+';background:'+(i===0?'#1a1a1a':'transparent');
+    btn.textContent=s.cat;
+    btn.onclick=function(){activeTab=i;tabs.querySelectorAll('div').forEach(function(x){x.style.color='#525252';x.style.background='transparent'});btn.style.color='#e5e5e5';btn.style.background='#1a1a1a';renderSubjects(i)};
+    tabs.appendChild(btn);
+  });
+  function renderSubjects(idx){
+    var s=subjects[idx];
+    document.getElementById('rw-body').innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px">'+s.items.map(function(item){return '<div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:border-color .2s,transform .2s" onmouseover="this.style.borderColor=\''+s.color+'\';this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.borderColor=\'#1a1a1a\';this.style.transform=\'none\'" onclick="openApp(\'tutor\')"><div style="width:36px;height:36px;border-radius:8px;background:#111;border:1px solid #1a1a1a;margin:0 auto 8px;display:flex;align-items:center;justify-content:center"><div style="width:8px;height:8px;border-radius:2px;background:'+s.color+'"></div></div><div style="font-size:12px;color:#d4d4d4;font-weight:500">'+item+'</div><div style="font-size:10px;color:#404040;margin-top:4px">Start learning</div></div>'}).join('')+'</div><div style="margin-top:20px;padding:16px;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px"><div style="font-size:12px;color:#a3a3a3;margin-bottom:8px">Replaces:</div><div style="font-size:11px;color:#404040;line-height:1.8">Khan Academy, Desmos, Slader, Photomath, Cengage, MIT OpenCourseWare, Schoology, Canvas LMS, ACT/SAT/GRE Prep, Kaplan, McGraw Hill, Organic Chemistry Tutor, Numberphile, Holt McDougal, AR Reading, K-12 in any language.</div></div>';
+  }
+  renderSubjects(0);
+  document.getElementById('rw-ask').onkeydown=function(e){if(e.key==='Enter')rwAsk()};
+}
+function rwAsk(){var inp=document.getElementById('rw-ask'),q=inp.value.trim();if(!q)return;inp.value='';var body=document.getElementById('rw-body');body.innerHTML='<div style="padding:20px;font-size:13px;color:#525252">Solving: "'+q.replace(/</g,'&lt;')+'"...</div>';fetch('https://chat.blackroad.io/api/conversations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({agent_id:'road',user_id:'roadwork-'+Math.random().toString(36).slice(2,6)})}).then(function(r){return r.json()}).then(function(d){return fetch('https://chat.blackroad.io/api/conversations/'+d.id+'/messages/stream',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:'You are a tutor. Solve step by step: '+q})})}).then(function(r){var reader=r.body.getReader(),dec=new TextDecoder(),full='';body.innerHTML='<div style="padding:20px;font-size:13px;color:#a3a3a3;line-height:1.8;white-space:pre-wrap" id="rw-answer"></div>';var ans=document.getElementById('rw-answer');function pump(){reader.read().then(function(x){if(x.done)return;dec.decode(x.value,{stream:true}).split('\\n').forEach(function(l){if(l.startsWith('data: ')&&!l.includes('[DONE]')){try{var d=JSON.parse(l.slice(6));if(d.response){full+=d.response;ans.textContent=full}}catch(e){}}});ans.scrollTop=ans.scrollHeight;pump()})}pump()}).catch(function(){body.innerHTML='<div style="padding:20px;color:#525252">Error connecting to AI. Try again.</div>'})}
+
+  var totalRepos=orgs.reduce(function(a,o){return a+o.r},0);
+  el.innerHTML='<div style="height:100%;display:flex;flex-direction:column"><div style="padding:10px 14px;border-bottom:1px solid #1a1a1a;font-size:13px;font-weight:600;color:#e5e5e5">GitHub Enterprise <span style="color:#404040;font-weight:400;font-size:11px">'+orgs.length+' orgs, ~'+totalRepos+'+ repos</span></div><div style="flex:1;overflow-y:auto;padding:8px"><div style="display:flex;flex-direction:column;gap:3px">'+orgs.map(function(o){
+    var barW=Math.max(4,o.r/100*100);
+    return '<a href="https://github.com/'+o.n+'" target="_blank" style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:6px;padding:8px 12px;text-decoration:none;display:flex;align-items:center;gap:10px;transition:border-color .15s" onmouseover="this.style.borderColor=\'#333\'" onmouseout="this.style.borderColor=\'#1a1a1a\'"><div style="width:100px;flex-shrink:0"><div style="font-size:11px;color:#d4d4d4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+o.n.replace('BlackRoad-','')+'</div></div><div style="flex:1"><div style="background:#1a1a1a;height:4px;border-radius:2px"><div style="width:'+barW+'%;height:100%;background:linear-gradient(90deg,#FF2255,#8844FF);border-radius:2px"></div></div></div><div style="font-size:10px;color:#525252;width:50px;text-align:right">'+o.r+' repos</div></a>';
+  }).join('')+'</div></div></div>';
+}
+
+// ── Mail ──
+function renderMail(el){
+  var emails=[
+    {from:'Cordelia',subj:'Fleet dispatch complete',time:'2m ago',body:'All 6 nodes received the latest configuration. Cecilia still offline.',read:false},
+    {from:'Alice',subj:'nginx reload successful',time:'15m ago',body:'37 sites reloaded. Zero downtime. All health checks passing.',read:true},
+    {from:'Gematria',subj:'TLS cert renewed',time:'1h ago',body:'151 domains renewed via Caddy. Let\'s Encrypt auto-renewal working.',read:true},
+    {from:'Octavia',subj:'Gitea mirror sync',time:'3h ago',body:'5 repos synced from GitHub to Gitea. All checksums match.',read:true},
+    {from:'Road',subj:'Welcome to BlackRoad OS',time:'1d ago',body:'Your sovereign computing environment is ready. Type T to open a terminal.',read:true},
+  ];
+  el.innerHTML='<div style="height:100%;display:flex;flex-direction:column"><div style="padding:8px 12px;border-bottom:1px solid #1a1a1a;font-size:11px;color:#525252">Inbox ('+emails.filter(function(e){return !e.read}).length+' unread)</div><div style="flex:1;overflow-y:auto" id="mail-list">'+emails.map(function(e,i){return '<div style="padding:10px 12px;border-bottom:1px solid #111;cursor:pointer;'+(e.read?'':'background:#0f0f0f;')+'" onclick="showEmail('+i+')"><div style="display:flex;justify-content:space-between"><div style="font-size:12px;'+(e.read?'color:#737373':'color:#e5e5e5;font-weight:600')+'">'+e.from+'</div><div style="font-size:10px;color:#333">'+e.time+'</div></div><div style="font-size:11px;color:#525252;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+e.subj+'</div></div>'}).join('')+'</div><div id="mail-body" style="display:none;flex:1;overflow-y:auto;padding:16px;border-top:1px solid #1a1a1a"></div></div>';
+  window._emails=emails;
+}
+function showEmail(i){
+  var e=window._emails[i];
+  var body=document.getElementById('mail-body');
+  var list=document.getElementById('mail-list');
+  body.style.display='block';list.style.display='none';
+  body.innerHTML='<div style="margin-bottom:12px"><div style="font-size:14px;font-weight:600;color:#e5e5e5">'+e.subj+'</div><div style="font-size:11px;color:#525252;margin-top:4px">From: '+e.from+' — '+e.time+'</div></div><div style="font-size:13px;color:#a3a3a3;line-height:1.6">'+e.body+'</div><div style="margin-top:16px"><button onclick="document.getElementById(\'mail-body\').style.display=\'none\';document.getElementById(\'mail-list\').style.display=\'block\'" style="background:#161616;border:1px solid #1a1a1a;border-radius:4px;padding:6px 12px;color:#737373;cursor:pointer;font-size:11px">Back to inbox</button></div>';
+}
+</script>
+</body>
+</html>

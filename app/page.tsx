@@ -71,6 +71,41 @@ const agents = [
   },
 ]
 
+const surfaces = [
+  {
+    label: 'Workspace',
+    href: '/workspace',
+    eyebrow: 'Operator surface',
+    title: 'Launch the command layer.',
+    body: 'Start conversations, route work across agents, and move from idea to execution without leaving the control plane.',
+    meta: 'Agents · Conversations · Commands',
+  },
+  {
+    label: 'Docs',
+    href: '/docs',
+    eyebrow: 'System knowledge',
+    title: 'Read the operating model.',
+    body: 'Architecture, fleet setup, tunnels, daemon docs, and the pieces that make the system coherent under pressure.',
+    meta: 'Architecture · Fleet · API',
+  },
+  {
+    label: 'Status',
+    href: '/status',
+    eyebrow: 'Live health',
+    title: 'See the platform breathe.',
+    body: 'Track real-time service health, latency, and operational readiness from the same environment your team works inside.',
+    meta: 'Health checks · Uptime · Telemetry',
+  },
+  {
+    label: 'Fleet',
+    href: '/fleet',
+    eyebrow: 'Edge compute',
+    title: 'Operate the node mesh.',
+    body: 'Inspect the Raspberry Pi fleet, remote nodes, and edge capacity that power the BlackRoad stack.',
+    meta: 'Pis · Edge workers · Capacity',
+  },
+]
+
 const plans = [
   {
     name: 'Operator',
@@ -274,9 +309,35 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <section className="br-section" id="surfaces">
+        <div className="br-section-head">
+          <p className="br-kicker">04 — Surfaces</p>
+          <h2 className="br-title">Not just a story. A live operating surface.</h2>
+          <p className="br-copy">
+            BlackRoad already ships with the workspace, docs, fleet, and status layers
+            connected. The landing page should open into the real system.
+          </p>
+        </div>
+
+        <div className="br-surface-grid">
+          {surfaces.map((surface) => (
+            <a key={surface.label} href={surface.href} className="br-card br-surface-card">
+              <p className="br-card-tag">{surface.eyebrow}</p>
+              <h3>{surface.title}</h3>
+              <p>{surface.body}</p>
+              <div className="br-card-line" />
+              <div className="br-surface-meta">
+                <span>{surface.meta}</span>
+                <strong>{surface.label}</strong>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
       <section className="br-section" id="pricing">
         <div className="br-section-head">
-          <p className="br-kicker">04 — Pricing</p>
+          <p className="br-kicker">05 — Pricing</p>
           <h2 className="br-title">Simple. Sovereign. No surprises.</h2>
         </div>
 
@@ -312,8 +373,8 @@ export default function LandingPage() {
           model on infrastructure that is actually yours.
         </p>
         <div className="br-hero-actions">
-          <a href="/signup" className="br-btn br-btn-solid">
-            Request Early Access
+          <a href="/workspace" className="br-btn br-btn-solid">
+            Open Workspace
           </a>
           <a href="/docs" className="br-btn br-btn-outline">
             Read the Docs
