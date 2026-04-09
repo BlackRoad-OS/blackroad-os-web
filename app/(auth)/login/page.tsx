@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react';
-import { useAuthStore } from '@/stores/auth-store';
+import { useAuthStore } from '@/stores/auth-store'
+import { TurnstileWidget } from '@/components/turnstile-widget';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,11 +15,18 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    if (!turnstileToken) {
+      setError('Bot verification pending — please try again');
+      setLoading(false);
+      return;
+    }
 
     try {
       await login(email, password);
@@ -156,6 +164,12 @@ export default function LoginPage() {
               {loading ? 'Signing in...' : 'Sign in'}
               {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
             </button>
+
+            <TurnstileWidget
+              onToken={setTurnstileToken}
+              onError={() => setError('Bot verification failed — please refresh')}
+              action="login"
+            />
 
             <div className="relative my-8">
               <div className="absolute inset-0 flex items-center">

@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, ArrowRight, Sparkles, Check } from 'lucide-react';
-import { useAuthStore } from '@/stores/auth-store';
+import { useAuthStore } from '@/stores/auth-store'
+import { TurnstileWidget } from '@/components/turnstile-widget';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,6 +25,12 @@ export default function SignupPage() {
 
     if (password.length < 8) {
       setError('Password must be at least 8 characters');
+      setLoading(false);
+      return;
+    }
+
+    if (!turnstileToken) {
+      setError('Bot verification pending — please try again');
       setLoading(false);
       return;
     }
@@ -206,6 +214,12 @@ export default function SignupPage() {
               {loading ? 'Creating account...' : 'Create account'}
               {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
             </button>
+
+            <TurnstileWidget
+              onToken={setTurnstileToken}
+              onError={() => setError('Bot verification failed — please refresh')}
+              action="signup"
+            />
 
             <div className="relative my-8">
               <div className="absolute inset-0 flex items-center">
